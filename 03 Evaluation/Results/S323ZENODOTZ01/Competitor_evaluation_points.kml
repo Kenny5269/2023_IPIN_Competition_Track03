@@ -1,0 +1,972 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Competitor_evaluation_points</name>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E1</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111172658347,49.461352096993,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E2</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111161539769,49.461263230122,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E3</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110986507543,49.46123363732,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E4</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110923806152,49.461201594757,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E5</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111365542578,49.461282070661,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E6</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111497769776,49.46131298288,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E7</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111598711078,49.461218156061,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E8</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111566717185,49.461285984684,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E9</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111438951483,49.461246414235,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E10</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111360270297,49.461206317804,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E11</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111293776986,49.461184011417,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E12</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111242856908,49.461179404033,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E13</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11129184993,49.461232209933,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E14</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111337909806,49.461272684999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E15</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111424270126,49.461264247187,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E16</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11128837612,49.461220568615,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E17</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111231000892,49.461131716594,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E18</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111310046664,49.461129972448,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E19</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111118606053,49.461166840242,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E20</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111038208837,49.461141949338,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E21</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111019729924,49.461136038171,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E22</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11090770385,49.461172482093,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E23</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11090644632,49.461160052995,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E24</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110855190497,49.461097650923,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E25</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110774222193,49.46115403243,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E26</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11073559021,49.46110196625,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E27</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110996355795,49.461115979098,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E28</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110879612825,49.461078504856,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E29</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110851969535,49.461019767724,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E30</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110776346299,49.461020383539,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E31</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110781308651,49.461082200102,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E32</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110768637445,49.461144392322,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E33</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110599215126,49.461131424599,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E34</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110677785375,49.461073458648,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E35</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110538500965,49.461030165761,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E36</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110554076251,49.460941481793,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E37</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110490203795,49.460986616266,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E38</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110574447044,49.46092255651,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E39</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110518394358,49.460909665841,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E40</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110537051067,49.460914385053,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E41</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110573765598,49.460950312881,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E42</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11063081476,49.46095008761,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E43</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110722235241,49.460942604206,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E44</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11077717569,49.460974024884,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E45</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110837464217,49.460989091873,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E46</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110915752846,49.461005588261,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E47</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110983636271,49.461031048293,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E48</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111007839112,49.461059179781,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E49</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111006241366,49.46113765093,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E50</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111012646216,49.461077305734,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E51</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111019687692,49.461068432131,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E52</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111044114256,49.461059524431,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E53</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11114844056,49.46105999596,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E54</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111236584791,49.461092375106,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E55</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111424801498,49.461160894466,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E56</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111566477641,49.461164749701,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E57</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111591218691,49.46121541816,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E58</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111639750673,49.461288013814,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E59</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111572552946,49.461207260575,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E60</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111583699327,49.461299767868,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E61</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11159110348,49.461284098668,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E62</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111860040868,49.461328599777,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E63</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111776189406,49.461318078729,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E64</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111554529442,49.46127658564,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E65</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111332128414,49.461216438675,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E66</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110990736523,49.461132992339,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E67</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110994847065,49.46112356737,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E68</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111007170971,49.461155213079,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>E69</name>
+      <Style>
+        <IconStyle>
+          <scale>0.6</scale>
+          <color>ffff00ff</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110975608298,49.461233215622,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

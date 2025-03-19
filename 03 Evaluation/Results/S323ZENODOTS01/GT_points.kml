@@ -1,0 +1,972 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>GT_points</name>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT1</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111180724249,49.46138750578,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT2</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110987213974,49.46134078542,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT3</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111000767248,49.461253566258,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT4</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110932283903,49.461192245809,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT5</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111398208932,49.461296533008,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT6</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111530362512,49.461323189095,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT7</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11162831173,49.461219679261,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT8</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111554030014,49.461271848757,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT9</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111514111251,49.461214512456,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT10</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111463698925,49.461154147478,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT11</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111374609578,49.461148358094,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT12</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111296681167,49.461188353182,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT13</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.1112853905,49.461258062479,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT14</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111261319526,49.461328326636,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT15</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111376121685,49.461339154838,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT16</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111230435594,49.461223502688,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT17</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111216674782,49.461136169727,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT18</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111332839495,49.461096497186,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT19</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11108389767,49.46120416335,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT20</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111014208947,49.461167970553,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT21</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110973482707,49.461186646604,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT22</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11085964526,49.461198784133,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT23</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110965548287,49.461147233832,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT24</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.1108092082,49.461126636512,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT25</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110778358238,49.461192947333,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT26</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110736341891,49.461118666582,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT27</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110916312645,49.461083203367,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT28</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110857686369,49.461043654234,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT29</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110938203657,49.461004734012,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT30</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11084087723,49.460985320793,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT31</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11078318665,49.461058393564,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT32</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110658820812,49.461119257759,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT33</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110566818982,49.461139220987,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT34</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110573987386,49.461038252177,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT35</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110545113054,49.460986236629,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT36</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110594002409,49.460902534171,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT37</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110497205637,49.460936316261,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT38</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110513863192,49.460942407658,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT39</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110480440859,49.46091886781,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT40</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110513863192,49.460942407658,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT41</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110590143832,49.460956306046,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT42</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110666598186,49.46095858683,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT43</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110734433401,49.460975175886,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT44</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110804978478,49.460991825366,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT45</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110875799221,49.461008392534,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT46</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110940695515,49.461024120122,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT47</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111014731028,49.461041466278,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT48</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111047606651,49.461061209766,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT49</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111021446813,49.461135147684,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT50</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111047606651,49.461061209766,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT51</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111079449678,49.461056703519,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT52</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111122817072,49.461060058374,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT53</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111211099821,49.461082496863,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT54</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111312722994,49.461120838765,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT55</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111474057673,49.461188408641,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT56</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111572799021,49.461157631138,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT57</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11161900378,49.461216752768,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT58</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.11152118577,49.46133927718,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT59</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111604876355,49.461213254574,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT60</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111569960002,49.461319572667,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT61</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111617449143,49.461278014236,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT62</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111883610588,49.461346838591,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT63</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111777795541,49.461308226889,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT64</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111511419321,49.461250604537,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT65</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.111320336176,49.46120786121,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT66</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110965447828,49.461147209486,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT67</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110972802127,49.461149154074,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT68</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110932283903,49.461192245809,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Snippet maxLines="0"> </Snippet>
+      <description> </description>
+      <name>GT69</name>
+      <Style>
+        <IconStyle>
+          <scale>1</scale>
+          <color>ff00ff00</color>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>11.110924651999,49.461250614707,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

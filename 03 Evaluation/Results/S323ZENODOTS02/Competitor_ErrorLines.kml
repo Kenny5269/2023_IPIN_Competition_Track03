@@ -1,0 +1,975 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Competitor_ErrorLines</name>
+    <Folder>
+      <name>Line 1</name>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 1</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111180724249,49.46138750578,0 11.111217588221,49.461326461114,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 2</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110987213974,49.46134078542,0 11.111103309766,49.461353141135,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 3</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111000767248,49.461253566258,0 11.111022113846,49.461246489677,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 4</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110932283903,49.461192245809,0 11.110916052122,49.461183381423,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 5</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111398208932,49.461296533008,0 11.111445886528,49.461309672664,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 6</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111530362512,49.461323189095,0 11.1115533119,49.461334508365,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 7</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.11162831173,49.461219679261,0 11.111670609351,49.461237860137,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 8</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111554030014,49.461271848757,0 11.111590263011,49.461285988778,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 9</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111514111251,49.461214512456,0 11.111546637099,49.461219108846,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 10</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111463698925,49.461154147478,0 11.111526679206,49.461167503142,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 11</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111374609578,49.461148358094,0 11.111460121909,49.461204993267,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 12</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111296681167,49.461188353182,0 11.111404170636,49.461217577634,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 13</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.1112853905,49.461258062479,0 11.111326344856,49.461237153467,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 14</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111261319526,49.461328326636,0 11.111429330718,49.461287759368,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 15</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111376121685,49.461339154838,0 11.111552965795,49.461346020255,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 16</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111230435594,49.461223502688,0 11.111326797331,49.461225536682,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 17</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111216674782,49.461136169727,0 11.111232519012,49.461158202263,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 18</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111332839495,49.461096497186,0 11.111308561284,49.46111266043,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 19</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.11108389767,49.46120416335,0 11.111074697857,49.461176424145,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 20</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111014208947,49.461167970553,0 11.110972892732,49.461182457464,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 21</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110973482707,49.461186646604,0 11.110958318828,49.461189501571,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 22</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.11085964526,49.461198784133,0 11.110844087315,49.461175931786,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 23</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110965548287,49.461147233832,0 11.110964199811,49.461158853387,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 24</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.1108092082,49.461126636512,0 11.110803658581,49.461098709729,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 25</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110778358238,49.461192947333,0 11.1107387384,49.461137671342,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 26</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110736341891,49.461118666582,0 11.110738866299,49.46110186113,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 27</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110916312645,49.461083203367,0 11.110906071217,49.461124822969,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 28</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110857686369,49.461043654234,0 11.110866773743,49.461036664976,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 29</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110938203657,49.461004734012,0 11.110865108812,49.461024002781,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 30</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.11084087723,49.460985320793,0 11.110865088748,49.460992046366,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 31</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.11078318665,49.461058393564,0 11.110803560676,49.461036386247,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 32</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110658820812,49.461119257759,0 11.110674035195,49.461090605877,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 33</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110566818982,49.461139220987,0 11.110574421644,49.461096034122,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 34</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110573987386,49.461038252177,0 11.110664663293,49.461040252555,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 35</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110545113054,49.460986236629,0 11.110580229612,49.460971552004,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 36</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110594002409,49.460902534171,0 11.110646890931,49.460911015075,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 37</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110497205637,49.460936316261,0 11.110580930239,49.460922607638,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 38</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110513863192,49.460942407658,0 11.110518698964,49.460914141033,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 39</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110480440859,49.46091886781,0 11.110505041121,49.4608945592,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 40</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110513863192,49.460942407658,0 11.11050433693,49.460918060875,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 41</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110590143832,49.460956306046,0 11.110576566844,49.460943202432,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 42</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110666598186,49.46095858683,0 11.110656473107,49.460957054421,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 43</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110734433401,49.460975175886,0 11.11068279765,49.460972003645,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 44</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110804978478,49.460991825366,0 11.11074081568,49.460994367989,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 45</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110875799221,49.461008392534,0 11.110789657445,49.461014161439,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 46</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110940695515,49.461024120122,0 11.110833440189,49.46103453157,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 47</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111014731028,49.461041466278,0 11.110957928441,49.46105880113,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 48</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111047606651,49.461061209766,0 11.110991939587,49.461077178797,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 49</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111021446813,49.461135147684,0 11.110999233247,49.461124378362,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 50</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111047606651,49.461061209766,0 11.111030186412,49.46106574616,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 51</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111079449678,49.461056703519,0 11.111051990278,49.46105907907,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 52</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111122817072,49.461060058374,0 11.111093623348,49.461057547338,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 53</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111211099821,49.461082496863,0 11.111202798617,49.461087337143,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 54</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111312722994,49.461120838765,0 11.111341782325,49.46111269951,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 55</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111474057673,49.461188408641,0 11.111469719651,49.461194030113,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 56</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111572799021,49.461157631138,0 11.111588145943,49.461201250066,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 57</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.11161900378,49.461216752768,0 11.111632174559,49.461279959354,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 58</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.11152118577,49.46133927718,0 11.111535318168,49.461331252285,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 59</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111604876355,49.461213254574,0 11.11162009547,49.461269963615,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 60</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111569960002,49.461319572667,0 11.11155586455,49.461315493529,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 61</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111617449143,49.461278014236,0 11.111624615616,49.461312380394,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 62</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111883610588,49.461346838591,0 11.111754198723,49.461410765025,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 63</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111777795541,49.461308226889,0 11.111717964386,49.461374037926,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 64</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111511419321,49.461250604537,0 11.111583802267,49.46126878361,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 65</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.111320336176,49.46120786121,0 11.111399461752,49.461183838108,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 66</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110965447828,49.461147209486,0 11.110995911819,49.461090634921,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 67</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110972802127,49.461149154074,0 11.110956637049,49.461132272844,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 68</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110932283903,49.461192245809,0 11.110937567529,49.461173137993,0</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <Snippet maxLines="0"> </Snippet>
+        <description> </description>
+        <name>Segment 69</name>
+        <Style>
+          <LineStyle>
+            <width>3</width>
+            <color>ff0000ff</color>
+          </LineStyle>
+        </Style>
+        <LineString>
+          <coordinates> 11.110924651999,49.461250614707,0 11.11095252202,49.461237787483,0</coordinates>
+        </LineString>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>
