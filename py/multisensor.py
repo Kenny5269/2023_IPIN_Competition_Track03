@@ -18,11 +18,13 @@ def align_nearest_app_time(target_df, source_df, target_time_col, source_time_co
     return pd.concat([target_df.reset_index(drop=True), aligned_df], axis=1)
 
 if __name__ == '__main__':
+
+    file_read = 'T53_R2'
     # 讀取資料
-    aligned_df = pd.read_csv('IMU_50Hz.csv')
-    ble_df = pd.read_csv('BLE4_merged.csv')
-    wifi_df = pd.read_csv('WIFI_merged.csv')
-    posi_df = pd.read_csv('POSI.csv')
+    aligned_df = pd.read_csv(f'./{file_read}/IMU_50Hz.csv')
+    ble_df = pd.read_csv(f'./{file_read}/BLE4_merged.csv')
+    wifi_df = pd.read_csv(f'./{file_read}/WIFI_merged.csv')
+    posi_df = pd.read_csv(f'./{file_read}/POSI.csv')
 
     # 對齊 BLE 資料
     ble_cols = [col for col in ble_df.columns if col != "AppTimestamp(s)"]
@@ -46,4 +48,4 @@ if __name__ == '__main__':
     freq_cols = [col for col in aligned_full.columns if 'freq' in col]
     aligned_full[freq_cols] = aligned_full[freq_cols].fillna(-1)
     # 匯出結果
-    aligned_full.to_csv('MultiSensor_50Hz.csv', index=False)
+    aligned_full.to_csv(f'./{file_read}/MultiSensor_50Hz.csv', index=False)
