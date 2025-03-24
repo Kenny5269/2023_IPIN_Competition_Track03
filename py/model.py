@@ -6,14 +6,23 @@ from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import numpy as np
 import os
+import glob
 import matplotlib.pyplot as plt
+import time
 
 # =========================
 # 1. Data Preprocessing
 
-import glob
+from torch.utils.data import random_split
 
-# Helper function: collect all CSV files from a directory
+def split_dataset(dataset, train_ratio=0.8, batch_size=32):
+    train_size = int(train_ratio * len(dataset))
+    test_size = len(dataset) - train_size
+    train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    return train_loader, test_loader
+
 def get_all_csv_files(directory_path):
     return sorted(glob.glob(os.path.join(directory_path, '*.csv')))
 
@@ -53,60 +62,49 @@ def feature_list(wifi_rssi_file, wifi_freq_file, ble_rssi_file):
     ble_rssi_df = pd.read_csv(ble_rssi_file)
     return wifi_rssi_df.iloc[:, 0].tolist(), wifi_freq_df.iloc[:, 0].tolist(), ble_rssi_df.iloc[:, 0].tolist()
 # =========================
+# 2. Dataset
 
-# =========================
-# Updated Dataset class with optional WiFi Frequency feature
+# Utility for label normalization
+class LabelNormalizer:
+    def __init__(self, mean_lat, std_lat, mean_lon, std_lon):
+        self.mean_lat = mean_lat
+        self.std_lat = std_lat
+        self.mean_lon = mean_lon
+        self.std_lon = std_lon
+
+    def normalize(self, lat, lon):
+        norm_lat = (lat - self.mean_lat) / self.std_lat
+        norm_lon = (lon - self.mean_lon) / self.std_lon
+        return norm_lat, norm_lon
+
+    def denormalize(self, norm_lat, norm_lon):
+        lat = norm_lat * self.std_lat + self.mean_lat
+        lon = norm_lon * self.std_lon + self.mean_lon
+        return lat, lon
 
 class IPINDataset(Dataset):
-    def __init__(self, csv_file, sequence_length=100, known_wifi_rssi_cols=None, known_ble_cols=None, known_wifi_freq_cols=None, include_wifi_freq=True):
+    def __init__(self, csv_file, sequence_length=100, known_wifi_rssi_cols=None, known_ble_cols=None, known_wifi_freq_cols=None, include_wifi_freq=True, normalize_labels=True):
         if isinstance(csv_file, list):
             self.data = pd.concat([pd.read_csv(f) for f in csv_file], ignore_index=True)
         else:
             self.data = pd.read_csv(csv_file)
         self.data = clean_column_names(self.data)
-
-        # Drop unavailable sensor features
         self.data = self.data.drop(columns=['PRES', 'HUMI', 'TEMP'], errors='ignore')
 
-        # Identify feature columns
         imu_cols = ['acc_x', 'acc_y', 'acc_z', 'gyro_x', 'gyro_y', 'gyro_z', 'mag_x', 'mag_y', 'mag_z']
-        '''
-        wifi_rssi_cols = wifi_rssi_feature_list
-        wifi_freq_cols = wifi_freq_feature_list
-        ble_cols = ble_rssi_feature_list
-
-        self.include_wifi_freq = include_wifi_freq
-
-        if self.include_wifi_freq:
-            wifi_cols = wifi_rssi_cols + wifi_freq_cols
-        else:
-            wifi_cols = wifi_rssi_cols
-        '''
-        
-        
         all_wifi_cols = [col for col in self.data.columns if 'wifi_rssi' in col]
         all_ble_cols = [col for col in self.data.columns if 'ble_rssi' in col]
 
         self.include_wifi_freq = include_wifi_freq
-        if known_wifi_rssi_cols is not None:
-            wifi_cols = [col for col in all_wifi_cols if col in known_wifi_rssi_cols]
-        else:
-            wifi_cols = all_wifi_cols
-
-        if known_ble_cols is not None:
-            ble_cols = [col for col in all_ble_cols if col in known_ble_cols]
-        else:
-            ble_cols = all_ble_cols
+        wifi_cols = [col for col in all_wifi_cols if col in known_wifi_rssi_cols] if known_wifi_rssi_cols else all_wifi_cols
+        ble_cols = [col for col in all_ble_cols if col in known_ble_cols] if known_ble_cols else all_ble_cols
 
         if self.include_wifi_freq:
             wifi_freq_cols = [col for col in self.data.columns if 'wifi_freq' in col]
-            if known_wifi_freq_cols is not None:
+            if known_wifi_freq_cols:
                 wifi_freq_cols = [col for col in wifi_freq_cols if col in known_wifi_freq_cols]
-            wifi_cols = wifi_cols + wifi_freq_cols
-        
-        
+            wifi_cols += wifi_freq_cols
 
-        # Normalize features
         epsilon = 1e-6
         self.data[imu_cols] = (self.data[imu_cols] - self.data[imu_cols].mean()) / (self.data[imu_cols].std() + epsilon)
         self.data[wifi_cols] = (self.data[wifi_cols] - self.data[wifi_cols].mean()) / (self.data[wifi_cols].std() + epsilon)
@@ -114,28 +112,41 @@ class IPINDataset(Dataset):
 
         self.feature_cols = imu_cols + wifi_cols + ble_cols
 
-        # Debug check for NaN in features or labels
+        # Label normalization setup
+        self.normalize_labels = normalize_labels
+        if self.normalize_labels:
+            self.mean_lat = self.data['Latitude_degrees'].mean()
+            self.std_lat = self.data['Latitude_degrees'].std()
+            self.mean_lon = self.data['Longitude_degrees'].mean()
+            self.std_lon = self.data['Longitude_degrees'].std()
+            self.label_normalizer = LabelNormalizer(self.mean_lat, self.std_lat, self.mean_lon, self.std_lon)
         print("NaN in features:", self.data[self.feature_cols].isna().sum().sum())
-        print("NaN in Latitude_degrees/Longitude_degrees:", self.data[['Latitude_degrees', 'Longitude_degrees']].isna().sum())
+        print("NaN in Latitude/Longitude:", self.data[['Latitude_degrees', 'Longitude_degrees']].isna().sum())
 
-        # Extract sequences
-        self.sequences = []
-        self.labels = []
-        for i in range(0, len(self.data) - sequence_length):
-            seq = self.data.iloc[i:i+sequence_length][self.feature_cols].values
-            label = self.data.iloc[i+sequence_length][['Latitude_degrees', 'Longitude_degrees']].values
-            self.sequences.append(seq)
-            self.labels.append(label)
+        all_features = self.data[self.feature_cols].values
+        all_labels = self.data[['Latitude_degrees', 'Longitude_degrees']].values
+
+        if self.normalize_labels:
+            all_labels[:, 0], all_labels[:, 1] = self.label_normalizer.normalize(all_labels[:, 0], all_labels[:, 1])
+
+        num_samples = len(all_features) - sequence_length
+        print(num_samples)
+        self.sequences = np.zeros((num_samples, sequence_length, all_features.shape[1]), dtype=np.float32)
+        self.labels = np.zeros((num_samples, all_labels.shape[1]), dtype=np.float32)
+        for i in range(num_samples):
+            self.sequences[i] = all_features[i:i+sequence_length]
+            self.labels[i] = all_labels[i+sequence_length]
+            print(i)
 
     def __len__(self):
         return len(self.sequences)
 
     def __getitem__(self, idx):
-        return torch.tensor(self.sequences[idx], dtype=torch.float32), torch.tensor(self.labels[idx], dtype=torch.float32)
+        return torch.from_numpy(self.sequences[idx]), torch.from_numpy(self.labels[idx])
+
 
 # =========================
-# 2. Transformer Model (Multi-modal Support)
-# =========================
+# 3. Model
 
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=500):
@@ -159,10 +170,7 @@ class TransformerPositionModel(nn.Module):
         encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, dim_feedforward=dim_feedforward)
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         self.output_fc = nn.Sequential(
-            nn.Linear(d_model, 64),
-            nn.ReLU(),
-            nn.Linear(64, 2)
-        )
+            nn.Linear(d_model, 64), nn.ReLU(), nn.Linear(64, 2))
 
     def forward(self, x):
         x = self.input_fc(x)
@@ -172,73 +180,151 @@ class TransformerPositionModel(nn.Module):
         return self.output_fc(x)
 
 # =========================
-# 3. Training Pipeline
-# =========================
+# 4. Training & Evaluation
 
-def train_model(model, dataloader, epochs=20, lr=1e-3):
+def train_model(model, dataloader, device, epochs=20, lr=1e-3):
+    # # model.to(device)  # <-- removed, now moved to example usage
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     model.train()
     for epoch in range(epochs):
-        total_loss = 0.0
-        for batch in dataloader:
-            inputs, targets = batch
+        start_time = time.time()
+        total_loss = 0
+        for inputs, targets in dataloader:
+            inputs, targets = inputs.to(device), targets.to(device)
             outputs = model(inputs)
-            # print(inputs)
-            # print(outputs)
             loss = criterion(outputs, targets)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader):.4f}")
+        print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader):.4f}, Time: {time.time() - start_time:.4f}s")
 
-# =========================
-# 4. Inference & Evaluation
-# =========================
+def haversine_distance(lat1, lon1, lat2, lon2):
+    R = 6371000
+    phi1, phi2 = np.radians(lat1), np.radians(lat2)
+    dphi = phi2 - phi1
+    dlambda = np.radians(lon2 - lon1)
+    a = np.sin(dphi/2)**2 + np.cos(phi1)*np.cos(phi2)*np.sin(dlambda/2)**2
+    c = 2*np.arctan2(np.sqrt(a), np.sqrt(1-a))
+    return R * c
 
-def predict(model, sequence_tensor):
-    model.eval()
-    with torch.no_grad():
-        output = model(sequence_tensor.unsqueeze(0))
-    return output.squeeze().numpy()
-
-def evaluate_model(model, dataloader):
+def evaluate_model(model, dataloader, device, label_normalizer=None):
     model.eval()
     total_error = []
     with torch.no_grad():
         for inputs, targets in dataloader:
-            preds = model(inputs)
-            error = torch.norm(preds - targets, dim=1)
-            total_error.extend(error.cpu().numpy())
-    mean_error = np.mean(total_error)
-    median_error = np.median(total_error)
-    print(f"Evaluation - Mean Error: {mean_error:.2f}, Median Error: {median_error:.2f}")
+            inputs = inputs.to(device)
+            targets = targets.to(device)
+            preds = model(inputs).cpu().numpy()
+            targets = targets.cpu().numpy()
+            if label_normalizer:
+                for i in range(len(preds)):
+                    preds[i][0], preds[i][1] = label_normalizer.denormalize(preds[i][0], preds[i][1])
+                    targets[i][0], targets[i][1] = label_normalizer.denormalize(targets[i][0], targets[i][1])
+            for p, t in zip(preds, targets):
+                total_error.append(haversine_distance(p[0], p[1], t[0], t[1]))
+    print(f"Mean Error: {np.mean(total_error):.2f} m, Median Error: {np.median(total_error):.2f} m")
     return total_error
 
-def plot_error_histogram(errors):
-    plt.hist(errors, bins=30)
-    plt.title("Localization Error Histogram")
-    plt.xlabel("Error (m)")
-    plt.ylabel("Count")
+# Predict function that returns denormalized prediction
+
+def collect_predictions(model, dataloader, device, label_normalizer=None):
+    model.eval()
+    all_preds, all_targets = [], []
+    with torch.no_grad():
+        for inputs, targets in dataloader:
+            inputs = inputs.to(device)
+            preds = model(inputs).cpu().numpy()
+            targets = targets.cpu().numpy()
+            if label_normalizer:
+                for i in range(len(preds)):
+                    pred_lat, pred_lon = label_normalizer.denormalize(preds[i][0], preds[i][1])
+                    true_lat, true_lon = label_normalizer.denormalize(targets[i][0], targets[i][1])
+                    all_preds.append([pred_lat, pred_lon])
+                    all_targets.append([true_lat, true_lon])
+            else:
+                all_preds.extend(preds.tolist())
+                all_targets.extend(targets.tolist())
+    return np.array(all_preds), np.array(all_targets)
+
+
+def plot_error_histogram(train_errors, test_errors):
+    plt.figure(figsize=(10, 5))
+    plt.hist(train_errors, bins=50, alpha=0.6, label='Train Error')
+    plt.hist(test_errors, bins=50, alpha=0.6, label='Test Error')
+    plt.xlabel('Haversine Error (meters)')
+    plt.ylabel('Count')
+    plt.title('Prediction Error Distribution')
+    plt.legend()
     plt.grid(True)
     plt.show()
+
+def plot_error_trend(errors, dataset_type="Test"):
+    plt.figure(figsize=(10, 4))
+    plt.plot(errors, marker='o', linestyle='-', alpha=0.7)
+    plt.title(f'{dataset_type} Set Error per Sample')
+    plt.xlabel('Sample Index')
+    plt.ylabel('Haversine Error (meters)')
+    plt.grid(True)
+    plt.show()
+
+def plot_prediction_scatter(preds, targets):
+    plt.figure(figsize=(8, 6))
+    plt.scatter(targets[:, 1], targets[:, 0], label='True', marker='o', alpha=0.6)
+    plt.scatter(preds[:, 1], preds[:, 0], label='Predicted', marker='x', alpha=0.6)
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.title('True vs Predicted Locations')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+def predict(model, input_tensor, device, label_normalizer=None):
+    model.eval()
+    input_tensor = input_tensor.to(device).unsqueeze(0)  # Add batch dim
+    with torch.no_grad():
+        pred = model(input_tensor).squeeze().cpu().numpy()
+    if label_normalizer:
+        pred_lat, pred_lon = label_normalizer.denormalize(pred[0], pred[1])
+        return pred_lat, pred_lon
+    return pred
 
 if __name__ == '__main__':
     # =========================
     # Example Usage (replace paths with your file)
-    # =========================
-    #wifi_rssi_feature, wifi_freq_feature, ble_rssi_feature = feature_list('./all_column_csv_files/unique_wifi_rssi.csv', './all_column_csv_files/unique_wifi_freq.csv', './all_column_csv_files/unique_ble_rssi.csv')
-    #wifi_rssi_feature, wifi_freq_feature, ble_rssi_feature = clean_feature_names(wifi_rssi_feature, wifi_freq_feature, ble_rssi_feature)
-    #print(wifi_rssi_feature+wifi_freq_feature)
-    csv_list = get_all_csv_files('./temp_data/')
-    dataset = IPINDataset(csv_list)
 
-    dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+    # Select device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
+    # Load dataset
+    csv_list = get_all_csv_files('./py/training_data/')
+    wifi_rssi_cols, wifi_freq_cols, ble_cols = extract_known_wifi_ble_columns(csv_list[0])
+    dataset = IPINDataset(csv_list, known_wifi_rssi_cols=wifi_rssi_cols, known_wifi_freq_cols=wifi_freq_cols, known_ble_cols=ble_cols)
+
+    # Split into train and test set
+    train_loader, test_loader = split_dataset(dataset, train_ratio=0.8, batch_size=128)
+    print('ok')
+
+    # Initialize model
     model = TransformerPositionModel(input_dim=dataset[0][0].shape[1])
-    train_model(model, dataloader)
-    errors = evaluate_model(model, dataloader)
-    plot_error_histogram(errors)
+    model.to(device)
+
+    # Train and evaluate
+    train_model(model, train_loader, device, epochs=10, lr=1e-3)
+    train_errors = evaluate_model(model, train_loader, device, label_normalizer=dataset.label_normalizer)
+    test_errors = evaluate_model(model, test_loader, device, label_normalizer=dataset.label_normalizer)
+
+    # Collect predictions and targets for scatter plot
+    all_preds, all_targets = collect_predictions(model, test_loader, device, label_normalizer=dataset.label_normalizer)
+    plot_prediction_scatter(all_preds, all_targets)
+
+    plot_error_histogram(train_errors, test_errors)
+    plot_error_trend(train_errors, dataset_type='Train')
+    plot_error_trend(test_errors, dataset_type='Test')
+
+    # Sample prediction
     sample_input, _ = dataset[0]
-    pred = predict(model, sample_input)
-    print("Predicted position:", pred)
+    pred_lat, pred_lon = predict(model, sample_input, device, label_normalizer=dataset.label_normalizer)
+    print("Predicted latitude/longitude:", pred_lat, pred_lon)
