@@ -136,7 +136,7 @@ class IPINDataset(Dataset):
         for i in range(num_samples):
             self.sequences[i] = all_features[i:i+sequence_length]
             self.labels[i] = all_labels[i+sequence_length]
-            print(i)
+            #print(i)
 
     def __len__(self):
         return len(self.sequences)
@@ -187,6 +187,7 @@ def train_model(model, dataloader, device, epochs=20, lr=1e-3):
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     model.train()
+    loss_list = []
     for epoch in range(epochs):
         start_time = time.time()
         total_loss = 0
@@ -198,7 +199,11 @@ def train_model(model, dataloader, device, epochs=20, lr=1e-3):
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader):.4f}, Time: {time.time() - start_time:.4f}s")
+        avg_loss = total_loss / len(dataloader)
+        loss_list.append(avg_loss)
+        print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}, Time: {time.time() - start_time:.4f}s")
+    plot_loss_curve(loss_list)
+
 
 def haversine_distance(lat1, lon1, lat2, lon2):
     R = 6371000
@@ -228,6 +233,15 @@ def evaluate_model(model, dataloader, device, label_normalizer=None):
     return total_error
 
 # Predict function that returns denormalized prediction
+
+def plot_loss_curve(loss_list):
+    plt.figure(figsize=(8, 4))
+    plt.plot(loss_list, marker='o', linestyle='-', alpha=0.8)
+    plt.title('Training Loss Curve')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.grid(True)
+    plt.show()
 
 def collect_predictions(model, dataloader, device, label_normalizer=None):
     model.eval()
@@ -295,24 +309,25 @@ if __name__ == '__main__':
     # Example Usage (replace paths with your file)
 
     # Select device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = 'cuda'
     print(f"Using device: {device}")
 
     # Load dataset
     csv_list = get_all_csv_files('./py/training_data/')
     wifi_rssi_cols, wifi_freq_cols, ble_cols = extract_known_wifi_ble_columns(csv_list[0])
-    dataset = IPINDataset(csv_list, known_wifi_rssi_cols=wifi_rssi_cols, known_wifi_freq_cols=wifi_freq_cols, known_ble_cols=ble_cols)
+    dataset = IPINDataset(csv_list, sequence_length=100, known_wifi_rssi_cols=wifi_rssi_cols, known_wifi_freq_cols=wifi_freq_cols, known_ble_cols=ble_cols)
 
     # Split into train and test set
     train_loader, test_loader = split_dataset(dataset, train_ratio=0.8, batch_size=128)
     print('ok')
 
     # Initialize model
-    model = TransformerPositionModel(input_dim=dataset[0][0].shape[1])
+    model = TransformerPositionModel(input_dim=dataset[0][0].shape[1], d_model=128, nhead=4, dim_feedforward=256, num_layers=3)
     model.to(device)
 
     # Train and evaluate
-    train_model(model, train_loader, device, epochs=10, lr=1e-3)
+    train_model(model, train_loader, device, epochs=20, lr=1e-3)
     train_errors = evaluate_model(model, train_loader, device, label_normalizer=dataset.label_normalizer)
     test_errors = evaluate_model(model, test_loader, device, label_normalizer=dataset.label_normalizer)
 
@@ -328,3 +343,4 @@ if __name__ == '__main__':
     sample_input, _ = dataset[0]
     pred_lat, pred_lon = predict(model, sample_input, device, label_normalizer=dataset.label_normalizer)
     print("Predicted latitude/longitude:", pred_lat, pred_lon)
+    
