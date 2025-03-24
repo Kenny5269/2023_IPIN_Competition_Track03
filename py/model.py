@@ -3,12 +3,14 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+from sklearn.preprocessing import StandardScaler
 import pandas as pd
 import numpy as np
 import os
 import glob
 import matplotlib.pyplot as plt
 import time
+import joblib
 
 # =========================
 # 1. Data Preprocessing
@@ -105,38 +107,37 @@ class IPINDataset(Dataset):
                 wifi_freq_cols = [col for col in wifi_freq_cols if col in known_wifi_freq_cols]
             wifi_cols += wifi_freq_cols
 
-        epsilon = 1e-6
-        self.data[imu_cols] = (self.data[imu_cols] - self.data[imu_cols].mean()) / (self.data[imu_cols].std() + epsilon)
-        self.data[wifi_cols] = (self.data[wifi_cols] - self.data[wifi_cols].mean()) / (self.data[wifi_cols].std() + epsilon)
-        self.data[ble_cols] = (self.data[ble_cols] - self.data[ble_cols].mean()) / (self.data[ble_cols].std() + epsilon)
+        self.feature_scaler = StandardScaler()
+        self.data[imu_cols + wifi_cols + ble_cols] = self.feature_scaler.fit_transform(self.data[imu_cols + wifi_cols + ble_cols])
+
+        # 儲存 scaler 物件到檔案
+        joblib.dump(self.feature_scaler, "feature_scaler.pkl")
 
         self.feature_cols = imu_cols + wifi_cols + ble_cols
 
         # Label normalization setup
         self.normalize_labels = normalize_labels
         if self.normalize_labels:
-            self.mean_lat = self.data['Latitude_degrees'].mean()
-            self.std_lat = self.data['Latitude_degrees'].std()
-            self.mean_lon = self.data['Longitude_degrees'].mean()
-            self.std_lon = self.data['Longitude_degrees'].std()
-            self.label_normalizer = LabelNormalizer(self.mean_lat, self.std_lat, self.mean_lon, self.std_lon)
+            self.label_scaler = StandardScaler()
+            self.data[['Latitude_degrees', 'Longitude_degrees']] = self.label_scaler.fit_transform(
+                self.data[['Latitude_degrees', 'Longitude_degrees']]
+            )
+            joblib.dump(self.label_scaler, "label_scaler.pkl")
+            self.label_normalizer = None  # Not used when using StandardScaler
         print("NaN in features:", self.data[self.feature_cols].isna().sum().sum())
         print("NaN in Latitude/Longitude:", self.data[['Latitude_degrees', 'Longitude_degrees']].isna().sum())
 
         all_features = self.data[self.feature_cols].values
         all_labels = self.data[['Latitude_degrees', 'Longitude_degrees']].values
 
-        if self.normalize_labels:
-            all_labels[:, 0], all_labels[:, 1] = self.label_normalizer.normalize(all_labels[:, 0], all_labels[:, 1])
+        # labels already normalized by StandardScaler above
 
         num_samples = len(all_features) - sequence_length
-        print(num_samples)
         self.sequences = np.zeros((num_samples, sequence_length, all_features.shape[1]), dtype=np.float32)
         self.labels = np.zeros((num_samples, all_labels.shape[1]), dtype=np.float32)
         for i in range(num_samples):
             self.sequences[i] = all_features[i:i+sequence_length]
             self.labels[i] = all_labels[i+sequence_length]
-            #print(i)
 
     def __len__(self):
         return len(self.sequences)
@@ -203,6 +204,9 @@ def train_model(model, dataloader, device, epochs=20, lr=1e-3):
         loss_list.append(avg_loss)
         print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}, Time: {time.time() - start_time:.4f}s")
     plot_loss_curve(loss_list)
+    # 儲存模型
+    torch.save(model.state_dict(), "transformer_model.pt")
+    print("Model saved to transformer_model.pt")
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):
@@ -214,7 +218,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     c = 2*np.arctan2(np.sqrt(a), np.sqrt(1-a))
     return R * c
 
-def evaluate_model(model, dataloader, device, label_normalizer=None):
+def evaluate_model(model, dataloader, device, label_scaler=None):
     model.eval()
     total_error = []
     with torch.no_grad():
@@ -223,16 +227,30 @@ def evaluate_model(model, dataloader, device, label_normalizer=None):
             targets = targets.to(device)
             preds = model(inputs).cpu().numpy()
             targets = targets.cpu().numpy()
-            if label_normalizer:
+            if label_scaler is not None:
                 for i in range(len(preds)):
-                    preds[i][0], preds[i][1] = label_normalizer.denormalize(preds[i][0], preds[i][1])
-                    targets[i][0], targets[i][1] = label_normalizer.denormalize(targets[i][0], targets[i][1])
+                    pred_denorm = label_scaler.inverse_transform([preds[i]])[0]
+                    target_denorm = label_scaler.inverse_transform([targets[i]])[0]
+                    preds[i] = pred_denorm
+                    targets[i] = target_denorm
             for p, t in zip(preds, targets):
                 total_error.append(haversine_distance(p[0], p[1], t[0], t[1]))
     print(f"Mean Error: {np.mean(total_error):.2f} m, Median Error: {np.median(total_error):.2f} m")
     return total_error
 
 # Predict function that returns denormalized prediction
+
+def load_trained_model(input_dim, device, model_path="transformer_model.pt"):
+    model = TransformerPositionModel(input_dim=input_dim)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.to(device)
+    model.eval()
+    return model
+
+def preprocess_single_sample(raw_df, feature_scaler):
+    feature_cols = raw_df.columns.tolist()
+    scaled = feature_scaler.transform(raw_df[feature_cols])
+    return torch.tensor(scaled, dtype=torch.float32)
 
 def plot_loss_curve(loss_list):
     plt.figure(figsize=(8, 4))
@@ -243,7 +261,7 @@ def plot_loss_curve(loss_list):
     plt.grid(True)
     plt.show()
 
-def collect_predictions(model, dataloader, device, label_normalizer=None):
+def collect_predictions(model, dataloader, device, label_scaler=None):
     model.eval()
     all_preds, all_targets = [], []
     with torch.no_grad():
@@ -251,10 +269,10 @@ def collect_predictions(model, dataloader, device, label_normalizer=None):
             inputs = inputs.to(device)
             preds = model(inputs).cpu().numpy()
             targets = targets.cpu().numpy()
-            if label_normalizer:
+            if label_scaler is not None:
                 for i in range(len(preds)):
-                    pred_lat, pred_lon = label_normalizer.denormalize(preds[i][0], preds[i][1])
-                    true_lat, true_lon = label_normalizer.denormalize(targets[i][0], targets[i][1])
+                    pred_lat, pred_lon = label_scaler.inverse_transform([preds[i]])[0]
+                    true_lat, true_lon = label_scaler.inverse_transform([targets[i]])[0]
                     all_preds.append([pred_lat, pred_lon])
                     all_targets.append([true_lat, true_lon])
             else:
@@ -294,13 +312,13 @@ def plot_prediction_scatter(preds, targets):
     plt.grid(True)
     plt.show()
 
-def predict(model, input_tensor, device, label_normalizer=None):
+def predict(model, input_tensor, device, label_scaler=None):
     model.eval()
-    input_tensor = input_tensor.to(device).unsqueeze(0)  # Add batch dim
+    input_tensor = input_tensor.to(device).unsqueeze(0)
     with torch.no_grad():
         pred = model(input_tensor).squeeze().cpu().numpy()
-    if label_normalizer:
-        pred_lat, pred_lon = label_normalizer.denormalize(pred[0], pred[1])
+    if label_scaler is not None:
+        pred_lat, pred_lon = label_scaler.inverse_transform([pred])[0]
         return pred_lat, pred_lon
     return pred
 
@@ -327,12 +345,15 @@ if __name__ == '__main__':
     model.to(device)
 
     # Train and evaluate
-    train_model(model, train_loader, device, epochs=20, lr=1e-3)
-    train_errors = evaluate_model(model, train_loader, device, label_normalizer=dataset.label_normalizer)
-    test_errors = evaluate_model(model, test_loader, device, label_normalizer=dataset.label_normalizer)
+    train_model(model, train_loader, device, epochs=10, lr=1e-3)
+    feature_scaler = joblib.load("feature_scaler.pkl")
+    label_scaler = joblib.load("label_scaler.pkl")
+
+    train_errors = evaluate_model(model, train_loader, device, label_scaler=label_scaler)
+    test_errors = evaluate_model(model, test_loader, device, label_scaler=label_scaler)
 
     # Collect predictions and targets for scatter plot
-    all_preds, all_targets = collect_predictions(model, test_loader, device, label_normalizer=dataset.label_normalizer)
+    all_preds, all_targets = collect_predictions(model, test_loader, device, label_scaler=label_scaler)
     plot_prediction_scatter(all_preds, all_targets)
 
     plot_error_histogram(train_errors, test_errors)
@@ -341,6 +362,6 @@ if __name__ == '__main__':
 
     # Sample prediction
     sample_input, _ = dataset[0]
-    pred_lat, pred_lon = predict(model, sample_input, device, label_normalizer=dataset.label_normalizer)
+    pred_lat, pred_lon = predict(model, sample_input, device, label_scaler=label_scaler)
     print("Predicted latitude/longitude:", pred_lat, pred_lon)
     
