@@ -25,7 +25,10 @@ if __name__ == '__main__':
                     trial_data.append(pickle.load(f))
         trial_dict[trial_name] = trial_data
 
-    aligned_data = trial_dict['trial_01']
+    aligned_data = trial_dict['trial_01'] + trial_dict['trial_02'] + trial_dict['trial_03'] \
+                    + trial_dict['trial_04'] + trial_dict['trial_05'] + trial_dict['trial_21'] \
+                        + trial_dict['trial_22'] + trial_dict['trial_23'] + trial_dict['trial_24'] \
+                            + trial_dict['trial_25'] + trial_dict['trial_26'] + trial_dict['trial_27']
 
     
 

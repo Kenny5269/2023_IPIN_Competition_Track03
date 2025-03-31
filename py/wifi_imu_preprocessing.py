@@ -10,8 +10,8 @@ from scipy.signal import find_peaks
 # ------------------------------
 # 設定參數與路徑
 # ------------------------------
-index1 = '1'
-index2 = '01'
+index1 = '27'
+index2 = '27'
 INPUT_WIFI_CSV = f"py/T{index1}_R1/WIFI_merged2.csv"
 INPUT_IMU_CSV = f"py/T{index1}_R1/IMU_50Hz.csv"
 INPUT_GT_CSV = f"py/T{index1}_R1/POSI2.csv"
