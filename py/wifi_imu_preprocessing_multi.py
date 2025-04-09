@@ -1,0 +1,343 @@
+import os
+import pandas as pd
+import numpy as np
+import pickle
+from geopy.distance import distance, geodesic
+from geopy import Point
+from sklearn.neighbors import KNeighborsRegressor
+from scipy.signal import find_peaks
+import matplotlib.pyplot as plt
+from ahrs.filters import Madgwick, Mahony
+from scipy.spatial.transform import Rotation as R
+
+# ------------------------------
+# 設定參數與路徑
+# ------------------------------
+index1 = [1,2,3,4,5,21,22,23,24,25,26,27]
+index2 = '01'
+INPUT_WIFI_CSV = []
+INPUT_IMU_CSV = []
+INPUT_GT_CSV = []
+for i in index1:
+    INPUT_WIFI_CSV.append(f"py/T{i}_R1/WIFI_merged2.csv")
+    INPUT_IMU_CSV.append(f"py/T{i}_R1/IMU_50Hz.csv")
+    INPUT_GT_CSV.append(f"py/T{i}_R1/POSI2.csv")
+OUTPUT_DIR = f"py/aligned_trials/all_trial"
+IMU_WINDOW_SEC = 4.0
+STEP_THRESHOLD = 1.2
+FIXED_STEP_LENGTH = 1
+DYNAMIC_STEP_SCALE = 0.034  # 動態步長係數，越大步越長
+FUSION_METHOD = "madgwick"  # 可選: complementary, kalman, madgwick, mahony
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# ------------------------------
+# 輔助函數
+def initialize_quaternion(acc0, mag0):
+    z = acc0 / np.linalg.norm(acc0)
+    x = np.cross(mag0, z)
+    x /= np.linalg.norm(x)
+    y = np.cross(z, x)
+    rot_matrix = np.vstack([x, y, z]).T
+    quat = R.from_matrix(rot_matrix).as_quat()  # [x, y, z, w]
+    return np.roll(quat, 1)  # 轉為 [w, x, y, z]
+# ------------------------------
+def smooth_acc(acc_series, alpha=0.1):
+    smoothed = [acc_series[0]]
+    for a in acc_series[1:]:
+        smoothed.append(alpha * a + (1 - alpha) * smoothed[-1])
+    return np.array(smoothed)
+
+def estimate_heading_complementary(gyro_z, mag_headings, dt=0.02, alpha=0.98):
+    fused = [mag_headings[0]]
+    for i in range(1, len(gyro_z)):
+        gyro_est = fused[-1] + gyro_z[i] * dt
+        fused_val = alpha * gyro_est + (1 - alpha) * mag_headings[i]
+        fused.append(fused_val)
+    return np.unwrap(fused)
+
+def estimate_heading_kalman(gyro_z, mag_headings, dt=0.02):
+    Q = 0.01  # 系統雜訊協方差
+    R = 0.1   # 觀測雜訊協方差
+    P = 1.0   # 初始誤差協方差
+    x = mag_headings[0]  # 初始估計值（使用地磁）
+    headings = [x]
+    for i in range(1, len(gyro_z)):
+        # 預測步驟
+        x_pred = x + gyro_z[i] * dt
+        P_pred = P + Q
+
+        # 更新步驟
+        K = P_pred / (P_pred + R)  # Kalman 增益
+        x = x_pred + K * (mag_headings[i] - x_pred)
+        P = (1 - K) * P_pred
+
+        headings.append(x)
+    return np.unwrap(headings)
+
+def estimate_heading_madgwick(imu_df):
+    acc = imu_df[["acc_x", "acc_y", "acc_z"]].to_numpy()
+    gyro = imu_df[["gyro_x", "gyro_y", "gyro_z"]].to_numpy()
+    mag = imu_df[["mag_x", "mag_y", "mag_z"]].to_numpy()
+    madgwick = Madgwick()
+    qs = np.zeros((len(imu_df), 4))
+    qs[0] = initialize_quaternion(acc[0], mag[0])  # 根據初始 acc + mag 推估初始四元數
+    for i in range(1, len(imu_df)):
+        qs[i] = madgwick.updateMARG(qs[i-1], gyr=gyro[i], acc=acc[i], mag=mag[i])
+    headings = np.arctan2(2*(qs[:,0]*qs[:,3] + qs[:,1]*qs[:,2]), 1 - 2*(qs[:,2]**2 + qs[:,3]**2))
+    return np.unwrap(headings)
+
+def estimate_heading_mahony(imu_df):
+    acc = imu_df[["acc_x", "acc_y", "acc_z"]].to_numpy()
+    gyro = imu_df[["gyro_x", "gyro_y", "gyro_z"]].to_numpy()
+    mag = imu_df[["mag_x", "mag_y", "mag_z"]].to_numpy()
+    mahony = Mahony()
+    qs = np.zeros((len(imu_df), 4))    
+    qs[0] = initialize_quaternion(acc[0], mag[0])  # 根據初始 acc + mag 推估初始四元數
+    for i in range(1, len(imu_df)):
+        qs[i] = mahony.updateMARG(qs[i-1], gyr=gyro[i], acc=acc[i], mag=mag[i])
+    headings = np.arctan2(2*(qs[:,0]*qs[:,3] + qs[:,1]*qs[:,2]), 1 - 2*(qs[:,2]**2 + qs[:,3]**2))
+    return np.unwrap(headings)
+
+def estimate_trajectory_from_imu_all(init_lat, init_lon, imu_df):
+    if len(imu_df) < 2:
+        return [(init_lat, init_lon)]
+
+    acc_mag = np.sqrt(imu_df["acc_x"]**2 + imu_df["acc_y"]**2 + imu_df["acc_z"]**2)
+    acc_mag = smooth_acc(acc_mag.to_numpy())
+    #print(acc_mag)
+
+    # 使用 scipy 的 find_peaks 做步態偵測
+    peaks, _ = find_peaks(acc_mag, height=STEP_THRESHOLD, distance=20, prominence=0.2)  # distance 防止過密誤判
+
+    
+    # plt.plot(acc_mag)
+    # plt.plot(peaks, acc_mag[peaks], "x")
+    # plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    # plt.show()
+
+    gyro_z = imu_df["gyro_z"].to_numpy()
+    mag_x = imu_df["mag_x"].to_numpy()
+    mag_y = imu_df["mag_y"].to_numpy()
+    mag_headings = np.unwrap(np.arctan2(mag_y, mag_x))
+
+    if FUSION_METHOD == "complementary":
+        headings = estimate_heading_complementary(gyro_z, mag_headings)
+    elif FUSION_METHOD == "madgwick":
+        headings = estimate_heading_madgwick(imu_df)
+    elif FUSION_METHOD == "mahony":
+        headings = estimate_heading_mahony(imu_df)
+    elif FUSION_METHOD == "kalman":
+        headings = estimate_heading_kalman(gyro_z, mag_headings)
+    else:
+        headings = np.cumsum(gyro_z)
+
+    curr_pos = Point(init_lat, init_lon)
+    trajectory = [(curr_pos.latitude, curr_pos.longitude)]
+
+    # 固定步長
+    # for idx in peaks:
+    #     heading_rad = headings[idx]
+    #     heading_deg = np.degrees(heading_rad) % 360
+    #     curr_pos = distance(meters=FIXED_STEP_LENGTH).destination(curr_pos, heading_deg)
+    #     trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+    # 動態步長
+    # for idx in peaks:
+    #     win_start = max(0, idx - 15)
+    #     win_end = min(len(acc_mag), idx + 15)
+    #     local_rms = np.sqrt(np.mean(acc_mag[win_start:win_end]**2))
+    #     step_length = DYNAMIC_STEP_SCALE * local_rms
+    #     heading_deg = np.degrees(headings[idx]) % 360
+    #     curr_pos = distance(meters=step_length).destination(curr_pos, heading_deg)
+    #     trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+    # 動態步長(非RMS)
+    for idx in peaks:
+        win_start = max(0, idx - 15)
+        win_end = min(len(acc_mag), idx + 15)
+        acc_segment = acc_mag[win_start:win_end]
+
+        # 方法 A: 頻譜能量（能量越高代表震動越強 → 步長越大）
+        spectrum = np.abs(np.fft.rfft(acc_segment))
+        spectral_energy = np.sum(spectrum**2)
+        #print(np.sqrt(spectral_energy))
+        step_length_fft = DYNAMIC_STEP_SCALE * np.sqrt(spectral_energy)
+
+        # 方法 B: 移動平均強度
+        #print(np.mean(acc_segment))
+        step_length_avg = DYNAMIC_STEP_SCALE * np.mean(acc_segment)
+
+        # 方法 C: ZUPT：如果震動小於門檻，視為靜止（不推進）
+        if np.max(acc_segment) - np.min(acc_segment) < 0.05:
+            step_length_zupt = 0.0
+        else:
+            step_length_zupt = step_length_fft  # 或用 avg 也可
+
+        # 這裡可依需求切換用哪種
+        step_length = step_length_avg
+
+        heading_deg = np.degrees(headings[idx]) % 360
+        curr_pos = distance(meters=step_length).destination(curr_pos, heading_deg)
+        trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+    #print(len(trajectory))
+
+    return trajectory
+
+# ------------------------------
+# 主流程
+# ------------------------------
+# 讀取資料
+aligned_data_all = []
+for x in range(len(index1)):
+    aligned_data = []
+
+    wifi_df = pd.read_csv(INPUT_WIFI_CSV[x]).rename(columns={"AppTimestamp(s)": "timestamp"})
+    imu_df = pd.read_csv(INPUT_IMU_CSV[x]).rename(columns={"AppTimestamp(s)": "timestamp"})
+    posi_df = pd.read_csv(INPUT_GT_CSV[x]).rename(columns={"AppTimestamp(s)": "timestamp"})
+    posi_df = posi_df.sort_values("timestamp").reset_index(drop=True)
+
+    for i in range(len(wifi_df)):
+        wifi_time = wifi_df.loc[i, "timestamp"]
+        rssi_vector = wifi_df.iloc[i, 1:].to_numpy()
+
+        closest_gt = posi_df.iloc[(posi_df['timestamp'] - wifi_time).abs().argmin()]
+        gt_lat2, gt_lon2 = closest_gt["Latitude_degrees"], closest_gt["Longitude_degrees"]
+
+        imu_window = imu_df[
+            (imu_df["timestamp"] >= wifi_time) &
+            (imu_df["timestamp"] < wifi_time + IMU_WINDOW_SEC)
+        ].drop(columns=["SensorTimestamp(s)"]).reset_index(drop=True)
+
+        aligned_data.append({
+            "timestamp": wifi_time,
+            "rssi_vector": rssi_vector,
+            "imu_window": imu_window,
+            "gt_lat": None,
+            "gt_lon": None,
+            "gt_lat2": gt_lat2,
+            "gt_lon2": gt_lon2
+        })
+
+    # 根據 GT 資料補上 aligned_data 對應時間點的 gt_lat/lon
+    used_indices = set()
+    posi_aligned_indices = []
+    a = -1
+    b = 0
+    c = 0
+    for i in range(len(aligned_data)):
+        if aligned_data[i]["timestamp"] < posi_df.loc[0, "timestamp"]:
+            a += 1
+            aligned_data[i]["gt_lat"] = posi_df.loc[0, "Latitude_degrees"]
+            aligned_data[i]["gt_lon"] = posi_df.loc[0, "Longitude_degrees"]
+            #used_indices.add(i)
+        elif aligned_data[i]["timestamp"] > posi_df.loc[len(posi_df)-1, "timestamp"]:
+            aligned_data[i]["gt_lat"] = posi_df.loc[len(posi_df)-1, "Latitude_degrees"]
+            aligned_data[i]["gt_lon"] = posi_df.loc[len(posi_df)-1, "Longitude_degrees"]
+    for _, gt_row in posi_df.iterrows():
+        gt_time = gt_row["timestamp"]
+        closest_idx = min(
+            (i for i in range(len(aligned_data)) if i not in used_indices),
+            key=lambda i: abs(aligned_data[i]["timestamp"] - gt_time),
+            default=None
+        )
+        if closest_idx is not None:
+            b += 1
+            aligned_data[closest_idx]["gt_lat"] = gt_row["Latitude_degrees"]
+            aligned_data[closest_idx]["gt_lon"] = gt_row["Longitude_degrees"]
+            used_indices.add(closest_idx)
+            posi_aligned_indices.append(closest_idx)
+
+    # 依據已知 GT 點之間做線性插值填補其餘點
+    for i in range(1, len(posi_aligned_indices)):
+        c += 1
+        start_idx = posi_aligned_indices[i - 1]
+        end_idx = posi_aligned_indices[i]
+        start_lat, start_lon = aligned_data[start_idx]["gt_lat"], aligned_data[start_idx]["gt_lon"]
+        end_lat, end_lon = aligned_data[end_idx]["gt_lat"], aligned_data[end_idx]["gt_lon"]
+        steps = end_idx - start_idx
+        for j in range(1, steps):
+            ratio = j / steps
+            interp_lat = start_lat + ratio * (end_lat - start_lat)
+            interp_lon = start_lon + ratio * (end_lon - start_lon)
+            aligned_data[start_idx + j]["gt_lat"] = interp_lat
+            aligned_data[start_idx + j]["gt_lon"] = interp_lon
+    #print(len(aligned_data))
+    for i in aligned_data:
+        aligned_data_all.append(i)
+
+solved = 0
+# 補齊其餘時間點之GT(用imu pdr)
+# for d in aligned_data:
+#     if d["gt_lat"] is not None and d["gt_lon"] is not None:
+#         prev_lat = d["gt_lat"]
+#         prev_lon = d["gt_lon"]
+#         prev_imu_seq = d["imu_window"]
+#     if d["gt_lat"] is None or d["gt_lon"] is None:
+#         solved += 1
+#         pdr_trajectory = estimate_trajectory_from_imu_all(prev_lat, prev_lon, prev_imu_seq)
+#         #d["pdr_trajectory"] = pdr_trajectory
+#         d["gt_lat"], d["gt_lon"] = pdr_trajectory[-1]  # 末端點仍保留
+#         prev_lat = d["gt_lat"]
+#         prev_lon = d["gt_lon"]
+#         prev_imu_seq = d["imu_window"]
+    
+# KNN RSSI 初始定位
+rssi_features = []
+gt_positions = []
+for d in aligned_data_all:
+    rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
+    rssi_features.append(rssi)
+    if d["gt_lat"] is not None and d["gt_lon"] is not None:
+        gt_positions.append([d["gt_lat"], d["gt_lon"]])
+    else:
+        gt_positions.append([0.0, 0.0])  # dummy placeholder
+rssi_features = np.array(rssi_features)
+gt_positions = np.array(gt_positions)
+print(gt_positions)
+
+knn = KNeighborsRegressor(n_neighbors=3)
+knn.fit(rssi_features, gt_positions)
+
+for i, d in enumerate(aligned_data_all):
+    rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
+    init_lat, init_lon = knn.predict([rssi])[0]
+    #print(init_lat, init_lon)
+    d["init_lat"] = init_lat
+    d["init_lon"] = init_lon
+
+# IMU PDR 軌跡預測 & wifi_init + imu_seq推估 gt_lat/lon
+
+for d in aligned_data_all:
+    imu_seq = d["imu_window"]
+    pdr_trajectory = estimate_trajectory_from_imu_all(d["init_lat"], d["init_lon"], imu_seq)
+    d["pdr_trajectory"] = pdr_trajectory
+    d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]  # 末端點仍保留
+
+# IMU PDR 全軌跡預測 & (prev_pdr_lat, prev_pdr_lon)推估 gt_lat/lon
+# num = 0
+# for d in aligned_data:
+#     imu_seq = d["imu_window"]
+#     if num == 0:
+#         pdr_trajectory = estimate_trajectory_from_imu_all(d["init_lat"], d["init_lon"], imu_seq)
+#         num += 1
+#     else:
+#         pdr_trajectory = estimate_trajectory_from_imu_all(prev_pdr_lat, prev_pdr_lon, imu_seq)
+    
+#     d["pdr_trajectory"] = pdr_trajectory
+#     d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]  # 末端點仍保留
+
+#     prev_pdr_lat, prev_pdr_lon = pdr_trajectory[-1]
+
+
+
+# 輸出所有對齊資料為 pickle
+for i, d in enumerate(aligned_data_all):
+    with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
+        pickle.dump(d, f)
+
+print(f"處理完成，共輸出 {len(aligned_data_all)} 筆對齊資料到資料夾：{OUTPUT_DIR}")
+#print(a)
+#print(b)
+#print(c)

@@ -3,17 +3,25 @@ import pandas as pd
 
 
 if __name__ == '__main__':
-    index = 'T2_R1'
+    index = 'TEST1'
 
     # 讀取檔案
     all_columns_df = pd.read_csv("all_column_csv_files/unique_wifi_rssi.csv")
     multi_sensor_df = pd.read_csv(f'./{index}/WIFI_merged.csv')
 
     # 擷取從第二列開始的前480個不重複欄位名稱
-    selected_column_names = all_columns_df.iloc[1:237, 0].drop_duplicates().tolist()
+    selected_column_names = all_columns_df.iloc[0:237, 0].drop_duplicates().tolist()
+    print(len(selected_column_names))
+
+    original_columns = [col for col in multi_sensor_df.columns if not any(k in col.lower() for k in ['rssi', 'freq'])]
 
     # 找出缺少的欄位
     missing_columns = [col for col in selected_column_names if col not in multi_sensor_df.columns]
+    #print(missing_columns)
+    already_exit_columns = [col for col in selected_column_names if col in multi_sensor_df.columns]
+    #print(already_exit_columns)
+    multi_sensor_df = multi_sensor_df[original_columns + already_exit_columns]
+    
 
     # 一次建立一個新的 DataFrame 補上缺少欄位（全部先填 NaN）
     missing_df = pd.DataFrame(columns=missing_columns, index=multi_sensor_df.index)

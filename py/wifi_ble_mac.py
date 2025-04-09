@@ -1,7 +1,7 @@
 import pandas as pd
 
 if __name__ == '__main__':
-    index = 53
+    index = 55
 
     # ============ WiFi 數據處理 ============
     wifi_df = pd.read_csv('WIFI.csv')  # 修改為你的檔案路徑
