@@ -25,12 +25,14 @@ if __name__ == '__main__':
                     trial_data.append(pickle.load(f))
         trial_dict[trial_name] = trial_data
 
-    # aligned_data = trial_dict['trial_01'] + trial_dict['trial_02'] + trial_dict['trial_03'] \
+    # aligned_data_train = trial_dict['trial_01'] + trial_dict['trial_02'] + trial_dict['trial_03'] \
     #                 + trial_dict['trial_04'] + trial_dict['trial_05'] + trial_dict['trial_21'] \
     #                     + trial_dict['trial_22'] + trial_dict['trial_23'] + trial_dict['trial_24'] \
     #                         + trial_dict['trial_25'] + trial_dict['trial_26'] + trial_dict['trial_27']
 
-    aligned_data = trial_dict['all_trial']
+    aligned_data_train = trial_dict['all_trial']
+
+    aligned_data = trial_dict['test_trial03']
 
     
 
@@ -58,7 +60,7 @@ if __name__ == '__main__':
 
     # 可視化：軌跡圖
     plt.figure(figsize=(8, 6))
-    gt_coords_origin = [(d["gt_lat2"], d["gt_lon2"]) for d in aligned_data]
+    gt_coords_origin = [(d["gt_lat2"], d["gt_lon2"]) for d in aligned_data_train]
     gt_coords = [(d["gt_lat"], d["gt_lon"]) for d in aligned_data]
     init_coords = [(d["init_lat"], d["init_lon"]) for d in aligned_data]
     pdr_coords = [(d["pdr_lat"], d["pdr_lon"]) for d in aligned_data]
@@ -76,10 +78,10 @@ if __name__ == '__main__':
 
 
     #plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
-    plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="x")
-    #plt.plot(init_lons, init_lats, label="Wi-Fi Init", marker="x")
+    plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
+    plt.plot(init_lons, init_lats, label="Wi-Fi Init", marker="x")
     #plt.plot(pdr_lons, pdr_lats, label="IMU PDR", marker="^")
-    plt.plot(tra_lons, tra_lats, label="IMU PDR", marker="^")
+    #plt.plot(tra_lons, tra_lats, label="IMU PDR", marker="^")
 
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")

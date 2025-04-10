@@ -9,6 +9,12 @@ from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 from ahrs.filters import Madgwick, Mahony
 from scipy.spatial.transform import Rotation as R
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.linear_model import Ridge
+from xgboost import XGBRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.svm import SVR
 
 # ------------------------------
 # 設定參數與路徑
@@ -22,7 +28,12 @@ for i in index1:
     INPUT_WIFI_CSV.append(f"py/T{i}_R1/WIFI_merged2.csv")
     INPUT_IMU_CSV.append(f"py/T{i}_R1/IMU_50Hz.csv")
     INPUT_GT_CSV.append(f"py/T{i}_R1/POSI2.csv")
+
+TEST1_WIFI_CSV = "py/TEST4/WIFI_merged2.csv"
+TEST1_IMU_CSV = "py/TEST4/IMU_50Hz.csv"
+TEST1_GT_CSV = "py/TEST4/POSI2.csv"
 OUTPUT_DIR = f"py/aligned_trials/all_trial"
+TEST_OUTPUT_DIR = f"py/aligned_trials/test_trial04"
 IMU_WINDOW_SEC = 4.0
 STEP_THRESHOLD = 1.2
 FIXED_STEP_LENGTH = 1
@@ -30,6 +41,48 @@ DYNAMIC_STEP_SCALE = 0.034  # 動態步長係數，越大步越長
 FUSION_METHOD = "madgwick"  # 可選: complementary, kalman, madgwick, mahony
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
+
+# ------------------------------
+# 實時 RSSI 緩衝區 + 濾波預測函式
+from collections import deque
+
+def predict_with_rssi_buffer(rssi_stream, model, buffer_size=3, method='sma'):
+    buffer = deque(maxlen=buffer_size)
+    preds = []
+    for rssi in rssi_stream:
+        buffer.append(rssi)
+        if len(buffer) == buffer_size:
+            temp_df = pd.DataFrame(buffer, columns=[f"AP_{i}" for i in range(len(rssi))])
+            smoothed = filter_rssi(temp_df, method=method).iloc[-1].to_numpy()
+            pred = model.predict([smoothed])[0]
+            preds.append(pred)
+        else:
+            preds.append(None)  # 尚未足夠資料濾波
+    return preds
+
+# ------------------------------
+# RSSI 濾波函數
+
+def filter_rssi(df, method='ema', window=7, threshold=3.0):
+    filtered = df.copy()
+    if method == 'sma':
+        filtered.iloc[:, 1:] = filtered.iloc[:, 1:].rolling(window=window, min_periods=1).mean()
+    elif method == 'median':
+        filtered.iloc[:, 1:] = filtered.iloc[:, 1:].rolling(window=window, min_periods=1).median()
+    elif method == 'ema':
+        filtered.iloc[:, 1:] = filtered.iloc[:, 1:].ewm(span=window, adjust=False).mean()
+    elif method == 'zscore':
+        from scipy.stats import zscore
+        z = np.abs(zscore(filtered.iloc[:, 1:], nan_policy='omit'))
+        filtered.iloc[:, 1:] = filtered.iloc[:, 1:].mask(z > threshold)
+        filtered = filtered.fillna(method='ffill').fillna(method='bfill')
+        filtered.iloc[:, 1:] = filtered.iloc[:, 1:].rolling(window=window, min_periods=1).mean()
+    elif method == 'none':
+        pass  # 不做處理
+    else:
+        raise ValueError(f"Unsupported filter method: {method}")
+    return filtered
 
 # ------------------------------
 # 輔助函數
@@ -185,6 +238,32 @@ def estimate_trajectory_from_imu_all(init_lat, init_lon, imu_df):
 
     return trajectory
 
+# Wi-Fi RSSI 初始定位模型訓練與預測函式
+
+def train_wifi_model(X, y, method="knn"):
+    if method == "knn":
+        model = KNeighborsRegressor(n_neighbors=3)
+    elif method == "rf":
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+    elif method == "mlp":
+        model = MLPRegressor(hidden_layer_sizes=(64, 64), max_iter=500, random_state=42)
+    elif method == "ridge":
+        model = Ridge(alpha=1.0)
+    elif method == "svr":
+        model = SVR()
+    elif method == "xgb":
+        model = XGBRegressor(objective='reg:squarederror', n_estimators=100, random_state=42)
+    elif method == "gpr":
+        model = GaussianProcessRegressor()
+    else:
+        raise ValueError(f"Unsupported model type: {method}")
+    model.fit(X, y)
+    return model
+
+def predict_wifi_position(model, rssi):
+    rssi_filled = np.nan_to_num(rssi, nan=-100.0)
+    return model.predict([rssi_filled])[0]
+
 # ------------------------------
 # 主流程
 # ------------------------------
@@ -194,6 +273,7 @@ for x in range(len(index1)):
     aligned_data = []
 
     wifi_df = pd.read_csv(INPUT_WIFI_CSV[x]).rename(columns={"AppTimestamp(s)": "timestamp"})
+    wifi_df = filter_rssi(wifi_df)
     imu_df = pd.read_csv(INPUT_IMU_CSV[x]).rename(columns={"AppTimestamp(s)": "timestamp"})
     posi_df = pd.read_csv(INPUT_GT_CSV[x]).rename(columns={"AppTimestamp(s)": "timestamp"})
     posi_df = posi_df.sort_values("timestamp").reset_index(drop=True)
@@ -267,6 +347,76 @@ for x in range(len(index1)):
     for i in aligned_data:
         aligned_data_all.append(i)
 
+# 測試軌跡 -----------------------------------------------------------------------------------------------------------------
+wifi_df = pd.read_csv(TEST1_WIFI_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
+wifi_df = filter_rssi(wifi_df)
+imu_df = pd.read_csv(TEST1_IMU_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
+posi_df = pd.read_csv(TEST1_GT_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
+posi_df = posi_df.sort_values("timestamp").reset_index(drop=True)
+
+test_aligned_data = []
+
+for i in range(len(wifi_df)):
+    wifi_time = wifi_df.loc[i, "timestamp"]
+    rssi_vector = wifi_df.iloc[i, 1:].to_numpy()
+
+    closest_gt = posi_df.iloc[(posi_df['timestamp'] - wifi_time).abs().argmin()]
+    gt_lat2, gt_lon2 = closest_gt["Latitude_degrees"], closest_gt["Longitude_degrees"]
+
+    imu_window = imu_df[
+        (imu_df["timestamp"] >= wifi_time) &
+        (imu_df["timestamp"] < wifi_time + IMU_WINDOW_SEC)
+    ].drop(columns=["SensorTimestamp(s)"]).reset_index(drop=True)
+
+    test_aligned_data.append({
+        "timestamp": wifi_time,
+        "rssi_vector": rssi_vector,
+        "imu_window": imu_window,
+        "gt_lat": None,
+        "gt_lon": None,
+        "gt_lat2": gt_lat2,
+        "gt_lon2": gt_lon2
+    })
+
+# 根據 GT 資料補上 aligned_data 對應時間點的 gt_lat/lon
+used_indices = set()
+posi_aligned_indices = []
+
+for i in range(len(test_aligned_data)):
+    if test_aligned_data[i]["timestamp"] < posi_df.loc[0, "timestamp"]:
+        test_aligned_data[i]["gt_lat"] = posi_df.loc[0, "Latitude_degrees"]
+        test_aligned_data[i]["gt_lon"] = posi_df.loc[0, "Longitude_degrees"]
+        #used_indices.add(i)
+    elif test_aligned_data[i]["timestamp"] > posi_df.loc[len(posi_df)-1, "timestamp"]:
+        test_aligned_data[i]["gt_lat"] = posi_df.loc[len(posi_df)-1, "Latitude_degrees"]
+        test_aligned_data[i]["gt_lon"] = posi_df.loc[len(posi_df)-1, "Longitude_degrees"]
+for _, gt_row in posi_df.iterrows():
+    gt_time = gt_row["timestamp"]
+    closest_idx = min(
+        (i for i in range(len(test_aligned_data)) if i not in used_indices),
+        key=lambda i: abs(test_aligned_data[i]["timestamp"] - gt_time),
+        default=None
+    )
+    if closest_idx is not None:
+        test_aligned_data[closest_idx]["gt_lat"] = gt_row["Latitude_degrees"]
+        test_aligned_data[closest_idx]["gt_lon"] = gt_row["Longitude_degrees"]
+        used_indices.add(closest_idx)
+        posi_aligned_indices.append(closest_idx)
+
+# 依據已知 GT 點之間做線性插值填補其餘點
+for i in range(1, len(posi_aligned_indices)):
+    start_idx = posi_aligned_indices[i - 1]
+    end_idx = posi_aligned_indices[i]
+    start_lat, start_lon = test_aligned_data[start_idx]["gt_lat"], test_aligned_data[start_idx]["gt_lon"]
+    end_lat, end_lon = test_aligned_data[end_idx]["gt_lat"], test_aligned_data[end_idx]["gt_lon"]
+    steps = end_idx - start_idx
+    for j in range(1, steps):
+        ratio = j / steps
+        interp_lat = start_lat + ratio * (end_lat - start_lat)
+        interp_lon = start_lon + ratio * (end_lon - start_lon)
+        test_aligned_data[start_idx + j]["gt_lat"] = interp_lat
+        test_aligned_data[start_idx + j]["gt_lon"] = interp_lon
+#-----------------------------------------------------------------------------------------------------------------------------
 solved = 0
 # 補齊其餘時間點之GT(用imu pdr)
 # for d in aligned_data:
@@ -283,7 +433,7 @@ solved = 0
 #         prev_lon = d["gt_lon"]
 #         prev_imu_seq = d["imu_window"]
     
-# KNN RSSI 初始定位
+# WIFI RSSI 初始定位
 rssi_features = []
 gt_positions = []
 for d in aligned_data_all:
@@ -295,14 +445,33 @@ for d in aligned_data_all:
         gt_positions.append([0.0, 0.0])  # dummy placeholder
 rssi_features = np.array(rssi_features)
 gt_positions = np.array(gt_positions)
-print(gt_positions)
+#print(gt_positions)
 
-knn = KNeighborsRegressor(n_neighbors=3)
-knn.fit(rssi_features, gt_positions)
+wifi_model = train_wifi_model(rssi_features, gt_positions)
 
 for i, d in enumerate(aligned_data_all):
     rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
-    init_lat, init_lon = knn.predict([rssi])[0]
+    init_lat, init_lon = predict_wifi_position(wifi_model, rssi)
+    #print(init_lat, init_lon)
+    d["init_lat"] = init_lat
+    d["init_lon"] = init_lon
+
+# KNN RSSI 初始定位(測試軌跡)
+rssi_features = []
+gt_positions = []
+for d in test_aligned_data:
+    rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
+    rssi_features.append(rssi)
+    if d["gt_lat"] is not None and d["gt_lon"] is not None:
+        gt_positions.append([d["gt_lat"], d["gt_lon"]])
+    else:
+        gt_positions.append([0.0, 0.0])  # dummy placeholder
+rssi_features = np.array(rssi_features)
+gt_positions = np.array(gt_positions)
+
+for i, d in enumerate(test_aligned_data):
+    rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
+    init_lat, init_lon = predict_wifi_position(wifi_model, rssi)
     #print(init_lat, init_lon)
     d["init_lat"] = init_lat
     d["init_lon"] = init_lon
@@ -310,6 +479,14 @@ for i, d in enumerate(aligned_data_all):
 # IMU PDR 軌跡預測 & wifi_init + imu_seq推估 gt_lat/lon
 
 for d in aligned_data_all:
+    imu_seq = d["imu_window"]
+    pdr_trajectory = estimate_trajectory_from_imu_all(d["init_lat"], d["init_lon"], imu_seq)
+    d["pdr_trajectory"] = pdr_trajectory
+    d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]  # 末端點仍保留
+
+# IMU PDR 軌跡預測 & wifi_init + imu_seq推估 gt_lat/lon(測試軌跡)
+
+for d in test_aligned_data:
     imu_seq = d["imu_window"]
     pdr_trajectory = estimate_trajectory_from_imu_all(d["init_lat"], d["init_lon"], imu_seq)
     d["pdr_trajectory"] = pdr_trajectory
@@ -333,11 +510,17 @@ for d in aligned_data_all:
 
 
 # 輸出所有對齊資料為 pickle
-for i, d in enumerate(aligned_data_all):
-    with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
+# for i, d in enumerate(aligned_data_all):
+#     with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
+#         pickle.dump(d, f)
+
+# 輸出所有對齊資料為 pickle
+for i, d in enumerate(test_aligned_data):
+    with open(os.path.join(TEST_OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
         pickle.dump(d, f)
 
-print(f"處理完成，共輸出 {len(aligned_data_all)} 筆對齊資料到資料夾：{OUTPUT_DIR}")
+# print(f"處理完成，共輸出 {len(aligned_data_all)} 筆對齊資料到資料夾：{OUTPUT_DIR}")
+print(f"處理完成，共輸出 {len(test_aligned_data)} 筆對齊資料到資料夾：{TEST_OUTPUT_DIR}")
 #print(a)
 #print(b)
 #print(c)
