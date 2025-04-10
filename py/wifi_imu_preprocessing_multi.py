@@ -38,7 +38,8 @@ IMU_WINDOW_SEC = 4.0
 STEP_THRESHOLD = 1.2
 FIXED_STEP_LENGTH = 1
 DYNAMIC_STEP_SCALE = 0.034  # 動態步長係數，越大步越長
-FUSION_METHOD = "madgwick"  # 可選: complementary, kalman, madgwick, mahony
+FUSION_METHOD = "madgwick"  # IMU與地磁融合，可選: complementary, kalman, madgwick, mahony
+FUSION_STRATEGY = "avg"        # WIFI與PDR融合，可選: avg, dyn, wifi_only, pdr_only, weighted_time, average_all
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
@@ -452,45 +453,133 @@ wifi_model = train_wifi_model(rssi_features, gt_positions)
 for i, d in enumerate(aligned_data_all):
     rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
     init_lat, init_lon = predict_wifi_position(wifi_model, rssi)
-    #print(init_lat, init_lon)
+    imu_seq = d["imu_window"]
+  
     d["init_lat"] = init_lat
     d["init_lon"] = init_lon
 
-# KNN RSSI 初始定位(測試軌跡)
-rssi_features = []
-gt_positions = []
-for d in test_aligned_data:
-    rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
-    rssi_features.append(rssi)
-    if d["gt_lat"] is not None and d["gt_lon"] is not None:
-        gt_positions.append([d["gt_lat"], d["gt_lon"]])
-    else:
-        gt_positions.append([0.0, 0.0])  # dummy placeholder
-rssi_features = np.array(rssi_features)
-gt_positions = np.array(gt_positions)
+    if i == 0:
+        d["fused_lat"] = init_lat
+        d["fused_lon"] = init_lon
+        pdr_trajectory = estimate_trajectory_from_imu_all(d["fused_lat"], d["fused_lon"], imu_seq)
+        d["pdr_trajectory"] = pdr_trajectory
+        d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
+        continue
 
+    # 融合 init 與上一步 pdr 座標
+    fusion_strategy = FUSION_STRATEGY
+
+    prev = aligned_data_all[i - 1]
+    prev_pdr_lat, prev_pdr_lon = prev["pdr_lat"], prev["pdr_lon"]
+    
+    if fusion_strategy == "avg":
+        alpha = 0.7
+        fused_lat = alpha * init_lat + (1 - alpha) * prev_pdr_lat
+        fused_lon = alpha * init_lon + (1 - alpha) * prev_pdr_lon
+    elif fusion_strategy == "dyn":
+        dist_wifi = np.linalg.norm([init_lat - prev_pdr_lat, init_lon - prev_pdr_lon])
+        alpha = np.clip(1 - dist_wifi / 10.0, 0.0, 1.0)
+        fused_lat = alpha * init_lat + (1 - alpha) * prev_pdr_lat
+        fused_lon = alpha * init_lon + (1 - alpha) * prev_pdr_lon
+    elif fusion_strategy == "wifi_only":
+        fused_lat, fused_lon = init_lat, init_lon
+    elif fusion_strategy == "pdr_only":
+        fused_lat, fused_lon = prev_pdr_lat, prev_pdr_lon
+    elif fusion_strategy == "weighted_time":
+        dt = d["timestamp"] - prev["timestamp"]
+        alpha = np.exp(-dt / 3.0)  # 根據時間差做指數衰減
+        fused_lat = alpha * init_lat + (1 - alpha) * prev_pdr_lat
+        fused_lon = alpha * init_lon + (1 - alpha) * prev_pdr_lon
+    elif fusion_strategy == "average_all":
+        # 將 init_lat/lon、prev_pdr_lat/lon、prev["init_lat/lon"] 平均融合
+        prev_init_lat, prev_init_lon = prev["init_lat"], prev["init_lon"]
+        fused_lat = np.mean([init_lat, prev_init_lat, prev_pdr_lat])
+        fused_lon = np.mean([init_lon, prev_init_lon, prev_pdr_lon])
+    else:
+        raise ValueError("Unsupported fusion strategy")
+
+    # 寫入選擇的主融合輸出
+    d["fused_lat"] = fused_lat
+    d["fused_lon"] = fused_lon
+    
+    pdr_trajectory = estimate_trajectory_from_imu_all(d["fused_lat"], d["fused_lon"], imu_seq)
+    d["pdr_trajectory"] = pdr_trajectory
+    d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
+
+
+# WIFI RSSI 初始定位(測試軌跡)
 for i, d in enumerate(test_aligned_data):
     rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
     init_lat, init_lon = predict_wifi_position(wifi_model, rssi)
-    #print(init_lat, init_lon)
+    imu_seq = d["imu_window"]
+  
     d["init_lat"] = init_lat
     d["init_lon"] = init_lon
 
+    if i == 0:
+        d["fused_lat"] = init_lat
+        d["fused_lon"] = init_lon
+        pdr_trajectory = estimate_trajectory_from_imu_all(d["fused_lat"], d["fused_lon"], imu_seq)
+        d["pdr_trajectory"] = pdr_trajectory
+        d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
+        continue
+
+    # 融合 init 與上一步 pdr 座標
+    fusion_strategy = FUSION_STRATEGY
+
+    prev = test_aligned_data[i - 1]
+    prev_pdr_lat, prev_pdr_lon = prev["pdr_lat"], prev["pdr_lon"]
+    
+    if fusion_strategy == "avg":
+        alpha = 0.7
+        fused_lat = alpha * init_lat + (1 - alpha) * prev_pdr_lat
+        fused_lon = alpha * init_lon + (1 - alpha) * prev_pdr_lon
+    elif fusion_strategy == "dyn":
+        dist_wifi = np.linalg.norm([init_lat - prev_pdr_lat, init_lon - prev_pdr_lon])
+        alpha = np.clip(1 - dist_wifi / 10.0, 0.0, 1.0)
+        fused_lat = alpha * init_lat + (1 - alpha) * prev_pdr_lat
+        fused_lon = alpha * init_lon + (1 - alpha) * prev_pdr_lon
+    elif fusion_strategy == "wifi_only":
+        fused_lat, fused_lon = init_lat, init_lon
+    elif fusion_strategy == "pdr_only":
+        fused_lat, fused_lon = prev_pdr_lat, prev_pdr_lon
+    elif fusion_strategy == "weighted_time":
+        dt = d["timestamp"] - prev["timestamp"]
+        alpha = np.exp(-dt / 3.0)  # 根據時間差做指數衰減
+        fused_lat = alpha * init_lat + (1 - alpha) * prev_pdr_lat
+        fused_lon = alpha * init_lon + (1 - alpha) * prev_pdr_lon
+    elif fusion_strategy == "average_all":
+        # 將 init_lat/lon、prev_pdr_lat/lon、prev["init_lat/lon"] 平均融合
+        prev_init_lat, prev_init_lon = prev["init_lat"], prev["init_lon"]
+        fused_lat = np.mean([init_lat, prev_init_lat, prev_pdr_lat])
+        fused_lon = np.mean([init_lon, prev_init_lon, prev_pdr_lon])
+    else:
+        raise ValueError("Unsupported fusion strategy")
+
+    # 寫入選擇的主融合輸出
+    d["fused_lat"] = fused_lat
+    d["fused_lon"] = fused_lon
+    
+    pdr_trajectory = estimate_trajectory_from_imu_all(d["fused_lat"], d["fused_lon"], imu_seq)
+    d["pdr_trajectory"] = pdr_trajectory
+    d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
+
+
 # IMU PDR 軌跡預測 & wifi_init + imu_seq推估 gt_lat/lon
 
-for d in aligned_data_all:
-    imu_seq = d["imu_window"]
-    pdr_trajectory = estimate_trajectory_from_imu_all(d["init_lat"], d["init_lon"], imu_seq)
-    d["pdr_trajectory"] = pdr_trajectory
-    d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]  # 末端點仍保留
+# for d in aligned_data_all:
+#     imu_seq = d["imu_window"]
+#     pdr_trajectory = estimate_trajectory_from_imu_all(d["init_lat"], d["init_lon"], imu_seq)
+#     d["pdr_trajectory"] = pdr_trajectory
+#     d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]  # 末端點仍保留
 
 # IMU PDR 軌跡預測 & wifi_init + imu_seq推估 gt_lat/lon(測試軌跡)
 
-for d in test_aligned_data:
-    imu_seq = d["imu_window"]
-    pdr_trajectory = estimate_trajectory_from_imu_all(d["init_lat"], d["init_lon"], imu_seq)
-    d["pdr_trajectory"] = pdr_trajectory
-    d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]  # 末端點仍保留
+# for d in test_aligned_data:
+#     imu_seq = d["imu_window"]
+#     pdr_trajectory = estimate_trajectory_from_imu_all(d["init_lat"], d["init_lon"], imu_seq)
+#     d["pdr_trajectory"] = pdr_trajectory
+#     d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]  # 末端點仍保留
 
 # IMU PDR 全軌跡預測 & (prev_pdr_lat, prev_pdr_lon)推估 gt_lat/lon
 # num = 0

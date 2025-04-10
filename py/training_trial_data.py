@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     aligned_data_train = trial_dict['all_trial']
 
-    aligned_data = trial_dict['test_trial03']
+    aligned_data = trial_dict['test_trial04']
 
     
 
@@ -42,6 +42,9 @@ if __name__ == '__main__':
         geodesic((d["gt_lat"], d["gt_lon"]), (d["init_lat"], d["init_lon"])).meters
         for d in aligned_data
     ]
+    wifi_init_rmse = np.sqrt(np.mean(np.square(wifi_init_errors)))
+    wifi_init_mean_error = np.mean(wifi_init_errors)
+
     pdr_errors = []
     for d in aligned_data:
         if num == 0:
@@ -55,8 +58,12 @@ if __name__ == '__main__':
     pdr_rmse = np.sqrt(np.mean(np.square(pdr_errors)))
     pdr_mean_error = np.mean(pdr_errors)
 
-    wifi_init_rmse = np.sqrt(np.mean(np.square(wifi_init_errors)))
-    wifi_init_mean_error = np.mean(wifi_init_errors)
+    fused_errors = [
+        geodesic((d["gt_lat"], d["gt_lon"]), (d["fused_lat"], d["fused_lon"])).meters
+        for d in aligned_data
+    ]
+    fused_rmse = np.sqrt(np.mean(np.square(fused_errors)))
+    fused_mean_error = np.mean(fused_errors)
 
     # 可視化：軌跡圖
     plt.figure(figsize=(8, 6))
@@ -66,6 +73,7 @@ if __name__ == '__main__':
     pdr_coords = [(d["pdr_lat"], d["pdr_lon"]) for d in aligned_data]
     #pdr_tra = [(d["pdr_trajectory"]) for d in aligned_data]
     pdr_tra = [pt for d in aligned_data for pt in d["pdr_trajectory"]]
+    fused_coords = [(d["fused_lat"], d["fused_lon"]) for d in aligned_data]
     # print(len(gt_coords))
     # print(len(pdr_coords))
 
@@ -75,6 +83,7 @@ if __name__ == '__main__':
     init_lats, init_lons = zip(*init_coords)
     pdr_lats, pdr_lons = zip(*pdr_coords)
     tra_lats, tra_lons = zip(*pdr_tra)
+    fused_lat, fused_lon = zip(*fused_coords)
 
 
     #plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
@@ -82,6 +91,7 @@ if __name__ == '__main__':
     plt.plot(init_lons, init_lats, label="Wi-Fi Init", marker="x")
     #plt.plot(pdr_lons, pdr_lats, label="IMU PDR", marker="^")
     #plt.plot(tra_lons, tra_lats, label="IMU PDR", marker="^")
+    #plt.plot(fused_lon, fused_lat, label="Wifi PDR Fused", marker="^")
 
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
@@ -93,5 +103,6 @@ if __name__ == '__main__':
 
     print(f'wifi_init_rmse = {wifi_init_rmse}, wifi_init_mean_error = {wifi_init_mean_error}')
     print(f'pdr_rmse = {pdr_rmse}, pdr_mean_error = {pdr_mean_error}')
+    print(f'fused_rmse = {fused_rmse}, fused_mean_error = {fused_mean_error}')
     #print(gt_coords)
 
