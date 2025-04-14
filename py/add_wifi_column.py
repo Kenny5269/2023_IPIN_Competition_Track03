@@ -3,7 +3,7 @@ import pandas as pd
 
 
 if __name__ == '__main__':
-    index = 'SCORE1'
+    index = 'T27_R4'
 
     # 讀取檔案
     all_columns_df = pd.read_csv("all_column_csv_files/unique_wifi_rssi.csv")
