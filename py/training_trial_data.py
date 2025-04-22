@@ -4,6 +4,8 @@ import numpy as np
 from geopy.distance import distance, geodesic
 from geopy import Point
 import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore")
 
 def plot_figure(aligned_data_train, aligned_data_test):
     # 可視化：軌跡圖
@@ -13,11 +15,11 @@ def plot_figure(aligned_data_train, aligned_data_test):
     print(len(gt_coords))
     init_coords = [(d["init_lat"], d["init_lon"]) for d in aligned_data_test if d["gt_lat"] is not None]
     print(len(init_coords))
-    #pdr_coords = [(d["pdr_lat"], d["pdr_lon"]) for d in aligned_data_test]
+    pdr_coords = [(d["pdr_lat"], d["pdr_lon"]) for d in aligned_data_test if d["pdr_lat"] is not None]
     #pdr_tra = [(d["pdr_trajectory"]) for d in aligned_data]
-    #pdr_tra = [pt for d in aligned_data_test for pt in d["pdr_trajectory"]]
+    pdr_tra = [pt for d in aligned_data_test if d["pdr_trajectory"] is not None for pt in d["pdr_trajectory"]]
     fused_coords = [(d["fused_lat"], d["fused_lon"]) for d in aligned_data_test if d["gt_lat"] is not None]
-    print(len(fused_coords))
+    print(len(pdr_coords))
     # print(len(gt_coords))
     # print(len(pdr_coords))
 
@@ -25,15 +27,15 @@ def plot_figure(aligned_data_train, aligned_data_test):
     gt_lats_ori, gt_lons_ori = zip(*gt_coords_origin)
     gt_lats, gt_lons = zip(*gt_coords)
     init_lats, init_lons = zip(*init_coords)
-    #pdr_lats, pdr_lons = zip(*pdr_coords)
-    #tra_lats, tra_lons = zip(*pdr_tra)
+    pdr_lats, pdr_lons = zip(*pdr_coords)
+    tra_lats, tra_lons = zip(*pdr_tra)
     fused_lat, fused_lon = zip(*fused_coords)
 
 
     #plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
     plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
     #plt.plot(init_lons, init_lats, label="Wi-Fi Init", marker="x")
-    #plt.plot(pdr_lons, pdr_lats, label="IMU PDR", marker="^")
+    #plt.plot(pdr_lons[105], pdr_lats[105], label="IMU PDR", marker="^")
     #plt.plot(tra_lons, tra_lats, label="IMU PDR", marker="^")
     plt.plot(fused_lon, fused_lat, label="Wifi PDR Fused", marker="^")
 

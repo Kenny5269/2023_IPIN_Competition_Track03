@@ -15,6 +15,8 @@ from sklearn.linear_model import Ridge
 from xgboost import XGBRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.svm import SVR
+import warnings
+warnings.filterwarnings("ignore")
 
 # ------------------------------
 # 設定參數與路徑
@@ -40,13 +42,13 @@ for i in index2:
     TEMP_IMU_CSV.append(f"py/T{i}_R1/IMU_50Hz.csv")
     TEMP_GT_CSV.append(f"py/T{i}_R1/POSI2.csv")
 
-TEST_WIFI_CSV = "py/TEST4/WIFI_merged2.csv"
-TEST_IMU_CSV = "py/TEST4/IMU_50Hz.csv"
-TEST_GT_CSV = "py/TEST4/POSI2.csv"
+TEST_WIFI_CSV = "py/TEST1/WIFI_merged2.csv"
+TEST_IMU_CSV = "py/TEST1/IMU_50Hz.csv"
+TEST_GT_CSV = "py/TEST1/POSI2.csv"
 
 OUTPUT_DIR = f"py/aligned_trials/all_trial"
 TEMP_OUTPUT_DIR = f"py/aligned_trials/temp_trial"
-TEST_OUTPUT_DIR = f"py/aligned_trials/test_trial04"
+TEST_OUTPUT_DIR = f"py/aligned_trials/test_trial01"
 
 IMU_WINDOW_SEC = 4.0
 STEP_THRESHOLD = 1.2
@@ -305,6 +307,13 @@ for x in range(len(INPUT_WIFI_CSV)):
         ].drop(columns=["SensorTimestamp(s)"]).reset_index(drop=True)
 
         aligned_data.append({
+            "init_lat" : None,
+            "init_lon" : None,
+            "pdr_trajectory" : None,
+            "pdr_lat" : None,
+            "pdr_lon" : None,
+            "fused_lat" : None,
+            "fused_lon" : None,
             "timestamp": wifi_time,
             "rssi_vector": rssi_vector,
             "imu_window": imu_window,
@@ -317,14 +326,14 @@ for x in range(len(INPUT_WIFI_CSV)):
     # 根據 GT 資料補上 aligned_data 對應時間點的 gt_lat/lon
     used_indices = set()
     posi_aligned_indices = []
-    for i in range(len(aligned_data)):
-        if aligned_data[i]["timestamp"] < posi_df.loc[0, "timestamp"]:
-            aligned_data[i]["gt_lat"] = posi_df.loc[0, "Latitude_degrees"]
-            aligned_data[i]["gt_lon"] = posi_df.loc[0, "Longitude_degrees"]
-            #used_indices.add(i)
-        elif aligned_data[i]["timestamp"] > posi_df.loc[len(posi_df)-1, "timestamp"]:
-            aligned_data[i]["gt_lat"] = posi_df.loc[len(posi_df)-1, "Latitude_degrees"]
-            aligned_data[i]["gt_lon"] = posi_df.loc[len(posi_df)-1, "Longitude_degrees"]
+    # for i in range(len(aligned_data)):
+    #     if aligned_data[i]["timestamp"] < posi_df.loc[0, "timestamp"]:
+    #         aligned_data[i]["gt_lat"] = posi_df.loc[0, "Latitude_degrees"]
+    #         aligned_data[i]["gt_lon"] = posi_df.loc[0, "Longitude_degrees"]
+    #         #used_indices.add(i)
+    #     elif aligned_data[i]["timestamp"] > posi_df.loc[len(posi_df)-1, "timestamp"]:
+    #         aligned_data[i]["gt_lat"] = posi_df.loc[len(posi_df)-1, "Latitude_degrees"]
+    #         aligned_data[i]["gt_lon"] = posi_df.loc[len(posi_df)-1, "Longitude_degrees"]
     for _, gt_row in posi_df.iterrows():
         gt_time = gt_row["timestamp"]
         closest_idx = min(
@@ -339,18 +348,18 @@ for x in range(len(INPUT_WIFI_CSV)):
             posi_aligned_indices.append(closest_idx)
 
     # 依據已知 GT 點之間做線性插值填補其餘點
-    for i in range(1, len(posi_aligned_indices)):
-        start_idx = posi_aligned_indices[i - 1]
-        end_idx = posi_aligned_indices[i]
-        start_lat, start_lon = aligned_data[start_idx]["gt_lat"], aligned_data[start_idx]["gt_lon"]
-        end_lat, end_lon = aligned_data[end_idx]["gt_lat"], aligned_data[end_idx]["gt_lon"]
-        steps = end_idx - start_idx
-        for j in range(1, steps):
-            ratio = j / steps
-            interp_lat = start_lat + ratio * (end_lat - start_lat)
-            interp_lon = start_lon + ratio * (end_lon - start_lon)
-            aligned_data[start_idx + j]["gt_lat"] = interp_lat
-            aligned_data[start_idx + j]["gt_lon"] = interp_lon
+    # for i in range(1, len(posi_aligned_indices)):
+    #     start_idx = posi_aligned_indices[i - 1]
+    #     end_idx = posi_aligned_indices[i]
+    #     start_lat, start_lon = aligned_data[start_idx]["gt_lat"], aligned_data[start_idx]["gt_lon"]
+    #     end_lat, end_lon = aligned_data[end_idx]["gt_lat"], aligned_data[end_idx]["gt_lon"]
+    #     steps = end_idx - start_idx
+    #     for j in range(1, steps):
+    #         ratio = j / steps
+    #         interp_lat = start_lat + ratio * (end_lat - start_lat)
+    #         interp_lon = start_lon + ratio * (end_lon - start_lon)
+    #         aligned_data[start_idx + j]["gt_lat"] = interp_lat
+    #         aligned_data[start_idx + j]["gt_lon"] = interp_lon
 
     for i in aligned_data:
         aligned_data_all.append(i)
@@ -379,6 +388,13 @@ for x in range(len(TEMP_WIFI_CSV)):
         ].drop(columns=["SensorTimestamp(s)"]).reset_index(drop=True)
 
         aligned_data.append({
+            "init_lat" : None,
+            "init_lon" : None,
+            "pdr_trajectory" : None,
+            "pdr_lat" : None,
+            "pdr_lon" : None,
+            "fused_lat" : None,
+            "fused_lon" : None,
             "timestamp": wifi_time,
             "rssi_vector": rssi_vector,
             "imu_window": imu_window,
@@ -508,12 +524,13 @@ for _, gt_row in posi_df.iterrows():
 rssi_features = []
 gt_positions = []
 for d in aligned_data_all:
-    rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
-    rssi_features.append(rssi)
+    
     if d["gt_lat"] is not None and d["gt_lon"] is not None:
+        rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
+        rssi_features.append(rssi)
         gt_positions.append([d["gt_lat"], d["gt_lon"]])
-    else:
-        gt_positions.append([0.0, 0.0])  # dummy placeholder
+    #else:
+        #gt_positions.append([0.0, 0.0])  # dummy placeholder
 rssi_features = np.array(rssi_features)
 gt_positions = np.array(gt_positions)
 
@@ -702,14 +719,14 @@ for i, d in enumerate(test_aligned_data):
     d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
 
 # 輸出所有對齊資料為 pickle
-# for i, d in enumerate(aligned_data_all):
-#     with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
-#         pickle.dump(d, f)
+for i, d in enumerate(aligned_data_all):
+    with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
+        pickle.dump(d, f)
 
 # 輸出所有對齊資料為 pickle
-# for i, d in enumerate(aligned_data_temp):
-#     with open(os.path.join(TEMP_OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
-#         pickle.dump(d, f)
+for i, d in enumerate(aligned_data_temp):
+    with open(os.path.join(TEMP_OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
+        pickle.dump(d, f)
 
 # 輸出所有對齊資料為 pickle
 for i, d in enumerate(test_aligned_data):
