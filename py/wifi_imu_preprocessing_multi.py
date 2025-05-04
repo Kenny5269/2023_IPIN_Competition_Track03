@@ -326,14 +326,14 @@ for x in range(len(INPUT_WIFI_CSV)):
     # 根據 GT 資料補上 aligned_data 對應時間點的 gt_lat/lon
     used_indices = set()
     posi_aligned_indices = []
-    # for i in range(len(aligned_data)):
-    #     if aligned_data[i]["timestamp"] < posi_df.loc[0, "timestamp"]:
-    #         aligned_data[i]["gt_lat"] = posi_df.loc[0, "Latitude_degrees"]
-    #         aligned_data[i]["gt_lon"] = posi_df.loc[0, "Longitude_degrees"]
-    #         #used_indices.add(i)
-    #     elif aligned_data[i]["timestamp"] > posi_df.loc[len(posi_df)-1, "timestamp"]:
-    #         aligned_data[i]["gt_lat"] = posi_df.loc[len(posi_df)-1, "Latitude_degrees"]
-    #         aligned_data[i]["gt_lon"] = posi_df.loc[len(posi_df)-1, "Longitude_degrees"]
+    for i in range(len(aligned_data)):
+        if aligned_data[i]["timestamp"] < posi_df.loc[0, "timestamp"]:
+            aligned_data[i]["gt_lat"] = posi_df.loc[0, "Latitude_degrees"]
+            aligned_data[i]["gt_lon"] = posi_df.loc[0, "Longitude_degrees"]
+            #used_indices.add(i)
+        elif aligned_data[i]["timestamp"] > posi_df.loc[len(posi_df)-1, "timestamp"]:
+            aligned_data[i]["gt_lat"] = posi_df.loc[len(posi_df)-1, "Latitude_degrees"]
+            aligned_data[i]["gt_lon"] = posi_df.loc[len(posi_df)-1, "Longitude_degrees"]
     for _, gt_row in posi_df.iterrows():
         gt_time = gt_row["timestamp"]
         closest_idx = min(
@@ -348,18 +348,18 @@ for x in range(len(INPUT_WIFI_CSV)):
             posi_aligned_indices.append(closest_idx)
 
     # 依據已知 GT 點之間做線性插值填補其餘點
-    # for i in range(1, len(posi_aligned_indices)):
-    #     start_idx = posi_aligned_indices[i - 1]
-    #     end_idx = posi_aligned_indices[i]
-    #     start_lat, start_lon = aligned_data[start_idx]["gt_lat"], aligned_data[start_idx]["gt_lon"]
-    #     end_lat, end_lon = aligned_data[end_idx]["gt_lat"], aligned_data[end_idx]["gt_lon"]
-    #     steps = end_idx - start_idx
-    #     for j in range(1, steps):
-    #         ratio = j / steps
-    #         interp_lat = start_lat + ratio * (end_lat - start_lat)
-    #         interp_lon = start_lon + ratio * (end_lon - start_lon)
-    #         aligned_data[start_idx + j]["gt_lat"] = interp_lat
-    #         aligned_data[start_idx + j]["gt_lon"] = interp_lon
+    for i in range(1, len(posi_aligned_indices)):
+        start_idx = posi_aligned_indices[i - 1]
+        end_idx = posi_aligned_indices[i]
+        start_lat, start_lon = aligned_data[start_idx]["gt_lat"], aligned_data[start_idx]["gt_lon"]
+        end_lat, end_lon = aligned_data[end_idx]["gt_lat"], aligned_data[end_idx]["gt_lon"]
+        steps = end_idx - start_idx
+        for j in range(1, steps):
+            ratio = j / steps
+            interp_lat = start_lat + ratio * (end_lat - start_lat)
+            interp_lon = start_lon + ratio * (end_lon - start_lon)
+            aligned_data[start_idx + j]["gt_lat"] = interp_lat
+            aligned_data[start_idx + j]["gt_lon"] = interp_lon
 
     for i in aligned_data:
         aligned_data_all.append(i)

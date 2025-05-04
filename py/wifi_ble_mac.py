@@ -30,15 +30,15 @@ if __name__ == '__main__':
     pivot_ble_rssi.columns = [f'ble_rssi_{mac}' for mac in pivot_ble_rssi.columns]
 
     merged_ble_df = pivot_ble_rssi.reset_index()
-    merged_ble_df.to_csv('BLE4_merged.csv', index=False)
+    #merged_ble_df.to_csv('BLE4_merged.csv', index=False)
 
     ble_rssi_columns = list(pivot_ble_rssi.columns)
     ble_columns_df = pd.DataFrame({'ble_rssi_columns': ble_rssi_columns})
-    ble_columns_df.to_csv('BLE4_column_names.csv', index=False)
+    #ble_columns_df.to_csv('BLE4_column_names.csv', index=False)
 
     # ============ 合併所有欄位名稱輸出 ============
     all_columns = wifi_rssi_columns + wifi_freq_columns + ble_rssi_columns
     all_columns_df = pd.DataFrame({'all_feature_columns': all_columns})
-    all_columns_df.to_csv(f'ALL_column_names_{index}.csv', index=False)
+    #all_columns_df.to_csv(f'ALL_column_names_{index}.csv', index=False)
 
     print("整理完成！已輸出 WIFI_merged.csv、WIFI_column_names.csv、BLE4_merged.csv、BLE4_column_names.csv、ALL_column_names.csv")
