@@ -17,6 +17,7 @@ from xgboost import XGBRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.svm import SVR
 from numpy.linalg import norm
+from pyproj import Transformer
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -66,6 +67,44 @@ FUSION_STRATEGY = "avg"        # WIFI與PDR融合，可選: avg, dyn, wifi_only,
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(TEMP_OUTPUT_DIR, exist_ok=True)
 os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
+
+class EKF_Localizer:
+    def __init__(self, init_pos, init_heading, process_noise_std=0.5, obs_noise_std=2.0):
+        self.x = np.array([init_pos[0], init_pos[1], init_heading], dtype=np.float64)  # 明確指定 dtype
+        self.P = np.eye(3) * 1.0
+        self.Q = np.diag([process_noise_std**2]*2 + [np.deg2rad(5)**2])
+        self.R = np.diag([obs_noise_std**2, obs_noise_std**2])
+
+    def predict(self, step_length, heading_delta):
+        theta = self.x[2] + heading_delta
+        dx = step_length * np.cos(theta)
+        dy = step_length * np.sin(theta)
+
+        self.x[0] += dx
+        self.x[1] += dy
+        self.x[2] = theta
+
+        F = np.array([
+            [1, 0, -step_length * np.sin(theta)],
+            [0, 1,  step_length * np.cos(theta)],
+            [0, 0, 1]
+        ])
+
+        self.P = F @ self.P @ F.T + self.Q
+
+    def update(self, z):
+        H = np.array([
+            [1, 0, 0],
+            [0, 1, 0]
+        ])
+        y = z - H @ self.x
+        S = H @ self.P @ H.T + self.R
+        K = self.P @ H.T @ np.linalg.inv(S)
+        self.x += K @ y
+        self.P = (np.eye(3) - K @ H) @ self.P
+
+    def get_state(self):
+        return self.x.copy()
 
 # ------------------------------
 
@@ -238,7 +277,7 @@ def estimate_trajectory_from_imu_all(aligned_data, this_idx, end_idx, imu_df, he
     mag_headings = np.unwrap(np.arctan2(mag_y, mag_x))
 
     if FUSION_METHOD == "complementary":
-        headings = estimate_heading_complementary(gyro_z, heading)
+        headings = estimate_heading_complementary(gyro_z, mag_headings)
     elif FUSION_METHOD == "madgwick":
         headings = estimate_heading_madgwick(imu_df, heading)
     elif FUSION_METHOD == "mahony":
@@ -376,7 +415,7 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
     mag_headings = np.unwrap(np.arctan2(mag_y, mag_x))
 
     if FUSION_METHOD == "complementary":
-        headings = estimate_heading_complementary(gyro_z, heading)
+        headings = estimate_heading_complementary(gyro_z, mag_headings)
     elif FUSION_METHOD == "madgwick":
         headings = estimate_heading_madgwick(imu_df, heading)
     elif FUSION_METHOD == "mahony":
@@ -441,6 +480,94 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
         aligned_data[this_idx+idx]["gt_lat_temp"] = curr_pos.latitude
         aligned_data[this_idx+idx]["gt_lon_temp"] = curr_pos.longitude
         #trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_df):
+    if len(imu_df) < 2:
+        return [(aligned_data[this_idx]["gt_lat"], aligned_data[this_idx]["gt_lon"])]
+
+    acc_mag = np.sqrt(imu_df["acc_x"]**2 + imu_df["acc_y"]**2 + imu_df["acc_z"]**2)
+    acc_mag = smooth_acc(acc_mag.to_numpy())
+    #print(acc_mag)
+
+    # 使用 scipy 的 find_peaks 做步態偵測
+    peaks, _ = find_peaks(acc_mag, height=None, distance=20, prominence=0.2)  # distance 防止過密誤判
+    #print(peaks)
+
+    plt.plot(acc_mag)
+    plt.plot(peaks, acc_mag[peaks], "x")
+    plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    plt.show()
+
+    gyro_z = imu_df["gyro_z"].to_numpy()
+    mag_x = imu_df["mag_x"].to_numpy()
+    mag_y = imu_df["mag_y"].to_numpy()
+    mag_headings = np.unwrap(np.arctan2(mag_y, mag_x))
+
+    if FUSION_METHOD == "complementary":
+        headings = estimate_heading_complementary(gyro_z, mag_headings)
+    elif FUSION_METHOD == "madgwick":
+        headings = estimate_heading_madgwick(imu_df)
+    elif FUSION_METHOD == "mahony":
+        headings = estimate_heading_mahony(imu_df)
+    elif FUSION_METHOD == "kalman":
+        headings = estimate_heading_kalman(gyro_z, mag_headings)
+    else:
+        headings = np.cumsum(gyro_z)
+
+    # 固定步長
+    # for idx in peaks:
+    #     heading_rad = headings[idx]
+    #     heading_deg = np.degrees(heading_rad) % 360
+    #     curr_pos = distance(meters=FIXED_STEP_LENGTH).destination(curr_pos, heading_deg)
+    #     pdr_latlon.append(np.array([curr_pos.latitude, curr_pos.longitude]))
+    #     #trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+    # 動態步長
+    # for idx in peaks:
+    #     win_start = max(0, idx - 15)
+    #     win_end = min(len(acc_mag), idx + 15)
+    #     local_rms = np.sqrt(np.mean(acc_mag[win_start:win_end]**2))
+    #     step_length = DYNAMIC_STEP_SCALE * local_rms
+    #     heading_deg = np.degrees(headings[idx]) % 360
+    #     curr_pos = distance(meters=step_length).destination(curr_pos, heading_deg)
+    #     trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+    # 動態步長(非RMS)
+    for idx in peaks:
+        win_start = max(0, idx - 15)
+        win_end = min(len(acc_mag), idx + 15)
+        acc_segment = acc_mag[win_start:win_end]
+
+        # 方法 A: 頻譜能量（能量越高代表震動越強 → 步長越大）
+        spectrum = np.abs(np.fft.rfft(acc_segment))
+        spectral_energy = np.sum(spectrum**2)
+        #print(np.sqrt(spectral_energy))
+        step_length_fft = DYNAMIC_STEP_SCALE * np.sqrt(spectral_energy)
+
+        # 方法 B: 移動平均強度
+        #print(np.mean(acc_segment))
+        step_length_avg = DYNAMIC_STEP_SCALE * np.mean(acc_segment)
+
+        # 方法 C: ZUPT：如果震動小於門檻，視為靜止（不推進）
+        if np.max(acc_segment) - np.min(acc_segment) < 0.05:
+            step_length_zupt = 0.0
+        else:
+            step_length_zupt = step_length_fft  # 或用 avg 也可
+
+        # 這裡可依需求切換用哪種
+        step_length = step_length_avg
+        #print(step_length)
+        heading_rad = headings[idx]
+        ekf.predict(step_length, heading_rad)
+        x, y = ekf.get_state()[0], ekf.get_state()[1]
+        lon, lat = transformer_back.transform(x, y)
+
+        # heading_deg = np.degrees(headings[idx]) % 360
+
+        aligned_data[this_idx+idx]["pdr_lat"] = lat
+        aligned_data[this_idx+idx]["pdr_lon"] = lon
+        # aligned_data[this_idx+idx]["gt_lat_temp"] = curr_pos.latitude
+        # aligned_data[this_idx+idx]["gt_lon_temp"] = curr_pos.longitude
 
 # Wi-Fi RSSI 初始定位模型訓練與預測函式
 
@@ -657,7 +784,7 @@ posi_df_test = posi_df_test.sort_values("timestamp").reset_index(drop=True)
 
 test_aligned_data = []
 
-for i in range(0):
+for i in range(len(imu_df_test)):
     imu_time = imu_df_test.loc[i, "timestamp"]
     # rssi_vector = wifi_df.iloc[i, 1:].to_numpy()
 
@@ -667,8 +794,10 @@ for i in range(0):
     # imu_data = imu_df.drop(columns=["timestamp","SensorTimestamp(s)"]).reset_index(drop=True)
 
     test_aligned_data.append({
-        "init_lat" : None,
-        "init_lon" : None,
+        "knn_lat" : None,
+        "knn_lon" : None,
+        "wifi_lat" : None,
+        "wifi_lon" : None,
         "pdr_lat" : None,
         "pdr_lon" : None,
         "fused_lat" : None,
@@ -714,8 +843,8 @@ for _, wifi_row in wifi_df_test.iterrows():
         wifi_used_indices_test.append(closest_idx)
 
 # WIFI RSSI 初始定位
-rssi_features = []
-gt_positions = []
+# rssi_features = []
+# gt_positions = []
 # for d in aligned_data_all:
 #     if d["gt_lat"] is not None and d["gt_lon"] is not None:
 #         rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
@@ -784,16 +913,16 @@ for i in range(1, len(gt_used_indices)):
         aligned_data[start_idx + j]["gt_lat_temp"] = interp_lat
         aligned_data[start_idx + j]["gt_lon_temp"] = interp_lon
 
-for d in aligned_data:
-    if d["rssi_vector"] is not None and d["gt_lat_temp"] is not None:
-        rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
-        rssi_features.append(rssi)
-        gt_positions.append([d["gt_lat_temp"], d["gt_lon_temp"]])
+# for d in aligned_data:
+#     if d["rssi_vector"] is not None and d["gt_lat_temp"] is not None:
+#         rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
+#         rssi_features.append(rssi)
+#         gt_positions.append([d["gt_lat_temp"], d["gt_lon_temp"]])
 
-rssi_features = np.array(rssi_features)
-gt_positions = np.array(gt_positions)
+# rssi_features = np.array(rssi_features)
+# gt_positions = np.array(gt_positions)
 
-wifi_model = train_wifi_model(rssi_features, gt_positions)
+# wifi_model = train_wifi_model(rssi_features, gt_positions)
 
 '''
 for i, d in enumerate(aligned_data_all):
@@ -854,6 +983,7 @@ for i, d in enumerate(aligned_data_all):
 '''
 
 # WIFI RSSI 初始定位(臨時測試軌跡)
+'''
 first = False
 for i, d in enumerate(aligned_data_temp):
     rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
@@ -915,69 +1045,47 @@ for i, d in enumerate(aligned_data_temp):
     pdr_trajectory = estimate_trajectory_from_imu_all(d["fused_lat"], d["fused_lon"], imu_seq)
     d["pdr_trajectory"] = pdr_trajectory
     d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
-
+'''
 # WIFI RSSI 初始定位(測試軌跡)
-first = False
-for i, d in enumerate(test_aligned_data):
-    rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
-    init_lat, init_lon = predict_wifi_position(wifi_model, rssi)
-    imu_seq = d["imu_data"]
-  
-    d["init_lat"] = init_lat
-    d["init_lon"] = init_lon
+with open('py/knn_model.pkl', 'rb') as f:
+    wifi_model = pickle.load(f)
+ekf = EKF_Localizer(init_pos=(0, 0), init_heading=0)
+# 設定原點為你的第一個定位點
+# test_aligned_data[wifi_used_indices_test[0]]["rssi_vector"]
+origin_lat, origin_lon = wifi_model.predict([test_aligned_data[wifi_used_indices_test[0]]["rssi_vector"]])[0]
+test_aligned_data[wifi_used_indices_test[0]]["knn_lat"] = origin_lat
+test_aligned_data[wifi_used_indices_test[0]]["knn_lon"] = origin_lon
 
-    if not first and d["gt_lat"] is not None:
-        first = True
-        print('first')
-        d["fused_lat"] = init_lat
-        d["fused_lon"] = init_lon
-        pdr_trajectory = estimate_trajectory_from_imu_all(d["fused_lat"], d["fused_lon"], imu_seq)
-        d["pdr_trajectory"] = pdr_trajectory
-        d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
-        continue
-    elif not first:
-        print('waiting')
-        continue
+# 建立 ENU 轉換器
+transformer = Transformer.from_crs("epsg:4326", f"+proj=tmerc +lat_0={origin_lat} +lon_0={origin_lon} +units=m", always_xy=True)
+# 建立轉換器（平面 → 經緯度）
+transformer_back = Transformer.from_crs(f"+proj=tmerc +lat_0={origin_lat} +lon_0={origin_lon} +units=m","epsg:4326", always_xy=True)
 
-    # 融合 init 與上一步 pdr 座標
-    fusion_strategy = FUSION_STRATEGY
+# 經緯度 → x, y（公尺）
+# x, y = transformer.transform(origin_lon, origin_lat)
 
-    prev = test_aligned_data[i - 1]
-    prev_pdr_lat, prev_pdr_lon = prev["pdr_lat"], prev["pdr_lon"]
-    
-    if fusion_strategy == "avg":
-        alpha = 0.7
-        fused_lat = alpha * init_lat + (1 - alpha) * prev_pdr_lat
-        fused_lon = alpha * init_lon + (1 - alpha) * prev_pdr_lon
-    elif fusion_strategy == "dyn":
-        dist_wifi = np.linalg.norm([init_lat - prev_pdr_lat, init_lon - prev_pdr_lon])
-        alpha = np.clip(1 - dist_wifi / 10.0, 0.0, 1.0)
-        fused_lat = alpha * init_lat + (1 - alpha) * prev_pdr_lat
-        fused_lon = alpha * init_lon + (1 - alpha) * prev_pdr_lon
-    elif fusion_strategy == "wifi_only":
-        fused_lat, fused_lon = init_lat, init_lon
-    elif fusion_strategy == "pdr_only":
-        fused_lat, fused_lon = prev_pdr_lat, prev_pdr_lon
-    elif fusion_strategy == "weighted_time":
-        dt = d["timestamp"] - prev["timestamp"]
-        alpha = np.exp(-dt / 3.0)  # 根據時間差做指數衰減
-        fused_lat = alpha * init_lat + (1 - alpha) * prev_pdr_lat
-        fused_lon = alpha * init_lon + (1 - alpha) * prev_pdr_lon
-    elif fusion_strategy == "average_all":
-        # 將 init_lat/lon、prev_pdr_lat/lon、prev["init_lat/lon"] 平均融合
-        prev_init_lat, prev_init_lon = prev["init_lat"], prev["init_lon"]
-        fused_lat = np.mean([init_lat, prev_init_lat, prev_pdr_lat])
-        fused_lon = np.mean([init_lon, prev_init_lon, prev_pdr_lon])
-    else:
-        raise ValueError("Unsupported fusion strategy")
+# 假設你有 EKF 輸出：
+# ekf_x, ekf_y = 12.3, 45.6  # 單位：公尺
 
-    # 寫入選擇的主融合輸出
-    d["fused_lat"] = fused_lat
-    d["fused_lon"] = fused_lon
-    
-    pdr_trajectory = estimate_trajectory_from_imu_all(d["fused_lat"], d["fused_lon"], imu_seq)
-    d["pdr_trajectory"] = pdr_trajectory
-    d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
+# 轉回經緯度
+# lon, lat = transformer_back.transform(ekf_x, ekf_y)
+
+for i in range(len(wifi_used_indices_test)-1):
+    this_wifi_index = wifi_used_indices_test[i]
+    next_wifi_index = wifi_used_indices_test[i+1]
+    imu_seq = imu_df2_test[this_wifi_index+1 : next_wifi_index]
+    estimate_trajectory_from_imu_all_test(test_aligned_data, this_wifi_index, next_wifi_index, imu_seq)
+    lat, lon = wifi_model.predict([test_aligned_data[wifi_used_indices_test[i+1]]["rssi_vector"]])[0]
+    test_aligned_data[wifi_used_indices_test[i+1]]["knn_lat"] = lat
+    test_aligned_data[wifi_used_indices_test[i+1]]["knn_lon"] = lon
+    x, y = transformer.transform(lon, lat)
+    ekf.update(np.array([x, y]))
+    ekf_x, ekf_y = ekf.get_state()[0], ekf.get_state()[1]
+    final_lon, final_lat = transformer_back.transform(x, y)
+    test_aligned_data[wifi_used_indices_test[i+1]]["wifi_lat"] = final_lat
+    test_aligned_data[wifi_used_indices_test[i+1]]["wifi_lon"] = final_lon
+    test_aligned_data[wifi_used_indices_test[i+1]]["fused_lat"] = final_lat
+    test_aligned_data[wifi_used_indices_test[i+1]]["fused_lon"] = final_lon
 
 # 輸出所有對齊資料為 pickle
 # for i, d in enumerate(aligned_data):
