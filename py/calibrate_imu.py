@@ -81,13 +81,13 @@ def remove_gravity(acc_data, gyro_data, timestamps, alpha=0.98):
     return np.array(dynamic_acc_list)
 
 # 讀取IMU資料
-index = 'TEST1'
+index = 'T27_R4'
 
 imu_df = pd.read_csv(f'{index}/IMU_aligned_calibrated.csv')
 
 # 指定靜止段時間範圍
-static_start = 40  # 起點秒數
-static_end = 50    # 終點秒數
+static_start = 50  # 起點秒數
+static_end = 53    # 終點秒數
 
 # 選出靜止段資料（根據AppTimestamp欄位）
 static_range = imu_df[(imu_df['AppTimestamp(s)'] >= static_start) & (imu_df['AppTimestamp(s)'] <= static_end)]

@@ -15,13 +15,13 @@ def lowpass_filter(data, cutoff_freq, fs, order=4):
         return np.stack([filtfilt(b, a, data[:, i]) for i in range(data.shape[1])], axis=1)
 
 # 讀取IMU原始資料
-index = 'TEST1'
+index = 'T27_R4'
 
 imu_df = pd.read_csv(f'{index}/IMU_50Hz.csv')  # 注意：應該是未經校準原始資料
 
 # 指定靜止段時間範圍
-static_start = 40  # 起點秒數
-static_end = 50    # 終點秒數
+static_start = 50  # 起點秒數
+static_end = 53    # 終點秒數
 
 # 僅保留 AppTimestamp >= 40 秒的資料，捨棄前段 calibration 動作資料
 imu_df = imu_df[imu_df['AppTimestamp(s)'] >= static_start].reset_index(drop=True)

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
 
-def plot_figure(aligned_data_train, aligned_data_test):
+def plot_figure_train(aligned_data_train, aligned_data_test):
     # 可視化：軌跡圖
     plt.figure(figsize=(8, 6))
     gt_coords_origin = [(d["gt_lat_ori"], d["gt_lon_ori"]) for d in aligned_data_train if d["gt_lat_ori"] is not None]
@@ -19,10 +19,14 @@ def plot_figure(aligned_data_train, aligned_data_test):
     #pdr_coords = [(d["pdr_lat"], d["pdr_lon"]) for d in aligned_data_test if d["pdr_lat"] is not None]
     #pdr_tra = [(d["pdr_trajectory"]) for d in aligned_data]
     #pdr_tra = [pt for d in aligned_data_test if d["pdr_trajectory"] is not None for pt in d["pdr_trajectory"]]
-    #fused_coords = [(d["fused_lat"], d["fused_lon"]) for d in aligned_data_test if d["gt_lat"] is not None]
+    # fused_coords = [(d["fused_lat"], d["fused_lon"]) for d in aligned_data_test if d["gt_lat"] is not None and d["fused_lat"] is not None]
+    # knn_coords = [(d["knn_lat"], d["knn_lon"]) for d in aligned_data_test if d["knn_lat"] is not None]
+    # wifi_coords_test = [(d["wifi_lat"], d["wifi_lon"]) for d in aligned_data_test if d["wifi_lat"] is not None]
+        
     #print(len(pdr_coords))
     # print(len(gt_coords))
     # print(len(pdr_coords))
+    # print(len(fused_coords))
 
 
     gt_lats_ori, gt_lons_ori = zip(*gt_coords_origin)
@@ -31,20 +35,108 @@ def plot_figure(aligned_data_train, aligned_data_test):
     #init_lats, init_lons = zip(*init_coords)
     #pdr_lats, pdr_lons = zip(*pdr_coords)
     #tra_lats, tra_lons = zip(*pdr_tra)
-    #fused_lat, fused_lon = zip(*fused_coords)
+    # fused_lat, fused_lon = zip(*fused_coords)
+    # knn_lat, knn_lon = zip(*knn_coords)
+    # wifi_lats_test, wifi_lons_test = zip(*wifi_coords_test)
 
 
     plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
+    plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
+    # plt.plot(wifi_lons, wifi_lats, label="Wi-Fi Point", marker="o")
+    #plt.plot(init_lons, init_lats, label="Wi-Fi Init", marker="x")
+    #plt.plot(pdr_lons[105], pdr_lats[105], label="IMU PDR", marker="^")
+    #plt.plot(tra_lons, tra_lats, label="IMU PDR", marker="^")
+    # plt.plot(fused_lon, fused_lat, label="Wifi PDR Fused", marker="^")
+    # plt.plot(knn_lon, knn_lat, label="KNN", marker="o")
+    # plt.plot(wifi_lons_test, wifi_lats_test, label="Wi-Fi", marker="^")
+
+    plt.xlabel("Longitude")
+    plt.ylabel("Latitude")
+    plt.title("PDR vs Ground Truth")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+def plot_figure_test(aligned_data_train, aligned_data_test):
+    fused_check = False
+    knn_check = False
+    wifi_check = False
+    # 可視化：軌跡圖
+    plt.figure(figsize=(8, 6))
+    # gt_coords_origin = [(d["gt_lat_ori"], d["gt_lon_ori"]) for d in aligned_data_train if d["gt_lat_ori"] is not None]
+    gt_coords = [(d["gt_lat"], d["gt_lon"]) for d in aligned_data_test if d["gt_lat"] is not None]
+    # wifi_coords = [(d["gt_lat_temp"], d["gt_lon_temp"]) for d in aligned_data_test if d["gt_lat_temp"] is not None and d["rssi_vector"] is not None]
+    #print(len(gt_coords))
+    #init_coords = [(d["init_lat"], d["init_lon"]) for d in aligned_data_test if d["gt_lat"] is not None]
+    #print(len(init_coords))
+    #pdr_coords = [(d["pdr_lat"], d["pdr_lon"]) for d in aligned_data_test if d["pdr_lat"] is not None]
+    #pdr_tra = [(d["pdr_trajectory"]) for d in aligned_data]
+    #pdr_tra = [pt for d in aligned_data_test if d["pdr_trajectory"] is not None for pt in d["pdr_trajectory"]]
+    # fused_coords = [(d["fused_lat"], d["fused_lon"]) for d in aligned_data_test if d["gt_lat"] is not None and d["fused_lat"] is not None]
+    fused_coords = []
+    knn_coords = []
+    wifi_coords_test = []
+    # knn_coords = [(d["knn_lat"], d["knn_lon"]) for d in aligned_data_test if d["knn_lat"] is not None]
+    # wifi_coords_test = [(d["wifi_lat"], d["wifi_lon"]) for d in aligned_data_test if d["wifi_lat"] is not None]
+    for i, d in enumerate(aligned_data_test):
+        if fused_check:
+            if d["fused_lat"] is not None:
+                fused_coords.append((d["fused_lat"], d["fused_lon"]))
+                fused_check = False
+            continue
+        if d["gt_lat"] is None:
+            continue
+        fused_check = True
+    for i, d in enumerate(aligned_data_test):
+        if knn_check:
+            if d["knn_lat"] is not None:
+                knn_coords.append((d["knn_lat"], d["knn_lon"]))
+                knn_check = False
+            continue
+        if d["gt_lat"] is None:
+            continue
+        knn_check = True
+    for i, d in enumerate(aligned_data_test):
+        if wifi_check:
+            if d["wifi_lat"] is not None:
+                wifi_coords_test.append((d["wifi_lat"], d["wifi_lon"]))
+                wifi_check = False
+            continue
+        if d["gt_lat"] is None:
+            continue
+        wifi_check = True
+        
+    #print(len(pdr_coords))
+    # print(len(gt_coords))
+    # print(len(pdr_coords))
+    # print(len(fused_coords))
+
+
+    # gt_lats_ori, gt_lons_ori = zip(*gt_coords_origin)
+    gt_lats, gt_lons = zip(*gt_coords)
+    # wifi_lats, wifi_lons = zip(*wifi_coords)
+    #init_lats, init_lons = zip(*init_coords)
+    #pdr_lats, pdr_lons = zip(*pdr_coords)
+    #tra_lats, tra_lons = zip(*pdr_tra)
+    fused_lat, fused_lon = zip(*fused_coords)
+    knn_lat, knn_lon = zip(*knn_coords)
+    wifi_lats_test, wifi_lons_test = zip(*wifi_coords_test)
+
+
+    # plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
     plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
     #plt.plot(wifi_lons, wifi_lats, label="Wi-Fi Point", marker="o")
     #plt.plot(init_lons, init_lats, label="Wi-Fi Init", marker="x")
     #plt.plot(pdr_lons[105], pdr_lats[105], label="IMU PDR", marker="^")
     #plt.plot(tra_lons, tra_lats, label="IMU PDR", marker="^")
-    #plt.plot(fused_lon, fused_lat, label="Wifi PDR Fused", marker="^")
+    plt.plot(fused_lon, fused_lat, label="Wifi PDR Fused", marker="^")
+    # plt.plot(knn_lon, knn_lat, label="KNN", marker="o")
+    # plt.plot(wifi_lons_test, wifi_lats_test, label="Wi-Fi", marker="^")
 
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
-    plt.title("PDR vs Ground Truth")
+    plt.title("EKF vs Ground Truth")
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
@@ -131,7 +223,7 @@ if __name__ == '__main__':
 
     root_dir = "aligned_trials"
 
-    read_file = ['T2_R1']
+    read_file = ['T2_R1', 'TEST1']
 
     # for trial_name in os.listdir(root_dir):
     #     trial_path = os.path.join(root_dir, trial_name)
@@ -165,7 +257,8 @@ if __name__ == '__main__':
     #                     + trial_dict['T22_R1'] + trial_dict['T23_R1'] + trial_dict['T24_R1'] \
     #                         + trial_dict['T25_R1'] + trial_dict['T26_R1'] + trial_dict['T27_R1']
 
-    aligned_data_train = trial_dict['T2_R1']
+    aligned_data_train = trial_dict['TEST1']
+    # plot_figure_train(aligned_data_train, aligned_data_train)
 
     # aligned_data_temp = trial_dict['temp_trial']
 
@@ -176,7 +269,7 @@ if __name__ == '__main__':
 
     # evaluate_errors(aligned_data_train)
     #all_errors(aligned_data_train)
-    plot_figure(aligned_data_train, aligned_data_train)
+    plot_figure_test(aligned_data_train, aligned_data_train)
 
     #evaluate_errors(aligned_data_test1)
     # all_errors(aligned_data_test1)

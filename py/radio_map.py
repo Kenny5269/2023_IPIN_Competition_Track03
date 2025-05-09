@@ -27,9 +27,9 @@ warnings.filterwarnings("ignore")
 total = [1,2,3,4,5,21,22,23,24,25,26,27]
 index1 = [1]
 index2 = [24,25,26,27]
-INPUT_WIFI_CSV = "py/T1_R1/WIFI_merged2.csv"
-INPUT_IMU_CSV = "py/T1_R1/IMU_calibrated2.csv"
-INPUT_GT_CSV = "py/T1_R1/POSI2.csv"
+INPUT_WIFI_CSV = "py/T27_R4/WIFI_merged2.csv"
+INPUT_IMU_CSV = "py/T27_R4/IMU_calibrated2.csv"
+INPUT_GT_CSV = "py/T27_R4/POSI2.csv"
 
 TEMP_WIFI_CSV = []
 TEMP_IMU_CSV = []
@@ -53,7 +53,7 @@ TEST_WIFI_CSV = "py/TEST1/WIFI_merged2.csv"
 TEST_IMU_CSV = "py/TEST1/IMU_calibrated2.csv"
 TEST_GT_CSV = "py/TEST1/POSI2.csv"
 
-OUTPUT_DIR = f"py/aligned_trials/T1_R1"
+OUTPUT_DIR = f"py/aligned_trials/T27_R4"
 TEMP_OUTPUT_DIR = f"py/aligned_trials/temp_trial"
 TEST_OUTPUT_DIR = f"py/aligned_trials/TEST1"
 
@@ -201,7 +201,7 @@ def estimate_heading_complementary(gyro_z, mag_headings, dt=0.02, alpha=0.98):
         fused.append(fused_val)
     return np.unwrap(fused)
 
-def estimate_heading_kalman(gyro_z, mag_headings, gt_heading, dt=0.02):
+def estimate_heading_kalman(gyro_z, mag_headings, dt=0.02):
     Q = 0.01  # 系統雜訊協方差
     R = 0.1   # 觀測雜訊協方差
     P = 1.0   # 初始誤差協方差
@@ -220,7 +220,7 @@ def estimate_heading_kalman(gyro_z, mag_headings, gt_heading, dt=0.02):
         headings.append(x)
     return np.unwrap(headings)
 
-def estimate_heading_madgwick(imu_df, gt_heading):
+def estimate_heading_madgwick(imu_df):
     acc = imu_df[["acc_x", "acc_y", "acc_z"]].to_numpy()
     gyro = imu_df[["gyro_x", "gyro_y", "gyro_z"]].to_numpy()
     mag = imu_df[["mag_x", "mag_y", "mag_z"]].to_numpy()
@@ -232,7 +232,7 @@ def estimate_heading_madgwick(imu_df, gt_heading):
     headings = np.arctan2(2*(qs[:,0]*qs[:,3] + qs[:,1]*qs[:,2]), 1 - 2*(qs[:,2]**2 + qs[:,3]**2))
     return np.unwrap(headings)
 
-def estimate_heading_mahony(imu_df, gt_heading):
+def estimate_heading_mahony(imu_df):
     acc = imu_df[["acc_x", "acc_y", "acc_z"]].to_numpy()
     gyro = imu_df[["gyro_x", "gyro_y", "gyro_z"]].to_numpy()
     mag = imu_df[["mag_x", "mag_y", "mag_z"]].to_numpy()
@@ -266,10 +266,10 @@ def estimate_trajectory_from_imu_all(aligned_data, this_idx, end_idx, imu_df, he
     peaks, _ = find_peaks(acc_mag, height=None, distance=20, prominence=0.2)  # distance 防止過密誤判
     #print(peaks)
 
-    plt.plot(acc_mag)
-    plt.plot(peaks, acc_mag[peaks], "x")
-    plt.plot(np.zeros_like(acc_mag), "--", color="gray")
-    plt.show()
+    # plt.plot(acc_mag)
+    # plt.plot(peaks, acc_mag[peaks], "x")
+    # plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    # plt.show()
 
     gyro_z = imu_df["gyro_z"].to_numpy()
     mag_x = imu_df["mag_x"].to_numpy()
@@ -279,11 +279,11 @@ def estimate_trajectory_from_imu_all(aligned_data, this_idx, end_idx, imu_df, he
     if FUSION_METHOD == "complementary":
         headings = estimate_heading_complementary(gyro_z, mag_headings)
     elif FUSION_METHOD == "madgwick":
-        headings = estimate_heading_madgwick(imu_df, heading)
+        headings = estimate_heading_madgwick(imu_df)
     elif FUSION_METHOD == "mahony":
-        headings = estimate_heading_mahony(imu_df, heading)
+        headings = estimate_heading_mahony(imu_df)
     elif FUSION_METHOD == "kalman":
-        headings = estimate_heading_kalman(gyro_z, mag_headings, heading)
+        headings = estimate_heading_kalman(gyro_z, mag_headings)
     else:
         headings = np.cumsum(gyro_z)
     
@@ -404,10 +404,10 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
     peaks, _ = find_peaks(acc_mag, height=STEP_THRESHOLD, distance=20, prominence=0.2)  # distance 防止過密誤判
     #print(peaks)
 
-    plt.plot(acc_mag)
-    plt.plot(peaks, acc_mag[peaks], "x")
-    plt.plot(np.zeros_like(acc_mag), "--", color="gray")
-    plt.show()
+    # plt.plot(acc_mag)
+    # plt.plot(peaks, acc_mag[peaks], "x")
+    # plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    # plt.show()
 
     gyro_z = imu_df["gyro_z"].to_numpy()
     mag_x = imu_df["mag_x"].to_numpy()
@@ -417,11 +417,11 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
     if FUSION_METHOD == "complementary":
         headings = estimate_heading_complementary(gyro_z, mag_headings)
     elif FUSION_METHOD == "madgwick":
-        headings = estimate_heading_madgwick(imu_df, heading)
+        headings = estimate_heading_madgwick(imu_df)
     elif FUSION_METHOD == "mahony":
-        headings = estimate_heading_mahony(imu_df, heading)
+        headings = estimate_heading_mahony(imu_df)
     elif FUSION_METHOD == "kalman":
-        headings = estimate_heading_kalman(gyro_z, mag_headings, heading)
+        headings = estimate_heading_kalman(gyro_z, mag_headings)
     else:
         headings = np.cumsum(gyro_z)
     
@@ -493,10 +493,10 @@ def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_d
     peaks, _ = find_peaks(acc_mag, height=None, distance=20, prominence=0.2)  # distance 防止過密誤判
     #print(peaks)
 
-    plt.plot(acc_mag)
-    plt.plot(peaks, acc_mag[peaks], "x")
-    plt.plot(np.zeros_like(acc_mag), "--", color="gray")
-    plt.show()
+    # plt.plot(acc_mag)
+    # plt.plot(peaks, acc_mag[peaks], "x")
+    # plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    # plt.show()
 
     gyro_z = imu_df["gyro_z"].to_numpy()
     mag_x = imu_df["mag_x"].to_numpy()
@@ -566,6 +566,8 @@ def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_d
 
         aligned_data[this_idx+idx]["pdr_lat"] = lat
         aligned_data[this_idx+idx]["pdr_lon"] = lon
+        aligned_data[this_idx+idx]["fused_lat"] = lat
+        aligned_data[this_idx+idx]["fused_lon"] = lon
         # aligned_data[this_idx+idx]["gt_lat_temp"] = curr_pos.latitude
         # aligned_data[this_idx+idx]["gt_lon_temp"] = curr_pos.longitude
 
@@ -889,16 +891,16 @@ for i in range(len(gt_used_indices)-1):
     
     gt_lats, gt_lons = zip(*gt_coords)
 
-    plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
-    plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
+    # plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
+    # plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
 
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
-    plt.title("Wi-Fi Init vs Ground Truth")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+    # plt.xlabel("Longitude")
+    # plt.ylabel("Latitude")
+    # plt.title("Wi-Fi Init vs Ground Truth")
+    # plt.legend()
+    # plt.grid(True)
+    # plt.tight_layout()
+    # plt.show()
 
 for i in range(1, len(gt_used_indices)):
     start_idx = gt_used_indices[i - 1]
@@ -1047,7 +1049,7 @@ for i, d in enumerate(aligned_data_temp):
     d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
 '''
 # WIFI RSSI 初始定位(測試軌跡)
-with open('py/knn_model.pkl', 'rb') as f:
+with open('py/knn_model2.pkl', 'rb') as f:
     wifi_model = pickle.load(f)
 ekf = EKF_Localizer(init_pos=(0, 0), init_heading=0)
 # 設定原點為你的第一個定位點
@@ -1087,6 +1089,13 @@ for i in range(len(wifi_used_indices_test)-1):
     test_aligned_data[wifi_used_indices_test[i+1]]["fused_lat"] = final_lat
     test_aligned_data[wifi_used_indices_test[i+1]]["fused_lon"] = final_lon
 
+wifi_last_index = wifi_used_indices_test[len(wifi_used_indices_test)-1]
+gt_last_index = gt_used_indices_test[len(gt_used_indices_test)-1]
+
+if gt_last_index > wifi_last_index:
+    imu_seq = imu_df2_test[wifi_last_index+1 : gt_last_index]
+    estimate_trajectory_from_imu_all_test(test_aligned_data, wifi_last_index, gt_last_index, imu_seq)
+
 # 輸出所有對齊資料為 pickle
 # for i, d in enumerate(aligned_data):
 #     with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
@@ -1103,9 +1112,9 @@ for i in range(len(wifi_used_indices_test)-1):
 # for i, d in enumerate(test_aligned_data):
 #     with open(os.path.join(TEST_OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
 #         pickle.dump(d, f)
-# with open(os.path.join(OUTPUT_DIR, f"all_data.pkl"), "wb") as f:
-#     pickle.dump(test_aligned_data, f)
+with open(os.path.join(TEST_OUTPUT_DIR, f"all_data.pkl"), "wb") as f:
+    pickle.dump(test_aligned_data, f)
 
 # print(f"處理完成，共輸出 {len(aligned_data)} 筆對齊資料到資料夾：{OUTPUT_DIR}")
 # print(f"處理完成，共輸出 {len(aligned_data_temp)} 筆對齊資料到資料夾：{TEMP_OUTPUT_DIR}")
-# print(f"處理完成，共輸出 {len(test_aligned_data)} 筆對齊資料到資料夾：{TEST_OUTPUT_DIR}")
+print(f"處理完成，共輸出 {len(test_aligned_data)} 筆對齊資料到資料夾：{TEST_OUTPUT_DIR}")
