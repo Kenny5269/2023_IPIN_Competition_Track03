@@ -223,7 +223,7 @@ if __name__ == '__main__':
 
     root_dir = "aligned_trials"
 
-    read_file = ['T2_R1', 'TEST1']
+    read_file = ['T3_R1', 'TEST1']
 
     # for trial_name in os.listdir(root_dir):
     #     trial_path = os.path.join(root_dir, trial_name)
@@ -257,8 +257,8 @@ if __name__ == '__main__':
     #                     + trial_dict['T22_R1'] + trial_dict['T23_R1'] + trial_dict['T24_R1'] \
     #                         + trial_dict['T25_R1'] + trial_dict['T26_R1'] + trial_dict['T27_R1']
 
-    aligned_data_train = trial_dict['TEST1']
-    # plot_figure_train(aligned_data_train, aligned_data_train)
+    aligned_data_train = trial_dict['T3_R1']
+    plot_figure_train(aligned_data_train, aligned_data_train)
 
     # aligned_data_temp = trial_dict['temp_trial']
 
@@ -269,7 +269,7 @@ if __name__ == '__main__':
 
     # evaluate_errors(aligned_data_train)
     #all_errors(aligned_data_train)
-    plot_figure_test(aligned_data_train, aligned_data_train)
+    # plot_figure_test(aligned_data_train, aligned_data_train)
 
     #evaluate_errors(aligned_data_test1)
     # all_errors(aligned_data_test1)
