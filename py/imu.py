@@ -2,6 +2,12 @@
 import pandas as pd
 import numpy as np
 
+# 還原 Quat_1 (w)
+def reconstruct_quaternion(qx, qy, qz):
+    temp = 1.0 - qx**2 - qy**2 - qz**2
+    qw = np.sqrt(np.maximum(temp, 0))  # or use -np.sqrt if needed
+    return qw
+
 # 定義常數
 g_world = np.array([0, 0, 9.81])  # 世界座標系的重力向量 (垂直向下)
 
@@ -81,11 +87,15 @@ def remove_gravity(acc_data, gyro_data, timestamps, alpha=0.98):
 
 
 if __name__ == '__main__':
-    index = 'C1'
+    index = 'T1_R1'
     # 讀取感測器資料
     acce_df = pd.read_csv(f'{index}/ACCE.csv')
     gyro_df = pd.read_csv(f'{index}/GYRO.csv')
     magn_df = pd.read_csv(f'{index}/MAGN.csv')
+    ahrs_df = pd.read_csv(f'{index}/AHRS.csv')
+    quat_1 = reconstruct_quaternion(ahrs_df['Quat_2'], ahrs_df['Quat_3'], ahrs_df['Quat_4'])
+    ahrs_df.insert(5, 'Quat_1', quat_1)
+    # ahrs_df_final= ahrs_df.drop(columns=["Quat_2","Quat_3(s)"]).reset_index(drop=True)
 
     # 定義對齊函數：最近時間點
     def align_nearest(target_df, source_df, target_time_col, source_time_col, value_cols):
@@ -103,6 +113,7 @@ if __name__ == '__main__':
     # 對齊 GYRO 與 MAGN 至 ACCE 的時間軸
     aligned_df = align_nearest(acce_df, gyro_df, "SensorTimestamp(s)", "SensorTimestamp(s)", ["gyro_x", "gyro_y", "gyro_z"])
     aligned_df = align_nearest(aligned_df, magn_df, "SensorTimestamp(s)", "SensorTimestamp(s)", ["mag_x", "mag_y", "mag_z"])
+    aligned_df = align_nearest(aligned_df, ahrs_df, "SensorTimestamp(s)", "SensorTimestamp(s)", ["PitchX", "RollY", "YawZ", "Quat_1", "Quat_2", "Quat_3", "Quat_4"])
 
     # timestamps = aligned_df['SensorTimestamp(s)'].values        # 時間戳記
     # acc_data = aligned_df[['acc_x', 'acc_y', 'acc_z']].values    # 加速度 (ax, ay, az)

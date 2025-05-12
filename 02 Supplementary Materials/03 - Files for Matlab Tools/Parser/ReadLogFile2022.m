@@ -29,7 +29,7 @@ Pres=ones(numlineas,4)*NaN; index_Pres=1;
 Ligh=ones(numlineas,4)*NaN; index_Ligh=1;
 Prox=ones(numlineas,4)*NaN; index_Prox=1;
 Soun=ones(numlineas,4)*NaN; index_Soun=1;
-Ahrs=ones(numlineas,9)*NaN; index_Ahrs=1;
+Ahrs=ones(numlineas,8)*NaN; index_Ahrs=1;
 Gnss=ones(numlineas,10)*NaN; index_Gnss=1;
 Rfid=ones(numlineas,5)*NaN; index_Rfid=1;% datos RFID con 5 columas: 1)time stamp, 2) id_reader, 3) id_tag, 4) RSS1  y RSS2
 Wifi=cell(numlineas, 4); index_Wifi=1;
@@ -115,7 +115,7 @@ while (~eof)
                     tipo='SOUN';
                 end
                 if ( strfind(linea,'AHRS'))  % Es una linea de Orientacion
-                    datos=sscanf(linea,'%*4s;%f;%f;%f;%f;%f;%f;%f;%f;%f')';
+                    datos=sscanf(linea,'%*4s;%f;%f;%f;%f;%f;%f;%f;%f;%*f')';
                     tipo='AHRS';
                 end
                 if ( strfind(linea,'GNSS'))  % Es una linea de GPS
@@ -212,7 +212,7 @@ while (~eof)
         Soun(index_Soun,1:4)=datos;   index_Soun=index_Soun+1;
     end
     if strcmp(tipo,'AHRS')
-        Ahrs(index_Ahrs,1:9)=datos;   index_Ahrs=index_Ahrs+1;
+        Ahrs(index_Ahrs,1:8)=datos;   index_Ahrs=index_Ahrs+1;
     end
     if strcmp(tipo,'GNSS')
         Gnss(index_Gnss,1:10)=datos;   index_Gnss=index_Gnss+1;
@@ -255,29 +255,33 @@ Ble4=Ble4(1:index_Ble4-1,:);
 Ble4UUID=Ble4UUID(1:index_Ble4-1,:);
 
 % save Acce, Gyro, Magn, Wifi, Ble4 to .csv
-header = {'AppTimestamp(s)', 'SensorTimestamp(s)', 'acc_x', 'acc_y', 'acc_z'};
+% header = {'AppTimestamp(s)', 'SensorTimestamp(s)', 'acc_x', 'acc_y', 'acc_z'};
+% 
+% writecell([header; num2cell(Acce)], '../../../py/ACCE.csv');
+% 
+% header = {'AppTimestamp(s)', 'SensorTimestamp(s)', 'gyro_x', 'gyro_y', 'gyro_z'};
+% 
+% writecell([header; num2cell(Gyro)], '../../../py/GYRO.csv');
+% 
+% header = {'AppTimestamp(s)', 'SensorTimestamp(s)', 'mag_x', 'mag_y', 'mag_z'};
+% 
+% writecell([header; num2cell(Magn)], '../../../py/MAGN.csv');
 
-writecell([header; num2cell(Acce)], '../../../py/ACCE.csv');
+header = {'AppTimestamp(s)', 'SensorTimestamp(s)', 'PitchX', 'RollY', 'YawZ','Quat_2','Quat_3','Quat_4'};
 
-header = {'AppTimestamp(s)', 'SensorTimestamp(s)', 'gyro_x', 'gyro_y', 'gyro_z'};
+writecell([header; num2cell(Ahrs)], '../../../py/AHRS.csv');
 
-writecell([header; num2cell(Gyro)], '../../../py/GYRO.csv');
-
-header = {'AppTimestamp(s)', 'SensorTimestamp(s)', 'mag_x', 'mag_y', 'mag_z'};
-
-writecell([header; num2cell(Magn)], '../../../py/MAGN.csv');
-
-header = {'AppTimestamp(s)', 'MAC', 'Frequency', 'RSSI'};
-
-writecell([header; Wifi], '../../../py/WIFI.csv');
-
-header = {'AppTimestamp(s)', 'MAC', 'RSSI'};
-
-writecell([header; Ble4], '../../../py/BLE4.csv');
-
-header = {'AppTimestamp(s)', 'Latitude_degrees', 'Longitude_degrees', 'floor_ID'};
-
-writecell([header; num2cell(Posi)], '../../../py/POSI.csv');
+% header = {'AppTimestamp(s)', 'MAC', 'Frequency', 'RSSI'};
+% 
+% writecell([header; Wifi], '../../../py/WIFI.csv');
+% 
+% header = {'AppTimestamp(s)', 'MAC', 'RSSI'};
+% 
+% writecell([header; Ble4], '../../../py/BLE4.csv');
+% 
+% header = {'AppTimestamp(s)', 'Latitude_degrees', 'Longitude_degrees', 'floor_ID'};
+% 
+% writecell([header; num2cell(Posi)], '../../../py/POSI.csv');
 
 % grabar en .mat
 save([filename,'.mat'],'Posi','Acce','Gyro','Magn','Pres','Ligh','Prox','Soun','Ahrs','Gnss','Rfid','Wifi','Imul','Imux','Ble4','Ble4UUID');
