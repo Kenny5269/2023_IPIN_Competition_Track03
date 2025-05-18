@@ -27,9 +27,9 @@ warnings.filterwarnings("ignore")
 total = [1,2,3,4,5,21,22,23,24,25,26,27]
 index1 = [1]
 index2 = [24,25,26,27]
-INPUT_WIFI_CSV = "py/T3_R1/WIFI_merged2.csv"
-INPUT_IMU_CSV = "py/T3_R1/IMU_calibrated3.csv"
-INPUT_GT_CSV = "py/T3_R1/POSI2.csv"
+INPUT_WIFI_CSV = "py/T2_R1/WIFI_merged2.csv"
+INPUT_IMU_CSV = "py/T2_R1/IMU_calibrated3_temp.csv"
+INPUT_GT_CSV = "py/T2_R1/POSI2.csv"
 
 TEMP_WIFI_CSV = []
 TEMP_IMU_CSV = []
@@ -53,12 +53,12 @@ TEST_WIFI_CSV = "py/TEST1/WIFI_merged2.csv"
 TEST_IMU_CSV = "py/TEST1/IMU_calibrated2.csv"
 TEST_GT_CSV = "py/TEST1/POSI2.csv"
 
-OUTPUT_DIR = f"py/aligned_trials/T3_R1"
+OUTPUT_DIR = f"py/aligned_trials/T1_R1"
 TEMP_OUTPUT_DIR = f"py/aligned_trials/temp_trial"
 TEST_OUTPUT_DIR = f"py/aligned_trials/TEST1"
 
 IMU_WINDOW_SEC = 4.0
-STEP_THRESHOLD = 1.2
+STEP_THRESHOLD = 0.5
 FIXED_STEP_LENGTH = 0.5
 DYNAMIC_STEP_SCALE = 0.03  # 動態步長係數，越大步越長
 FUSION_METHOD = "madgwick"  # IMU與地磁融合，可選: complementary, kalman, madgwick, mahony
@@ -404,26 +404,29 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
     peaks, _ = find_peaks(acc_mag, height=STEP_THRESHOLD, distance=20, prominence=0.2)  # distance 防止過密誤判
     #print(peaks)
 
-    # plt.plot(acc_mag)
-    # plt.plot(peaks, acc_mag[peaks], "x")
-    # plt.plot(np.zeros_like(acc_mag), "--", color="gray")
-    # plt.show()
+    plt.plot(acc_mag)
+    plt.plot(peaks, acc_mag[peaks], "x")
+    plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    plt.show()
 
-    gyro_z = imu_df["gyro_z"].to_numpy()
-    mag_x = imu_df["mag_x"].to_numpy()
-    mag_y = imu_df["mag_y"].to_numpy()
-    mag_headings = np.unwrap(np.arctan2(mag_y, mag_x))
+    headings = imu_df['yaw_deg'].to_numpy()
+    # headings = imu_df['yaw_deq_ori'].to_numpy()
 
-    if FUSION_METHOD == "complementary":
-        headings = estimate_heading_complementary(gyro_z, mag_headings)
-    elif FUSION_METHOD == "madgwick":
-        headings = estimate_heading_madgwick(imu_df)
-    elif FUSION_METHOD == "mahony":
-        headings = estimate_heading_mahony(imu_df)
-    elif FUSION_METHOD == "kalman":
-        headings = estimate_heading_kalman(gyro_z, mag_headings)
-    else:
-        headings = np.cumsum(gyro_z)
+    # gyro_z = imu_df["gyro_z"].to_numpy()
+    # mag_x = imu_df["mag_x"].to_numpy()
+    # mag_y = imu_df["mag_y"].to_numpy()
+    # mag_headings = np.unwrap(np.arctan2(mag_y, mag_x))
+
+    # if FUSION_METHOD == "complementary":
+    #     headings = estimate_heading_complementary(gyro_z, mag_headings)
+    # elif FUSION_METHOD == "madgwick":
+    #     headings = estimate_heading_madgwick(imu_df)
+    # elif FUSION_METHOD == "mahony":
+    #     headings = estimate_heading_mahony(imu_df)
+    # elif FUSION_METHOD == "kalman":
+    #     headings = estimate_heading_kalman(gyro_z, mag_headings)
+    # else:
+    #     headings = np.cumsum(gyro_z)
     
     #headings = heading
     curr_pos = Point(aligned_data[this_idx]["gt_lat"], aligned_data[this_idx]["gt_lon"])
@@ -470,9 +473,11 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
             step_length_zupt = step_length_fft  # 或用 avg 也可
 
         # 這裡可依需求切換用哪種
-        step_length = step_length_avg
+        # step_length = step_length_avg
+        step_length = FIXED_STEP_LENGTH
 
-        heading_deg = np.degrees(headings[idx]) % 360
+        # heading_deg = np.degrees(headings[idx]) % 360
+        heading_deg = (headings[idx] + 360) % 360
         #geo_heading = (heading_deg + 135) % (2 * np.pi)
         curr_pos = distance(meters=step_length).destination(curr_pos, heading_deg)
         aligned_data[this_idx+idx]["gt_lat"] = curr_pos.latitude
@@ -878,7 +883,8 @@ for i in range(len(gt_used_indices)-1):
     gt_heading = compute_gt_heading(aligned_data[this_gt_index]["gt_lat_ori"], aligned_data[this_gt_index]["gt_lon_ori"], aligned_data[next_gt_index]["gt_lat_ori"], aligned_data[next_gt_index]["gt_lon_ori"])
     #gt_heading = np.arctan2(aligned_data[next_gt_index]["gt_lat_ori"] - aligned_data[this_gt_index]["gt_lat_ori"],
     #                        aligned_data[next_gt_index]["gt_lon_ori"] - aligned_data[this_gt_index]["gt_lon_ori"])
-    estimate_trajectory_from_imu_all(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)
+    # estimate_trajectory_from_imu_all(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)
+    estimate_trajectory_from_imu_all_old(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)
 
     # 畫出軌跡圖
     
@@ -891,16 +897,16 @@ for i in range(len(gt_used_indices)-1):
     
     gt_lats, gt_lons = zip(*gt_coords)
 
-    # plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
-    # plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
+    plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
+    plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
 
-    # plt.xlabel("Longitude")
-    # plt.ylabel("Latitude")
-    # plt.title("Wi-Fi Init vs Ground Truth")
-    # plt.legend()
-    # plt.grid(True)
-    # plt.tight_layout()
-    # plt.show()
+    plt.xlabel("Longitude")
+    plt.ylabel("Latitude")
+    plt.title("Wi-Fi Init vs Ground Truth")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
 
 for i in range(1, len(gt_used_indices)):
     start_idx = gt_used_indices[i - 1]
@@ -1100,8 +1106,8 @@ if gt_last_index > wifi_last_index:
 # for i, d in enumerate(aligned_data):
 #     with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
 #         pickle.dump(d, f)
-with open(os.path.join(OUTPUT_DIR, f"all_data.pkl"), "wb") as f:
-    pickle.dump(aligned_data, f)
+# with open(os.path.join(OUTPUT_DIR, f"all_data.pkl"), "wb") as f:
+#     pickle.dump(aligned_data, f)
 
 # 輸出所有對齊資料為 pickle
 # for i, d in enumerate(aligned_data_temp):

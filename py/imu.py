@@ -87,14 +87,14 @@ def remove_gravity(acc_data, gyro_data, timestamps, alpha=0.98):
 
 
 if __name__ == '__main__':
-    index = 'T1_R1'
+    index = 'T3_R1'
     # 讀取感測器資料
     acce_df = pd.read_csv(f'{index}/ACCE.csv')
     gyro_df = pd.read_csv(f'{index}/GYRO.csv')
     magn_df = pd.read_csv(f'{index}/MAGN.csv')
     ahrs_df = pd.read_csv(f'{index}/AHRS.csv')
-    quat_1 = reconstruct_quaternion(ahrs_df['Quat_2'], ahrs_df['Quat_3'], ahrs_df['Quat_4'])
-    ahrs_df.insert(5, 'Quat_1', quat_1)
+    quat_w = reconstruct_quaternion(ahrs_df['Quat_x'], ahrs_df['Quat_y'], ahrs_df['Quat_z'])
+    ahrs_df.insert(5, 'Quat_w', quat_w)
     # ahrs_df_final= ahrs_df.drop(columns=["Quat_2","Quat_3(s)"]).reset_index(drop=True)
 
     # 定義對齊函數：最近時間點
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     # 對齊 GYRO 與 MAGN 至 ACCE 的時間軸
     aligned_df = align_nearest(acce_df, gyro_df, "SensorTimestamp(s)", "SensorTimestamp(s)", ["gyro_x", "gyro_y", "gyro_z"])
     aligned_df = align_nearest(aligned_df, magn_df, "SensorTimestamp(s)", "SensorTimestamp(s)", ["mag_x", "mag_y", "mag_z"])
-    aligned_df = align_nearest(aligned_df, ahrs_df, "SensorTimestamp(s)", "SensorTimestamp(s)", ["PitchX", "RollY", "YawZ", "Quat_1", "Quat_2", "Quat_3", "Quat_4"])
+    aligned_df = align_nearest(aligned_df, ahrs_df, "SensorTimestamp(s)", "SensorTimestamp(s)", ["PitchX", "RollY", "YawZ", "Quat_w", "Quat_x", "Quat_y", "Quat_z"])
 
     # timestamps = aligned_df['SensorTimestamp(s)'].values        # 時間戳記
     # acc_data = aligned_df[['acc_x', 'acc_y', 'acc_z']].values    # 加速度 (ax, ay, az)

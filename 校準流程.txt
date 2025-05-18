@@ -1,0 +1,34 @@
+你現在的流程完全正確：
+
+濾波 → bias 扣除 → Madgwick → 世界座標
+
+再用 世界座標下的 acc_dynamic + 四元數推算的 heading 進行 PDR 與 EKF 融合
+
+1. 原始 acc, gyro, mag（手機座標系）
+2. 低通濾波（acc, gyro, mag）
+3. bias 扣除（gyro, mag）
+4. 用濾波 + 扣 bias 後的 acc/gyro/mag → Madgwick 濾波器 → 得到四元數 q[t]
+5. 四元數 q[t] → 轉成旋轉矩陣 R[t]
+6. 將 acc, gyro, mag → 用 R[t] 轉到世界座標系（acc_world 等）
+7. 對 acc_world 扣除：
+   - 重力向量 `[0, 0, 9.8]`
+   - 靜止段 bias → 得到 acc_dynamic
+8. 利用 acc_dynamic 做步態偵測、步長估計
+9. 使用 q[t] 或 R[t] 得到 heading（方向角）→ 用於 EKF 融合 / PDR 推進
+
+radio map階段 : 
+1. 原始資料df1: acc, gyro, mag（手機座標系）
+2. 自動偵測靜止段的時間
+3. 複製一份得到df2
+4. df2 低通濾波（acc, gyro, mag）
+5. df2 用濾波後的acc/gyro/mag → Madgwick 濾波器 → 得到四元數 q[t]
+6. 將得到之四元數q[t]存進df1
+7. 讀取df1中四元數q[t]，得到旋轉矩陣R[t]
+8. 將 df1 中acc, gyro, mag → 用 R[t] 轉到世界座標系並覆蓋原本欄位的值
+9. 對df1中acc扣除重力向量[0, 0, 9.8]，接著用靜止段得到bias 並扣除
+10. 對df1中gyro, mag用靜止段得到bias並扣除
+11. 此df1為校準完成之資料，包含acc, gyro, mag, 四元數q[t]
+12. 後續用df1做步態偵測、步長估計，並且用四元數q[t]得到heading(方向角)，用來做PDR軌跡補齊，完成Wi-Fi的指紋地圖建立
+
+線上偵測階段:(imu 採集頻率50Hz, Wi-Fi頻率0.25Hz)
+1. 

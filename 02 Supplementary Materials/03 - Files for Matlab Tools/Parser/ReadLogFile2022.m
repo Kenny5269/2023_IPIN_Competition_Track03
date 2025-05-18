@@ -267,7 +267,7 @@ Ble4UUID=Ble4UUID(1:index_Ble4-1,:);
 % 
 % writecell([header; num2cell(Magn)], '../../../py/MAGN.csv');
 
-header = {'AppTimestamp(s)', 'SensorTimestamp(s)', 'PitchX', 'RollY', 'YawZ','Quat_2','Quat_3','Quat_4'};
+header = {'AppTimestamp(s)', 'SensorTimestamp(s)', 'PitchX', 'RollY', 'YawZ','Quat_x','Quat_y','Quat_z'};
 
 writecell([header; num2cell(Ahrs)], '../../../py/AHRS.csv');
 
