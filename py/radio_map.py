@@ -18,6 +18,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.svm import SVR
 from numpy.linalg import norm
 from pyproj import Transformer
+from geomag import declination
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -27,9 +28,9 @@ warnings.filterwarnings("ignore")
 total = [1,2,3,4,5,21,22,23,24,25,26,27]
 index1 = [1]
 index2 = [24,25,26,27]
-INPUT_WIFI_CSV = "py/T2_R1/WIFI_merged2.csv"
-INPUT_IMU_CSV = "py/T2_R1/IMU_calibrated3_temp.csv"
-INPUT_GT_CSV = "py/T2_R1/POSI2.csv"
+INPUT_WIFI_CSV = "py/T1_R1/WIFI_merged2.csv"
+INPUT_IMU_CSV = "py/T1_R1/IMU_calibrated3_temp.csv"
+INPUT_GT_CSV = "py/T1_R1/POSI2.csv"
 
 TEMP_WIFI_CSV = []
 TEMP_IMU_CSV = []
@@ -58,9 +59,9 @@ TEMP_OUTPUT_DIR = f"py/aligned_trials/temp_trial"
 TEST_OUTPUT_DIR = f"py/aligned_trials/TEST1"
 
 IMU_WINDOW_SEC = 4.0
-STEP_THRESHOLD = 0.5
+STEP_THRESHOLD = 0.8
 FIXED_STEP_LENGTH = 0.5
-DYNAMIC_STEP_SCALE = 0.03  # 動態步長係數，越大步越長
+DYNAMIC_STEP_SCALE = 0.9  # 動態步長係數，越大步越長
 FUSION_METHOD = "madgwick"  # IMU與地磁融合，可選: complementary, kalman, madgwick, mahony
 FUSION_STRATEGY = "avg"        # WIFI與PDR融合，可選: avg, dyn, wifi_only, pdr_only, weighted_time, average_all
 
@@ -107,6 +108,46 @@ class EKF_Localizer:
         return self.x.copy()
 
 # ------------------------------
+
+def estimate_step_length_from_world_acc(df, step_index, window=10, method='instant'):
+    """
+    根據世界座標下的 acc_x, acc_y 資料估計步長。
+
+    參數:
+        df (pd.DataFrame): 包含 'acc_x', 'acc_y' 欄位的資料，應為世界座標下加速度
+        step_index (int): 此次步態發生的中心索引（如 peak index）
+        window (int): 使用的資料窗口大小（總長度 = 2*window + 1）
+        method (str): 使用 'instant' 或 'integrate' 方法計算步長
+
+    回傳:
+        float: 預估步長（單位：任意，視原始 acc 單位與 dt 而定）
+    """
+    if 'acc_x' not in df.columns or 'acc_y' not in df.columns:
+        raise ValueError("資料中必須包含 'acc_x' 與 'acc_y' 欄位")
+
+    start = max(0, step_index - window)
+    end = min(len(df), step_index + window + 1)
+    acc_xy = df[['acc_x', 'acc_y']].iloc[start:end].to_numpy()
+
+    if method == 'instant':
+        # 使用該中心點的加速度分量
+        center_idx = min(window, len(acc_xy) - 1)
+        acc_vec = acc_xy[center_idx]
+        step_length = np.linalg.norm(acc_vec)
+
+    elif method == 'integrate':
+        # 積分加速度 → 粗略估算速度 → 估步長
+        dt = 1 / 50  # 預設 50Hz
+        vel_xy = np.cumsum(acc_xy * dt, axis=0)
+        pos_xy = np.cumsum(vel_xy * dt, axis=0)
+        step_length = np.linalg.norm(pos_xy[-1] - pos_xy[0])
+        # delta_vel = vel_xy[-1] - vel_xy[0]
+        # step_length = np.linalg.norm(delta_vel)
+
+    else:
+        raise ValueError("method 必須是 'instant' 或 'integrate'")
+
+    return step_length
 
 def latlon_to_xy(lat, lon, ref_lat, ref_lon):
         R = 6371000  # 地球半徑 (m)
@@ -401,16 +442,61 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
     #print(acc_mag)
 
     # 使用 scipy 的 find_peaks 做步態偵測
-    peaks, _ = find_peaks(acc_mag, height=STEP_THRESHOLD, distance=20, prominence=0.2)  # distance 防止過密誤判
+    peaks, _ = find_peaks(acc_mag, height=STEP_THRESHOLD, distance=10, prominence=0.01)  # distance 防止過密誤判
     #print(peaks)
 
+    # plt.plot(acc_mag)
+    # plt.plot(peaks, acc_mag[peaks], "x")
+    # plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    # plt.show()
+
+    # 世界座標加速度
+    acc_x_world = imu_df['acc_x'].values
+    acc_y_world = imu_df['acc_y'].values
+    acc_z_world = imu_df['acc_z'].values
+
+    gyro_z = imu_df["gyro_z"].to_numpy()
+
+    # 畫圖
+    plt.figure(figsize=(14, 12))
+
+    # 第一張圖：平滑加速度
+    plt.subplot(3, 1, 1)
     plt.plot(acc_mag)
     plt.plot(peaks, acc_mag[peaks], "x")
     plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    plt.title('Smooth_acc and Peaks')
+    plt.xlabel('index')
+    plt.ylabel('Acceleration (m/s²)')
+    # plt.legend()
+    plt.grid(True)
+
+    # 第二張圖：世界座標三軸加速度
+    plt.subplot(3, 1, 2)
+    plt.plot(acc_x_world, label='acc_x_calibrated')
+    plt.plot(acc_y_world, label='acc_y_calibrated')
+    plt.plot(acc_z_world, label='acc_z_calibrated')
+    plt.title('World coordinate Accelerations')
+    plt.xlabel('index')
+    plt.ylabel('Acceleration (m/s²)')
+    plt.legend()
+    plt.grid(True)
+
+    # 第三張圖：角速度
+    plt.subplot(3, 1, 3)
+    plt.plot(gyro_z)
+    plt.title('gyro_world')
+    plt.xlabel('index')
+    plt.ylabel('Angular Velocity (rad/s)')
+    # plt.legend()
+    plt.grid(True)
+
+    plt.tight_layout()
     plt.show()
 
-    headings = imu_df['yaw_deg'].to_numpy()
-    # headings = imu_df['yaw_deq_ori'].to_numpy()
+    # headings = imu_df['yaw_deg'].to_numpy()
+    headings = imu_df['yaw_deg_ori'].to_numpy()
+    # headings = imu_df['yaw_deg_ori_cal'].to_numpy()
 
     # gyro_z = imu_df["gyro_z"].to_numpy()
     # mag_x = imu_df["mag_x"].to_numpy()
@@ -451,16 +537,19 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
     #     trajectory.append((curr_pos.latitude, curr_pos.longitude))
 
     # 動態步長(非RMS)
+    total_length = 0
     for idx in peaks:
-        win_start = max(0, idx - 15)
-        win_end = min(len(acc_mag), idx + 15)
+        decl = declination(curr_pos.latitude, curr_pos.longitude)
+        # print(f'{aligned_data[this_idx+idx]["timestamp"]}, {headings[idx]}, {decl}')
+        win_start = max(0, idx - 10)
+        win_end = min(len(acc_mag), idx + 10)
         acc_segment = acc_mag[win_start:win_end]
 
         # 方法 A: 頻譜能量（能量越高代表震動越強 → 步長越大）
         spectrum = np.abs(np.fft.rfft(acc_segment))
         spectral_energy = np.sum(spectrum**2)
         #print(np.sqrt(spectral_energy))
-        step_length_fft = DYNAMIC_STEP_SCALE * np.sqrt(spectral_energy)
+        step_length_fft = 0.03 * np.sqrt(spectral_energy)
 
         # 方法 B: 移動平均強度
         #print(np.mean(acc_segment))
@@ -473,11 +562,14 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
             step_length_zupt = step_length_fft  # 或用 avg 也可
 
         # 這裡可依需求切換用哪種
-        # step_length = step_length_avg
-        step_length = FIXED_STEP_LENGTH
-
+        # step_length = step_length_fft
+        # step_length = FIXED_STEP_LENGTH
+        step_length = estimate_step_length_from_world_acc(imu_df, idx) * 0.37
+        total_length += step_length
+        print(f'{aligned_data[this_idx+idx]["timestamp"]}, step_length = {step_length}')
         # heading_deg = np.degrees(headings[idx]) % 360
-        heading_deg = (headings[idx] + 360) % 360
+        
+        heading_deg = (-headings[idx] + 360) % 360
         #geo_heading = (heading_deg + 135) % (2 * np.pi)
         curr_pos = distance(meters=step_length).destination(curr_pos, heading_deg)
         aligned_data[this_idx+idx]["gt_lat"] = curr_pos.latitude
@@ -485,6 +577,8 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
         aligned_data[this_idx+idx]["gt_lat_temp"] = curr_pos.latitude
         aligned_data[this_idx+idx]["gt_lon_temp"] = curr_pos.longitude
         #trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+    print(total_length)
 
 def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_df):
     if len(imu_df) < 2:

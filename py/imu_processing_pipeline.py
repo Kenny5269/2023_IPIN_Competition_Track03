@@ -6,6 +6,7 @@ from scipy.signal import butter, filtfilt
 from scipy.spatial.transform import Rotation as R
 from numpy.linalg import norm
 from ahrs.filters import Madgwick
+from scipy.signal import find_peaks
 
 def normalize(v):
     return v / norm(v) if norm(v) > 0 else v
@@ -40,7 +41,7 @@ def initialize_quaternion_from_acc_mag(acc0, mag0):
     q_scipy = R.from_matrix(R_init).as_quat()  # [x, y, z, w]
     return np.array([q_scipy[3], q_scipy[0], q_scipy[1], q_scipy[2]])  # 轉成 [w, x, y, z]
 
-def detect_best_static_segment(df, window_size=100, min_time=30.0, max_time=60.0, 
+def detect_best_static_segment(df, window_size=100, min_time=40.0, max_time=60.0, 
                                 acc_threshold=0.06, gyro_threshold=0.02, mag_threshold=0.5):
     subset = df[(df['AppTimestamp(s)'] >= min_time) & (df['AppTimestamp(s)'] <= max_time)].copy()
 
@@ -62,19 +63,23 @@ def detect_best_static_segment(df, window_size=100, min_time=30.0, max_time=60.0
         mag_score = mag_var.mean()
 
         if acc_score < acc_threshold and gyro_score < gyro_threshold and mag_score < mag_threshold:
-            total_score = (acc_score + gyro_score + mag_score) / 3
-            if total_score < best_score:
-                best_score = total_score
-                best_idx = subset.index[i]  # ✅ 回傳對應到原始 df 的 index
-                best_start = subset.iloc[i]['AppTimestamp(s)']
-                best_end = subset.iloc[i + window_size - 1]['AppTimestamp(s)']
+            # total_score = (acc_score + gyro_score + mag_score) / 3
+            # if total_score < best_score:
+            #     best_score = total_score
+            #     best_idx = subset.index[i]  # ✅ 回傳對應到原始 df 的 index
+            #     best_start = subset.iloc[i]['AppTimestamp(s)']
+            #     best_end = subset.iloc[i + window_size - 1]['AppTimestamp(s)']
+
+            best_idx = subset.index[i]  # ✅ 回傳對應到原始 df 的 index
+            best_start = subset.iloc[i]['AppTimestamp(s)']
+            best_end = subset.iloc[i + window_size - 1]['AppTimestamp(s)']
 
     if best_idx is not None:
         return best_idx, best_start, best_end
     else:
         return None, None, None
 
-def detect_best_static_acc_segment(df, window_size=100, min_time=30.0, max_time=60.0, acc_threshold=0.06):
+def detect_best_static_acc_segment(df, window_size=100, min_time=40.0, max_time=60.0, acc_threshold=0.06):
     subset = df[(df['AppTimestamp(s)'] >= min_time) & (df['AppTimestamp(s)'] <= max_time)].copy()
 
     best_score = float('inf')
@@ -86,16 +91,22 @@ def detect_best_static_acc_segment(df, window_size=100, min_time=30.0, max_time=
         acc_var = np.var(acc_win, axis=0)
         acc_score = acc_var.mean()
 
-        if acc_score < acc_threshold and acc_score < best_score:
-            best_score = acc_score
+        # if acc_score < acc_threshold and acc_score < best_score:
+        #     best_score = acc_score
+        #     best_idx = subset.index[i]
+        #     best_start = subset.iloc[i]['AppTimestamp(s)']
+        #     best_end = subset.iloc[i + window_size - 1]['AppTimestamp(s)']
+
+        if acc_score < acc_threshold:
             best_idx = subset.index[i]
             best_start = subset.iloc[i]['AppTimestamp(s)']
             best_end = subset.iloc[i + window_size - 1]['AppTimestamp(s)']
+            return best_idx, best_start, best_end
 
-    if best_idx is not None:
-        return best_idx, best_start, best_end
-    else:
-        return None, None, None
+    # if best_idx is not None:
+    #     return best_idx, best_start, best_end
+    # else:
+    #     return None, None, None
 
 
 def detect_static_gyro_segment(df, window_size=100, max_time=60.0, gyro_threshold=0.02):
@@ -176,12 +187,23 @@ def madgwick_filter_with_mag_init(df, idx, t_start, t_end, beta=0.1, freq=50):
     if idx is None:
         raise RuntimeError("❌ 找不到靜止段，請檢查資料或參數")
     
+    # # 偵測 gyro norm 的 peak（可只用 gyro_z）
+    # gyro_z = df['gyro_z'].values.astype(float)
+    # gyro_peaks, _ = find_peaks(np.abs(gyro_z), height=0.5)  # 可調整 threshold
+    # print(len(gyro_peaks))
+
+    gyro_moving = (
+        (np.abs(df['gyro_x']) > 0.35) |
+        (np.abs(df['gyro_y']) > 0.35) |
+        (np.abs(df['gyro_z']) > 0.35)
+    )
+    
     # 使用該靜止段建立初始四元數
     acc0 = df[['acc_x', 'acc_y', 'acc_z']].iloc[idx:idx+100].mean().to_numpy()
     mag0 = df[['mag_x', 'mag_y', 'mag_z']].iloc[idx:idx+100].mean().to_numpy()
-    # q = initialize_quaternion_from_acc_mag(acc0, mag0)
-    q = initialize_quaternion(acc0, mag0)
-    # q = -q
+    q = initialize_quaternion_from_acc_mag(acc0, mag0)
+    # q = initialize_quaternion(acc0, mag0)
+    q = -q
     print(f'初始四元數 = {q}')
 
     # 取得第一筆 acc 與 mag 資料來初始化
@@ -193,69 +215,99 @@ def madgwick_filter_with_mag_init(df, idx, t_start, t_end, beta=0.1, freq=50):
     for _ in range(idx):
         quaternions.append([1.0, 0.0, 0.0, 0.0])
 
-    # # 從靜止段後開始推估姿態
-    # for i in range(idx, len(df)):
-    #     row = df.iloc[i]
-    #     ax, ay, az = row[['acc_x', 'acc_y', 'acc_z']]
-    #     gx, gy, gz = row[['gyro_x', 'gyro_y', 'gyro_z']]
-    #     mx, my, mz = row[['mag_x', 'mag_y', 'mag_z']]
+    # 從靜止段後開始推估姿態
+    for i in range(idx, len(df)):
+        row = df.iloc[i]
+        ax, ay, az = row[['acc_x', 'acc_y', 'acc_z']]
+        gx, gy, gz = row[['gyro_x', 'gyro_y', 'gyro_z']]
+        mx, my, mz = row[['mag_x', 'mag_y', 'mag_z']]
 
-    #     acc = normalize([ax, ay, az])
-    #     mag = normalize([mx, my, mz])
-    #     q1, q2, q3, q4 = q
+        acc = normalize([ax, ay, az])
+        mag = normalize([mx, my, mz])
+        q1, q2, q3, q4 = q
 
-    #     f = np.array([
-    #         2*(q2*q4 - q1*q3) - acc[0],
-    #         2*(q1*q2 + q3*q4) - acc[1],
-    #         2*(0.5 - q2**2 - q3**2) - acc[2]
-    #     ])
-    #     J = np.array([
-    #         [-2*q3,  2*q4, -2*q1, 2*q2],
-    #         [ 2*q2,  2*q1,  2*q4, 2*q3],
-    #         [ 0.0 , -4*q2, -4*q3, 0.0]
-    #     ])
-    #     step = normalize(J.T @ f)
+        if gyro_moving.iloc[i]:
+            f = np.array([
+                2*(q2*q4 - q1*q3) - acc[0],
+                2*(q1*q2 + q3*q4) - acc[1],
+                2*(0.5 - q2**2 - q3**2) - acc[2]
+            ])
+            J = np.array([
+                [-2*q3,  2*q4, -2*q1, 2*q2],
+                [ 2*q2,  2*q1,  2*q4, 2*q3],
+                [ 0.0 , -4*q2, -4*q3, 0.0]
+            ])
+            step = normalize(J.T @ f)
 
-    #     q_dot = 0.5 * np.array([
-    #         -q2*gx - q3*gy - q4*gz,
-    #          q1*gx + q3*gz - q4*gy,
-    #          q1*gy - q2*gz + q4*gx,
-    #          q1*gz + q2*gy - q3*gx
-    #     ]) - beta * step
+            q_dot = 0.5 * np.array([
+                -q2*gx - q3*gy - q4*gz,
+                q1*gx + q3*gz - q4*gy,
+                q1*gy - q2*gz + q4*gx,
+                q1*gz + q2*gy - q3*gx
+            ]) - beta * step
 
-    #     q += q_dot * dt
-    #     q = normalize(q)
-    #     quaternions.append(q.copy())
+            q += q_dot * dt
+            q = normalize(q)
 
-    # # 寫入欄位
-    # q_arr = np.array(quaternions)
-    # df['q_w'] = q_arr[:, 0]
-    # df['q_x'] = q_arr[:, 1]
-    # df['q_y'] = q_arr[:, 2]
-    # df['q_z'] = q_arr[:, 3]
+        # f = np.array([
+        #     2*(q2*q4 - q1*q3) - acc[0],
+        #     2*(q1*q2 + q3*q4) - acc[1],
+        #     2*(0.5 - q2**2 - q3**2) - acc[2]
+        # ])
+        # J = np.array([
+        #     [-2*q3,  2*q4, -2*q1, 2*q2],
+        #     [ 2*q2,  2*q1,  2*q4, 2*q3],
+        #     [ 0.0 , -4*q2, -4*q3, 0.0]
+        # ])
+        # step = normalize(J.T @ f)
 
-    # 第二種計算四元數方法
-    quaternions.append(q)
-    acc = df[["acc_x", "acc_y", "acc_z"]].to_numpy()
-    gyro = df[["gyro_x", "gyro_y", "gyro_z"]].to_numpy()
-    mag = df[["mag_x", "mag_y", "mag_z"]].to_numpy()
-    madgwick = Madgwick()
-    print(f'前 = {quaternions[idx]}')
-    for i in range(idx+1, len(df)):
-        # quaternions.append(madgwick.updateMARG(quaternions[i-1].copy(), gyr=gyro[i], acc=acc[i], mag=mag[i]))
-        quaternions.append(madgwick.updateIMU(quaternions[i-1].copy(), gyr=gyro[i], acc=acc[i]))
-    print(f'後 = {quaternions[idx]}')
+        # q_dot = 0.5 * np.array([
+        #     -q2*gx - q3*gy - q4*gz,
+        #     q1*gx + q3*gz - q4*gy,
+        #     q1*gy - q2*gz + q4*gx,
+        #     q1*gz + q2*gy - q3*gx
+        # ]) - beta * step
+
+        # q += q_dot * dt
+        # q = normalize(q)
+
+        quaternions.append(q.copy())
+
+    # 寫入欄位
     q_arr = np.array(quaternions)
     df['q_w'] = q_arr[:, 0]
     df['q_x'] = q_arr[:, 1]
     df['q_y'] = q_arr[:, 2]
     df['q_z'] = q_arr[:, 3]
 
+    # # 第二種計算四元數方法
+    # quaternions.append(q)
+    # # quaternions.append([1.0, 0.0, 0.0, 0.0])
+    # acc = df[["acc_x", "acc_y", "acc_z"]].to_numpy()
+    # gyro = df[["gyro_x", "gyro_y", "gyro_z"]].to_numpy()
+    # mag = df[["mag_x", "mag_y", "mag_z"]].to_numpy()
+    # madgwick = Madgwick()
+    # print(f'前 = {quaternions[idx]}')
+    # for i in range(idx+1, len(df)):
+    #     quaternions.append(madgwick.updateIMU(quaternions[i-1].copy(), gyr=gyro[i], acc=acc[i]))
+    #     # quaternions.append(madgwick.updateMARG(quaternions[i-1].copy(), gyr=gyro[i], acc=acc[i], mag=mag[i]))
+    #     # if gyro_moving.iloc[i]:
+    #     #     # quaternions.append(madgwick.updateIMU(quaternions[i-1].copy(), gyr=gyro[i], acc=acc[i]))
+    #     #     quaternions.append(madgwick.updateMARG(quaternions[i-1].copy(), gyr=gyro[i], acc=acc[i], mag=mag[i]))
+    #     # else:
+    #     #     quaternions.append(quaternions[i-1].copy())
+    # print(f'後 = {quaternions[idx]}')
+    # q_arr = np.array(quaternions)
+    # df['q_w'] = q_arr[:, 0]
+    # df['q_x'] = q_arr[:, 1]
+    # df['q_y'] = q_arr[:, 2]
+    # df['q_z'] = q_arr[:, 3]
+
     print(f"✅ 偵測到的靜止段：{t_start:.2f} 秒 ～ {t_end:.2f} 秒，從該段起開始估算四元數")
     return df
 
 # 讀取資料
-index = 'T3_R1'
+index = 'T1_R1'
 df = pd.read_csv(f'{index}/IMU_50Hz.csv')
 
 # 低通濾波器定義
@@ -274,9 +326,12 @@ for sensor in ['acc', 'gyro', 'mag']:
 # id_acc, start_acc, end_acc = detect_static_acc_segment(df)
 # id_gyro, start_gyro, end_gyro = detect_static_gyro_segment(df)
 # id_mag, start_mag, end_mag = detect_static_mag_segment(df)
+
 id_acc, start_acc, end_acc = detect_best_static_acc_segment(df)
 id_gyro, start_gyro, end_gyro = detect_best_static_gyro_segment(df)
 id_mag, start_mag, end_mag = detect_best_static_mag_segment(df)
+
+# id_acc, start_acc, end_acc = detect_best_static_segment(df)
 
 gyro_bias = df[(df['AppTimestamp(s)'] >= start_gyro) & (df['AppTimestamp(s)'] <= end_gyro)][['gyro_x', 'gyro_y', 'gyro_z']].mean().values
 mag_bias = df[(df['AppTimestamp(s)'] >= start_mag) & (df['AppTimestamp(s)'] <= end_mag)][['mag_x', 'mag_y', 'mag_z']].mean().values
@@ -284,10 +339,10 @@ mag_bias = df[(df['AppTimestamp(s)'] >= start_mag) & (df['AppTimestamp(s)'] <= e
 df[['gyro_x', 'gyro_y', 'gyro_z']] -= gyro_bias
 # df[['mag_x', 'mag_y', 'mag_z']] -= mag_bias
 
-print(f'start_gyro = {start_gyro}, end_gyro = {end_gyro}')
+print(f'start_gyro = {start_acc}, end_gyro = {end_acc}')
 print(f'gyro_bias = {gyro_bias}')
 
-print(f'start_mag = {start_mag}, end_mag = {end_mag}')
+print(f'start_mag = {start_acc}, end_mag = {end_acc}')
 print(f'mag_bias = {mag_bias}')
 
 
@@ -349,10 +404,15 @@ print(f'mag_bias = {mag_bias}')
 df = madgwick_filter_with_mag_init(df, id_acc, start_acc , end_acc)
 
 q_xyzw = df[['q_x', 'q_y', 'q_z', 'q_w']].to_numpy()
+q_xyzw_ori = df[['Quat_x', 'Quat_y', 'Quat_z', 'Quat_w']].to_numpy()
 
 r = R.from_quat(q_xyzw)
 eulers = r.as_euler('zyx', degrees=True)
 df['yaw_deg'] = eulers[:, 0]
+
+r2 = R.from_quat(q_xyzw_ori)
+eulers2 = r2.as_euler('zyx', degrees=True)
+df['yaw_deg_ori_cal'] = eulers2[:, 0]
 
 df['yaw_error'] = angular_difference_deg(df['YawZ'], df['yaw_deg'])
 
@@ -377,7 +437,7 @@ df['quat_angle_error_deg'] = angle_diff_deg
 # 四元數轉世界座標系 (acc, gyro, mag)(順序為 [x, y, z, w])
 acc_world, gyro_world, mag_world = [], [], []
 for i, row in df.iterrows():
-    quat = [row['q_x'], row['q_y'], row['q_z'], row['q_w']]
+    quat = [row['Quat_x'], row['Quat_y'], row['Quat_z'], row['Quat_w']]
     r = R.from_quat(quat)
     acc_world.append(r.apply(row[['acc_x', 'acc_y', 'acc_z']]))
     gyro_world.append(r.apply(row[['gyro_x', 'gyro_y', 'gyro_z']]))
@@ -391,12 +451,14 @@ df['gyro_wx'], df['gyro_wy'], df['gyro_wz'] = gyro_world[:,0], gyro_world[:,1], 
 df['mag_wx'], df['mag_wy'], df['mag_wz'] = mag_world[:,0], mag_world[:,1], mag_world[:,2]
 
 # 扣除重力與 bias
+# id_acc, start_acc, end_acc = detect_best_static_acc_segment(df)
+# print(f'start_acc = {start_acc}, end_acc = {end_acc}')
 gravity = np.array([0, 0, 9.8])
 acc_dynamic = acc_world - gravity
 static_dyn = df[(df['AppTimestamp(s)'] >= start_acc) & (df['AppTimestamp(s)'] <= end_acc)][['acc_wx', 'acc_wy', 'acc_wz']].values - gravity
 bias_world = static_dyn.mean(axis=0)
 print(bias_world)
-acc_dynamic -= bias_world
+# acc_dynamic -= bias_world
 df['acc_dx'], df['acc_dy'], df['acc_dz'] = acc_dynamic[:,0], acc_dynamic[:,1], acc_dynamic[:,2]
 
 # id_gyro, start_gyro, end_gyro = detect_best_static_gyro_segment(df)
@@ -426,10 +488,11 @@ final_export_df = pd.DataFrame({
     'gyro_x': df['gyro_wx'],
     'gyro_y': df['gyro_wy'],
     'gyro_z': df['gyro_wz'],
-    'mag_x': df['mag_x'],
-    'mag_y': df['mag_y'],
-    'mag_z': df['mag_z'],
-    'yaw_deq_ori': df['YawZ'],
+    'mag_x': df['mag_wx'],
+    'mag_y': df['mag_wy'],
+    'mag_z': df['mag_wz'],
+    'yaw_deg_ori': df['YawZ'],
+    'yaw_deg_ori_cal': df['yaw_deg_ori_cal'],
     'yaw_deg': df['yaw_deg'],
     'yaw_error': df['yaw_error'],
     'Quat_w': df['Quat_w'],
