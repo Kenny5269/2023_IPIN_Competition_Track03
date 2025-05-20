@@ -28,9 +28,9 @@ warnings.filterwarnings("ignore")
 total = [1,2,3,4,5,21,22,23,24,25,26,27]
 index1 = [1]
 index2 = [24,25,26,27]
-INPUT_WIFI_CSV = "py/T1_R1/WIFI_merged2.csv"
-INPUT_IMU_CSV = "py/T1_R1/IMU_calibrated3_temp.csv"
-INPUT_GT_CSV = "py/T1_R1/POSI2.csv"
+INPUT_WIFI_CSV = "py/T27_R1/WIFI_merged2.csv"
+INPUT_IMU_CSV = "py/T27_R1/IMU_calibrated3_temp.csv"
+INPUT_GT_CSV = "py/T27_R1/POSI2.csv"
 
 TEMP_WIFI_CSV = []
 TEMP_IMU_CSV = []
@@ -54,7 +54,7 @@ TEST_WIFI_CSV = "py/TEST1/WIFI_merged2.csv"
 TEST_IMU_CSV = "py/TEST1/IMU_calibrated2.csv"
 TEST_GT_CSV = "py/TEST1/POSI2.csv"
 
-OUTPUT_DIR = f"py/aligned_trials/T1_R1"
+OUTPUT_DIR = f"py/aligned_trials/T27_R1"
 TEMP_OUTPUT_DIR = f"py/aligned_trials/temp_trial"
 TEST_OUTPUT_DIR = f"py/aligned_trials/TEST1"
 
@@ -1200,8 +1200,8 @@ if gt_last_index > wifi_last_index:
 # for i, d in enumerate(aligned_data):
 #     with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
 #         pickle.dump(d, f)
-# with open(os.path.join(OUTPUT_DIR, f"all_data.pkl"), "wb") as f:
-#     pickle.dump(aligned_data, f)
+with open(os.path.join(OUTPUT_DIR, f"all_data.pkl"), "wb") as f:
+    pickle.dump(aligned_data, f)
 
 # 輸出所有對齊資料為 pickle
 # for i, d in enumerate(aligned_data_temp):

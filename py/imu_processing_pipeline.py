@@ -307,7 +307,7 @@ def madgwick_filter_with_mag_init(df, idx, t_start, t_end, beta=0.1, freq=50):
     return df
 
 # 讀取資料
-index = 'T1_R1'
+index = 'T27_R1'
 df = pd.read_csv(f'{index}/IMU_50Hz.csv')
 
 # 低通濾波器定義
@@ -336,7 +336,7 @@ id_mag, start_mag, end_mag = detect_best_static_mag_segment(df)
 gyro_bias = df[(df['AppTimestamp(s)'] >= start_gyro) & (df['AppTimestamp(s)'] <= end_gyro)][['gyro_x', 'gyro_y', 'gyro_z']].mean().values
 mag_bias = df[(df['AppTimestamp(s)'] >= start_mag) & (df['AppTimestamp(s)'] <= end_mag)][['mag_x', 'mag_y', 'mag_z']].mean().values
 
-df[['gyro_x', 'gyro_y', 'gyro_z']] -= gyro_bias
+# df[['gyro_x', 'gyro_y', 'gyro_z']] -= gyro_bias
 # df[['mag_x', 'mag_y', 'mag_z']] -= mag_bias
 
 print(f'start_gyro = {start_acc}, end_gyro = {end_acc}')
