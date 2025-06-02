@@ -4,8 +4,21 @@ import numpy as np
 from geopy.distance import distance, geodesic
 from geopy import Point
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import warnings
 warnings.filterwarnings("ignore")
+
+# 假設基準點 (lat0, lon0) 為原點
+def latlon_to_xy(lat, lon, lat0, lon0):
+    R = 6371000  # 地球半徑（公尺）
+    lat = np.radians(lat)
+    lon = np.radians(lon)
+    lat0 = np.radians(lat0)
+    lon0 = np.radians(lon0)
+
+    x = R * (lon - lon0) * np.cos(lat0)
+    y = R * (lat - lat0)
+    return x, y
 
 def plot_figure_train(aligned_data_train, aligned_data_test):
     # 可視化：軌跡圖
@@ -79,15 +92,39 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
     knn_coords = []
     wifi_coords_test = []
     pdr_coords_test = []
-    dists = []
+    dists_knn = []
+    dists_fused = []
     # knn_coords = [(d["knn_lat"], d["knn_lon"]) for d in aligned_data_test if d["knn_lat"] is not None]
     # wifi_coords_test = [(d["wifi_lat"], d["wifi_lon"]) for d in aligned_data_test if d["wifi_lat"] is not None]
     for i, d in enumerate(aligned_data_test):
         if fused_check:
             if d["wifi_lat"] is not None:
                 # print(geodesic((lat, lon), (d["fused_lat"], d["fused_lon"])).meters)
+                # print(f'{timestamp},{d["timestamp"]}')
+                dists_fused.append(geodesic((lat, lon), (d["wifi_lat"], d["wifi_lon"])).meters)
+                fused_check = False
+            continue
+        if d["gt_lat"] is None:
+            continue
+        lat = d["gt_lat"]
+        lon = d["gt_lon"]
+        # timestamp = d["timestamp"]
+        fused_check = True
+    # print(dists)
+    
+    rmse_fused = np.sqrt(np.mean(np.square(dists_fused)))
+    mean_error_fused = np.mean(dists_fused)
+    std_error_fused = np.std(dists_fused)
+    max_error_fused = np.max(dists_fused)
+
+    fused_check = False
+
+    for i, d in enumerate(aligned_data_test):
+        if fused_check:
+            if d["wifi_lat"] is not None:
+                # print(geodesic((lat, lon), (d["fused_lat"], d["fused_lon"])).meters)
                 print(f'{timestamp},{d["timestamp"]}')
-                dists.append(geodesic((lat, lon), (d["wifi_lat"], d["wifi_lon"])).meters)
+                dists_knn.append(geodesic((lat, lon), (d["wifi_lat"], d["wifi_lon"])).meters)
                 fused_check = False
             continue
         if d["gt_lat"] is None:
@@ -98,10 +135,10 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
         fused_check = True
     # print(dists)
     
-    rmse = np.sqrt(np.mean(np.square(dists)))
-    mean_error = np.mean(dists)
-    std_error = np.std(dists)
-    max_error = np.max(dists)
+    rmse_knn = np.sqrt(np.mean(np.square(dists_knn)))
+    mean_error_knn = np.mean(dists_knn)
+    std_error_knn = np.std(dists_knn)
+    max_error_knn = np.max(dists_knn)
 
     fused_check = False
     for i, d in enumerate(aligned_data_test):
@@ -125,6 +162,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
         if wifi_check:
             if d["wifi_lat"] is not None:
                 wifi_coords_test.append((d["wifi_lat"], d["wifi_lon"]))
+                wifi_check = False
             continue
         if d["gt_lat"] is None:
             continue
@@ -142,6 +180,9 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
     # print(len(gt_coords))
     # print(len(pdr_coords))
     # print(len(fused_coords))
+    print(len(gt_coords))
+    print(len(wifi_coords_test))
+    print(len(fused_coords))
 
 
     # gt_lats_ori, gt_lons_ori = zip(*gt_coords_origin)
@@ -155,32 +196,72 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
     wifi_lats_test, wifi_lons_test = zip(*wifi_coords_test)
     pdr_lats_test, pdr_lons_test = zip(*pdr_coords_test)
 
+    ref_lat, ref_lon = gt_lats[0], gt_lons[0]  # 設定參考點
+    gt_lats, gt_lons = latlon_to_xy(gt_lats, gt_lons, ref_lat, ref_lon)
+    fused_lat, fused_lon = latlon_to_xy(fused_lat, fused_lon, ref_lat, ref_lon)
+    knn_lat, knn_lon = latlon_to_xy(knn_lat, knn_lon, ref_lat, ref_lon)
+    wifi_lats_test, wifi_lons_test = latlon_to_xy(wifi_lats_test, wifi_lons_test, ref_lat, ref_lon)
+
+    fig, ax = plt.subplots()
 
     # plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
-    plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
+    ax.plot(gt_lats, gt_lons, label="Ground Truth", marker="o")
     #plt.plot(wifi_lons, wifi_lats, label="Wi-Fi Point", marker="o")
     #plt.plot(init_lons, init_lats, label="Wi-Fi Init", marker="x")
     #plt.plot(pdr_lons[105], pdr_lats[105], label="IMU PDR", marker="^")
     #plt.plot(tra_lons, tra_lats, label="IMU PDR", marker="^")
 
-    # plt.plot(fused_lon[0], fused_lat[0], label="Wifi PDR Fused", marker="^")
+    # plt.plot(fused_lon, fused_lat, label="Wifi PDR Fused", marker="^")
     # plt.plot(knn_lon[0], knn_lat[0], label="KNN", marker="o")
-    plt.plot(wifi_lons_test, wifi_lats_test, label="Wi-Fi", marker="^")
+    ax.plot(wifi_lats_test, wifi_lons_test, label="Wi-Fi", marker="^")
     # plt.plot(pdr_lons_test, pdr_lats_test, label="PDR", marker="^")
 
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
-    plt.title("EKF vs Ground Truth")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+    # 標上每個點的編號
+    # for i, (x, y) in enumerate(zip(xs, ys)):
+    #     plt.text(x, y, str(i), fontsize=9, ha='center', va='bottom', color='blue')
+
+    # plt.xlabel("X")
+    # plt.ylabel("Y")
+    # plt.axis("equal")
+    # plt.title("EKF vs Ground Truth")
+    # plt.legend()
+    # plt.grid(True)
+    # plt.tight_layout()
+    # plt.show()
+
     
-    print(f'rmse = {rmse}')
-    print(f'mean_error = {mean_error}')
-    print(f'std_error = {std_error}')
-    print(f'max_error = {max_error}')
-    print(f'all_error = {dists}')
+    # ax.plot(xs, ys, 'o-')
+    # ax.set_aspect('equal')  # 這行強制 x, y 軸單位長度一樣
+    # ax.grid()
+    # ax.title("EKF vs Ground Truth")
+    # ax.set_xlabel("X (m)")
+    # ax.set_ylabel("Y (m)")
+    # ax.legend()
+    # plt.show()
+
+    ax.set_aspect('equal')
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(10))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
+    ax.set_xlim(min(gt_lats + wifi_lats_test), max(gt_lats + wifi_lats_test))
+    ax.set_ylim(min(gt_lons + wifi_lons_test), max(gt_lons + wifi_lons_test))
+    ax.set_xlabel('X (m)')
+    ax.set_ylabel('Y (m)')
+    ax.grid(True)
+    ax.legend()
+    plt.show()
+
+    print(f'rmse_knn = {rmse_knn}')
+    print(f'mean_error_knn = {mean_error_knn}')
+    print(f'std_error_knn = {std_error_knn}')
+    print(f'max_error_knn = {max_error_knn}')
+    print(f'all_error_knn = {dists_knn}')
+    
+    print(f'rmse_fused = {rmse_fused}')
+    print(f'mean_error_fused = {mean_error_fused}')
+    print(f'std_error_fused = {std_error_fused}')
+    print(f'max_error_fused = {max_error_fused}')
+    print(f'all_error_fused = {dists_fused}')
+
 
 def all_errors(aligned_data):
     num = 0
@@ -265,6 +346,8 @@ if __name__ == '__main__':
 
     read_file = ['T1_R1', 'T2_R1', 'T3_R1', 'T4_R1', 'T5_R1', 'T21_R1', 'T22_R1', 'T23_R1', 'T24_R1', 'T25_R1', 'T26_R1', 'T27_R1', 'TEST1', 'TEST2', 'TEST3', 'TEST4']
 
+    read_file_test = ['TEST1', 'TEST2', 'TEST3', 'TEST4']
+
     # for trial_name in os.listdir(root_dir):
     #     trial_path = os.path.join(root_dir, trial_name)
     #     if not os.path.isdir(trial_path):
@@ -277,7 +360,7 @@ if __name__ == '__main__':
     #                 trial_data.append(pickle.load(f))
     #     trial_dict[trial_name] = trial_data
 
-    for trial_name in read_file:
+    for trial_name in read_file_test:
         trial_path = os.path.join(root_dir, trial_name)
         if not os.path.isdir(trial_path):
             continue
@@ -288,15 +371,15 @@ if __name__ == '__main__':
         #         with open(os.path.join(trial_path, fname), "rb") as f:
         #             trial_data.append(pickle.load(f))
 
-        with open(os.path.join(trial_path, 'all_data.pkl'), "rb") as f:
+        with open(os.path.join(trial_path, 'all_data_R123.pkl'), "rb") as f:
             trial_data = pickle.load(f)
         trial_dict[trial_name] = trial_data
 
-    aligned_data_train = trial_dict['T1_R1'] + trial_dict['T2_R1'] + trial_dict['T3_R1'] \
-                    + trial_dict['T4_R1'] + trial_dict['T5_R1'] + trial_dict['T21_R1'] \
-                        + trial_dict['T22_R1'] + trial_dict['T23_R1'] + trial_dict['T24_R1'] \
-                            + trial_dict['T25_R1'] + trial_dict['T26_R1'] + trial_dict['T27_R1']
-    aligned_data_test = trial_dict['TEST4']
+    # aligned_data_train = trial_dict['T1_R1'] + trial_dict['T2_R1'] + trial_dict['T3_R1'] \
+    #                 + trial_dict['T4_R1'] + trial_dict['T5_R1'] + trial_dict['T21_R1'] \
+    #                     + trial_dict['T22_R1'] + trial_dict['T23_R1'] + trial_dict['T24_R1'] \
+    #                         + trial_dict['T25_R1'] + trial_dict['T26_R1'] + trial_dict['T27_R1']
+    aligned_data_test = trial_dict['TEST1']
 
     # aligned_data_train = trial_dict['T3_R1']
     # plot_figure_train(aligned_data_train, aligned_data_train)
