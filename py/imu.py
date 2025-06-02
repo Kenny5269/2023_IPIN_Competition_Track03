@@ -87,7 +87,7 @@ def remove_gravity(acc_data, gyro_data, timestamps, alpha=0.98):
 
 
 if __name__ == '__main__':
-    index = 'T27_R1'
+    index = 'T27_R4'
     # 讀取感測器資料
     acce_df = pd.read_csv(f'{index}/ACCE.csv')
     gyro_df = pd.read_csv(f'{index}/GYRO.csv')

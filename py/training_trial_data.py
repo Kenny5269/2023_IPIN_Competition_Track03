@@ -62,6 +62,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
     fused_check = False
     knn_check = False
     wifi_check = False
+    pdr_check = False
     # 可視化：軌跡圖
     plt.figure(figsize=(8, 6))
     # gt_coords_origin = [(d["gt_lat_ori"], d["gt_lon_ori"]) for d in aligned_data_train if d["gt_lat_ori"] is not None]
@@ -77,8 +78,32 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
     fused_coords = []
     knn_coords = []
     wifi_coords_test = []
+    pdr_coords_test = []
+    dists = []
     # knn_coords = [(d["knn_lat"], d["knn_lon"]) for d in aligned_data_test if d["knn_lat"] is not None]
     # wifi_coords_test = [(d["wifi_lat"], d["wifi_lon"]) for d in aligned_data_test if d["wifi_lat"] is not None]
+    for i, d in enumerate(aligned_data_test):
+        if fused_check:
+            if d["wifi_lat"] is not None:
+                # print(geodesic((lat, lon), (d["fused_lat"], d["fused_lon"])).meters)
+                print(f'{timestamp},{d["timestamp"]}')
+                dists.append(geodesic((lat, lon), (d["wifi_lat"], d["wifi_lon"])).meters)
+                fused_check = False
+            continue
+        if d["gt_lat"] is None:
+            continue
+        lat = d["gt_lat"]
+        lon = d["gt_lon"]
+        timestamp = d["timestamp"]
+        fused_check = True
+    # print(dists)
+    
+    rmse = np.sqrt(np.mean(np.square(dists)))
+    mean_error = np.mean(dists)
+    std_error = np.std(dists)
+    max_error = np.max(dists)
+
+    fused_check = False
     for i, d in enumerate(aligned_data_test):
         if fused_check:
             if d["fused_lat"] is not None:
@@ -92,7 +117,6 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
         if knn_check:
             if d["knn_lat"] is not None:
                 knn_coords.append((d["knn_lat"], d["knn_lon"]))
-                knn_check = False
             continue
         if d["gt_lat"] is None:
             continue
@@ -101,11 +125,18 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
         if wifi_check:
             if d["wifi_lat"] is not None:
                 wifi_coords_test.append((d["wifi_lat"], d["wifi_lon"]))
-                wifi_check = False
             continue
         if d["gt_lat"] is None:
             continue
         wifi_check = True
+    for i, d in enumerate(aligned_data_test):
+        if pdr_check:
+            if d["pdr_lat"] is not None:
+                pdr_coords_test.append((d["pdr_lat"], d["pdr_lon"]))
+            continue
+        if d["gt_lat"] is None:
+            continue
+        pdr_check = True
         
     #print(len(pdr_coords))
     # print(len(gt_coords))
@@ -122,6 +153,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
     fused_lat, fused_lon = zip(*fused_coords)
     knn_lat, knn_lon = zip(*knn_coords)
     wifi_lats_test, wifi_lons_test = zip(*wifi_coords_test)
+    pdr_lats_test, pdr_lons_test = zip(*pdr_coords_test)
 
 
     # plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
@@ -130,9 +162,11 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
     #plt.plot(init_lons, init_lats, label="Wi-Fi Init", marker="x")
     #plt.plot(pdr_lons[105], pdr_lats[105], label="IMU PDR", marker="^")
     #plt.plot(tra_lons, tra_lats, label="IMU PDR", marker="^")
-    plt.plot(fused_lon, fused_lat, label="Wifi PDR Fused", marker="^")
-    # plt.plot(knn_lon, knn_lat, label="KNN", marker="o")
-    # plt.plot(wifi_lons_test, wifi_lats_test, label="Wi-Fi", marker="^")
+
+    # plt.plot(fused_lon[0], fused_lat[0], label="Wifi PDR Fused", marker="^")
+    # plt.plot(knn_lon[0], knn_lat[0], label="KNN", marker="o")
+    plt.plot(wifi_lons_test, wifi_lats_test, label="Wi-Fi", marker="^")
+    # plt.plot(pdr_lons_test, pdr_lats_test, label="PDR", marker="^")
 
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
@@ -141,6 +175,12 @@ def plot_figure_test(aligned_data_train, aligned_data_test):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+    
+    print(f'rmse = {rmse}')
+    print(f'mean_error = {mean_error}')
+    print(f'std_error = {std_error}')
+    print(f'max_error = {max_error}')
+    print(f'all_error = {dists}')
 
 def all_errors(aligned_data):
     num = 0
@@ -223,7 +263,7 @@ if __name__ == '__main__':
 
     root_dir = "aligned_trials"
 
-    read_file = ['T3_R1', 'TEST1']
+    read_file = ['T1_R1', 'T2_R1', 'T3_R1', 'T4_R1', 'T5_R1', 'T21_R1', 'T22_R1', 'T23_R1', 'T24_R1', 'T25_R1', 'T26_R1', 'T27_R1', 'TEST1', 'TEST2', 'TEST3', 'TEST4']
 
     # for trial_name in os.listdir(root_dir):
     #     trial_path = os.path.join(root_dir, trial_name)
@@ -252,13 +292,14 @@ if __name__ == '__main__':
             trial_data = pickle.load(f)
         trial_dict[trial_name] = trial_data
 
-    # aligned_data_train = trial_dict['T1_R1'] + trial_dict['T2_R1'] + trial_dict['T3_R1'] \
-    #                 + trial_dict['T4_R1'] + trial_dict['T5_R1'] + trial_dict['T21_R1'] \
-    #                     + trial_dict['T22_R1'] + trial_dict['T23_R1'] + trial_dict['T24_R1'] \
-    #                         + trial_dict['T25_R1'] + trial_dict['T26_R1'] + trial_dict['T27_R1']
+    aligned_data_train = trial_dict['T1_R1'] + trial_dict['T2_R1'] + trial_dict['T3_R1'] \
+                    + trial_dict['T4_R1'] + trial_dict['T5_R1'] + trial_dict['T21_R1'] \
+                        + trial_dict['T22_R1'] + trial_dict['T23_R1'] + trial_dict['T24_R1'] \
+                            + trial_dict['T25_R1'] + trial_dict['T26_R1'] + trial_dict['T27_R1']
+    aligned_data_test = trial_dict['TEST4']
 
-    aligned_data_train = trial_dict['T3_R1']
-    plot_figure_train(aligned_data_train, aligned_data_train)
+    # aligned_data_train = trial_dict['T3_R1']
+    # plot_figure_train(aligned_data_train, aligned_data_train)
 
     # aligned_data_temp = trial_dict['temp_trial']
 
@@ -269,7 +310,7 @@ if __name__ == '__main__':
 
     # evaluate_errors(aligned_data_train)
     #all_errors(aligned_data_train)
-    # plot_figure_test(aligned_data_train, aligned_data_train)
+    plot_figure_test(aligned_data_test, aligned_data_test)
 
     #evaluate_errors(aligned_data_test1)
     # all_errors(aligned_data_test1)

@@ -307,7 +307,7 @@ def madgwick_filter_with_mag_init(df, idx, t_start, t_end, beta=0.1, freq=50):
     return df
 
 # 讀取資料
-index = 'T27_R1'
+index = 'T27_R4'
 df = pd.read_csv(f'{index}/IMU_50Hz.csv')
 
 # 低通濾波器定義
@@ -336,7 +336,7 @@ id_mag, start_mag, end_mag = detect_best_static_mag_segment(df)
 gyro_bias = df[(df['AppTimestamp(s)'] >= start_gyro) & (df['AppTimestamp(s)'] <= end_gyro)][['gyro_x', 'gyro_y', 'gyro_z']].mean().values
 mag_bias = df[(df['AppTimestamp(s)'] >= start_mag) & (df['AppTimestamp(s)'] <= end_mag)][['mag_x', 'mag_y', 'mag_z']].mean().values
 
-# df[['gyro_x', 'gyro_y', 'gyro_z']] -= gyro_bias
+df[['gyro_x', 'gyro_y', 'gyro_z']] -= gyro_bias
 # df[['mag_x', 'mag_y', 'mag_z']] -= mag_bias
 
 print(f'start_gyro = {start_acc}, end_gyro = {end_acc}')
@@ -485,6 +485,9 @@ final_export_df = pd.DataFrame({
     'acc_x': df['acc_dx'],
     'acc_y': df['acc_dy'],
     'acc_z': df['acc_dz'],
+    # 'acc_wx': df['acc_wx'],
+    # 'acc_wy': df['acc_wy'],
+    # 'acc_wz': df['acc_wz'],
     'gyro_x': df['gyro_wx'],
     'gyro_y': df['gyro_wy'],
     'gyro_z': df['gyro_wz'],
@@ -505,6 +508,12 @@ final_export_df = pd.DataFrame({
     'q_z': df['q_z'],
     'quat_angle_error_deg' : df['quat_angle_error_deg']
 })
+
+# # 濾波 acc, gyro, mag
+# for sensor in ['acc', 'gyro', 'mag']:
+#     for axis in ['x', 'y', 'z']:
+#         col = f'{sensor}_{axis}'
+#         final_export_df[col] = lowpass_filter(final_export_df[col])
 
 # 畫圖
 # 抓出世界座標下的加速度分量

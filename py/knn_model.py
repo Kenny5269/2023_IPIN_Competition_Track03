@@ -41,7 +41,7 @@ if __name__ == '__main__':
     gt_positions = []
     num = 0
 
-    for trial_name in read_file1:
+    for trial_name in read_file2:
         num += 1
         trial_path = os.path.join(root_dir, trial_name)
         if not os.path.isdir(trial_path):
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         #         with open(os.path.join(trial_path, fname), "rb") as f:
         #             trial_data.append(pickle.load(f))
 
-        with open(os.path.join(trial_path, 'all_data.pkl'), "rb") as f:
+        with open(os.path.join(trial_path, 'all_data_pdr_fixed.pkl'), "rb") as f:
             trial_data = pickle.load(f)
         # trial_dict[trial_name] = trial_data
 
@@ -66,10 +66,10 @@ if __name__ == '__main__':
     rssi_features = np.array(rssi_features)
     gt_positions = np.array(gt_positions)
     
-    model = KNeighborsRegressor(n_neighbors=3)
+    model = KNeighborsRegressor(n_neighbors=1)
     model.fit(rssi_features, gt_positions)
 
-    with open('knn_model2.pkl','wb') as f:
+    with open('knn/knn_model_ALL_fixed3.pkl','wb') as f:
         pickle.dump(model,f)
     
     print(num)
