@@ -22,7 +22,7 @@ def latlon_to_xy(lat, lon, lat0, lon0):
 
 def plot_figure_train(aligned_data_train, aligned_data_test):
     # 可視化：軌跡圖
-    plt.figure(figsize=(8, 6))
+    # plt.figure(figsize=(8, 6))
     gt_coords_origin = [(d["gt_lat_ori"], d["gt_lon_ori"]) for d in aligned_data_train if d["gt_lat_ori"] is not None]
     gt_coords = [(d["gt_lat"], d["gt_lon"]) for d in aligned_data_test if d["gt_lat"] is not None]
     wifi_coords = [(d["gt_lat_temp"], d["gt_lon_temp"]) for d in aligned_data_test if d["gt_lat_temp"] is not None and d["rssi_vector"] is not None]
@@ -52,10 +52,25 @@ def plot_figure_train(aligned_data_train, aligned_data_test):
     # knn_lat, knn_lon = zip(*knn_coords)
     # wifi_lats_test, wifi_lons_test = zip(*wifi_coords_test)
 
+    ref_lat, ref_lon = gt_lats_ori[0], gt_lons_ori[0]  # 設定參考點
+    gt_lats_ori, gt_lons_ori = latlon_to_xy(gt_lats_ori, gt_lons_ori, ref_lat, ref_lon)
+    gt_lats, gt_lons = latlon_to_xy(gt_lats, gt_lons, ref_lat, ref_lon)
+    wifi_lats, wifi_lons = latlon_to_xy(wifi_lats, wifi_lons, ref_lat, ref_lon)
 
-    plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o")
-    plt.plot(gt_lons, gt_lats, label="Ground Truth", marker="o")
-    # plt.plot(wifi_lons, wifi_lats, label="Wi-Fi Point", marker="o")
+    fig, ax = plt.subplots()
+
+    trial = 'T1'
+    repitition = 'R1'
+    interval = 1
+    offset = 5
+    width = 25.6
+    height = 14.4
+
+
+    # plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o", linewidth=0)
+    # plt.plot(gt_lons, gt_lats, label="PDR Trajectory", marker="o")
+    # plt.plot(wifi_lons, wifi_lats, label="Wi-Fi Point", marker="o", linewidth=0)
+
     #plt.plot(init_lons, init_lats, label="Wi-Fi Init", marker="x")
     #plt.plot(pdr_lons[105], pdr_lats[105], label="IMU PDR", marker="^")
     #plt.plot(tra_lons, tra_lats, label="IMU PDR", marker="^")
@@ -63,12 +78,37 @@ def plot_figure_train(aligned_data_train, aligned_data_test):
     # plt.plot(knn_lon, knn_lat, label="KNN", marker="o")
     # plt.plot(wifi_lons_test, wifi_lats_test, label="Wi-Fi", marker="^")
 
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
-    plt.title("PDR vs Ground Truth")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
+    # plt.xlabel("Longitude")
+    # plt.ylabel("Latitude")
+    # plt.title("PDR vs Ground Truth")
+    # plt.legend()
+    # plt.grid(True)
+    # plt.tight_layout()
+    # plt.show()
+
+    
+    ax.plot(gt_lats, gt_lons, label="PDR Trajectory", marker="o", color='#ff7f0e')
+    ax.plot(wifi_lats, wifi_lons, label="Wi-Fi Point", marker="o", color='#d62728', linewidth=0)
+    ax.plot(gt_lats_ori, gt_lons_ori, label="Ground Truth origin", marker="o", color='#1f77b4', linewidth=0)
+
+    # 加上編號（GT點）
+    for i, (x, y) in enumerate(zip(gt_lats_ori, gt_lons_ori)):
+        ax.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
+    # 加上編號（Pred點）
+    for i, (x, y) in enumerate(zip(wifi_lats, wifi_lons)):
+        ax.text(x, y - 0.5, f'{i+1}', fontsize=9, ha='center', va='top', color='red')
+
+    ax.set_aspect('equal')
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(interval))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(interval))
+    ax.set_xlim(min(gt_lats)-offset, max(gt_lats)+offset)
+    ax.set_ylim(min(gt_lons)-offset, max(gt_lons)+offset)
+    ax.set_xlabel('X (m)')
+    ax.set_ylabel('Y (m)')
+    ax.grid(True)
+    ax.legend()
+    # fig.set_size_inches(width, height)
+    fig.savefig(f'figure/{trial}/trajectory/{repitition}.png')
     plt.show()
 
 def plot_figure_test(aligned_data_train, aligned_data_test, id):
@@ -436,6 +476,19 @@ if __name__ == '__main__':
 
     read_file = ['T1_R1', 'T2_R1', 'T3_R1', 'T4_R1', 'T5_R1', 'T21_R1', 'T22_R1', 'T23_R1', 'T24_R1', 'T25_R1', 'T26_R1', 'T27_R1', 'TEST1', 'TEST2', 'TEST3', 'TEST4']
 
+    read_file_all = ['T1_R1', 'T1_R2', 'T1_R3', 'T1_R4',
+                     'T2_R1', 'T2_R2', 'T2_R3', 'T2_R4',
+                     'T3_R1', 'T3_R2', 'T3_R3', 'T3_R4',
+                     'T4_R1', 'T4_R2', 'T4_R3', 'T4_R4',
+                     'T5_R1', 'T5_R2', 'T5_R3', 'T5_R4',
+                     'T21_R1', 'T21_R2', 'T21_R3', 'T21_R4',
+                     'T22_R1', 'T22_R2', 'T22_R3', 'T22_R4',
+                     'T23_R1', 'T23_R2', 'T23_R3', 'T23_R4',
+                     'T24_R1', 'T24_R2', 'T24_R3', 'T24_R4',
+                     'T25_R1', 'T25_R2', 'T25_R3', 'T25_R4',
+                     'T26_R1', 'T26_R2', 'T26_R3', 'T26_R4',
+                     'T27_R1', 'T27_R2', 'T27_R3', 'T27_R4']
+
     read_file_test = ['TEST1', 'TEST2', 'TEST3', 'TEST4']
 
     # for trial_name in os.listdir(root_dir):
@@ -450,7 +503,7 @@ if __name__ == '__main__':
     #                 trial_data.append(pickle.load(f))
     #     trial_dict[trial_name] = trial_data
 
-    for trial_name in read_file_test:
+    for trial_name in read_file_all:
         trial_path = os.path.join(root_dir, trial_name)
         if not os.path.isdir(trial_path):
             continue
@@ -461,7 +514,7 @@ if __name__ == '__main__':
         #         with open(os.path.join(trial_path, fname), "rb") as f:
         #             trial_data.append(pickle.load(f))
 
-        with open(os.path.join(trial_path, 'all_data.pkl'), "rb") as f:
+        with open(os.path.join(trial_path, 'all_data_pdr_fixed.pkl'), "rb") as f:
             trial_data = pickle.load(f)
         trial_dict[trial_name] = trial_data
 
@@ -469,10 +522,12 @@ if __name__ == '__main__':
     #                 + trial_dict['T4_R1'] + trial_dict['T5_R1'] + trial_dict['T21_R1'] \
     #                     + trial_dict['T22_R1'] + trial_dict['T23_R1'] + trial_dict['T24_R1'] \
     #                         + trial_dict['T25_R1'] + trial_dict['T26_R1'] + trial_dict['T27_R1']
-    aligned_data_test = trial_dict[name]
 
-    # aligned_data_train = trial_dict['T3_R1']
-    # plot_figure_train(aligned_data_train, aligned_data_train)
+    # aligned_data_test = trial_dict[name]
+
+    aligned_data_train = trial_dict['T1_R1']
+
+    plot_figure_train(aligned_data_train, aligned_data_train)
 
     # aligned_data_temp = trial_dict['temp_trial']
 
@@ -483,7 +538,8 @@ if __name__ == '__main__':
 
     # evaluate_errors(aligned_data_train)
     #all_errors(aligned_data_train)
-    plot_figure_test(aligned_data_test, aligned_data_test, name)
+
+    # plot_figure_test(aligned_data_test, aligned_data_test, name)
 
     #evaluate_errors(aligned_data_test1)
     # all_errors(aligned_data_test1)
