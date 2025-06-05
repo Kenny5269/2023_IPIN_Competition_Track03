@@ -59,8 +59,8 @@ def plot_figure_train(aligned_data_train, aligned_data_test):
 
     fig, ax = plt.subplots()
 
-    trial = 'T1'
-    repitition = 'R1'
+    trial = 'T27'
+    repitition = 'R4'
     interval = 1
     offset = 5
     width = 25.6
@@ -89,16 +89,17 @@ def plot_figure_train(aligned_data_train, aligned_data_test):
     
     ax.plot(gt_lats, gt_lons, label="PDR Trajectory", marker="o", color='#ff7f0e')
     ax.plot(wifi_lats, wifi_lons, label="Wi-Fi Point", marker="o", color='#d62728', linewidth=0)
-    ax.plot(gt_lats_ori, gt_lons_ori, label="Ground Truth origin", marker="o", color='#1f77b4', linewidth=0)
+    ax.plot(gt_lats_ori, gt_lons_ori, label="Ground Truth", marker="o", color='blue', linewidth=0)
 
     # 加上編號（GT點）
     for i, (x, y) in enumerate(zip(gt_lats_ori, gt_lons_ori)):
-        ax.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
+        if i < (len(gt_lats_ori)/2):
+            ax.text(x, y + 0.5, f'{i+1},{len(gt_lats_ori)-i}', fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     for i, (x, y) in enumerate(zip(wifi_lats, wifi_lons)):
-        ax.text(x, y - 0.5, f'{i+1}', fontsize=9, ha='center', va='top', color='red')
+        ax.text(x, y - 0.5, f'{i+1}', fontsize=9, ha='center', va='top', color='#d62728')
 
-    ax.set_aspect('equal')
+    # ax.set_aspect('equal')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(interval))
     ax.yaxis.set_major_locator(ticker.MultipleLocator(interval))
     ax.set_xlim(min(gt_lats)-offset, max(gt_lats)+offset)
@@ -107,7 +108,7 @@ def plot_figure_train(aligned_data_train, aligned_data_test):
     ax.set_ylabel('Y (m)')
     ax.grid(True)
     ax.legend()
-    # fig.set_size_inches(width, height)
+    fig.set_size_inches(width, height)
     fig.savefig(f'figure/{trial}/trajectory/{repitition}.png')
     plt.show()
 
@@ -267,7 +268,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
     # ax.plot(wifi_lats_test, wifi_lons_test, label="EKF Wi-Fi", marker="^", linewidth=0)
     # plt.plot(pdr_lons_test, pdr_lats_test, label="PDR", marker="^")
     # --------------------------------------------------------------------------------------------------------------------------------
-    R = 'R1234'
+    R = 'R123'
     interval = 2.5
     offset = 5
     width = 25.6
@@ -276,6 +277,20 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
     ax1.plot(knn_lat, knn_lon, label="KNN", marker="o", linewidth=0)
     # 加上編號（GT點）
     for i, (x, y) in enumerate(zip(gt_lats, gt_lons)):
+        # FOR TEST1 and TEST2
+        # if i == 12 or i == 15 or i == 18 or i == 21:
+        #     ax1.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+        #     continue
+        # elif i == 14 or i == 17 or i == 20 or i == 23:
+        #     continue
+        # ax1.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
+
+        # FOR TEST3 and TEST4
+        if i == 4 or i == 7 or i == 10 or i == 13:
+            ax1.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+            continue
+        elif i == 6 or i == 9 or i == 12 or i == 15:
+            continue
         ax1.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     for i, (x, y) in enumerate(zip(knn_lat, knn_lon)):
@@ -296,6 +311,20 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
     ax2.plot(wifi_lats_test, wifi_lons_test, label="EKF Wi-Fi", marker="o", linewidth=0)
     # 加上編號（GT點）
     for i, (x, y) in enumerate(zip(gt_lats, gt_lons)):
+        # FOR TEST1 and TEST2
+        # if i == 12 or i == 15 or i == 18 or i == 21:
+        #     ax2.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+        #     continue
+        # elif i == 14 or i == 17 or i == 20 or i == 23:
+        #     continue
+        # ax2.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
+
+        # FOR TEST3 and TEST4
+        if i == 4 or i == 7 or i == 10 or i == 13:
+            ax2.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+            continue
+        elif i == 6 or i == 9 or i == 12 or i == 15:
+            continue
         ax2.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     for i, (x, y) in enumerate(zip(wifi_lats_test, wifi_lons_test)):
@@ -316,6 +345,20 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
     ax3.plot(fused_lat, fused_lon, label="EKF Fused", marker="o", linewidth=0)
     # 加上編號（GT點）
     for i, (x, y) in enumerate(zip(gt_lats, gt_lons)):
+        # FOR TEST1 and TEST2
+        # if i == 12 or i == 15 or i == 18 or i == 21:
+        #     ax3.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+        #     continue
+        # elif i == 14 or i == 17 or i == 20 or i == 23:
+        #     continue
+        # ax3.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
+
+        # FOR TEST3 and TEST4
+        if i == 4 or i == 7 or i == 10 or i == 13:
+            ax3.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+            continue
+        elif i == 6 or i == 9 or i == 12 or i == 15:
+            continue
         ax3.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     for i, (x, y) in enumerate(zip(fused_lat, fused_lon)):
@@ -503,7 +546,7 @@ if __name__ == '__main__':
     #                 trial_data.append(pickle.load(f))
     #     trial_dict[trial_name] = trial_data
 
-    for trial_name in read_file_all:
+    for trial_name in read_file_test:
         trial_path = os.path.join(root_dir, trial_name)
         if not os.path.isdir(trial_path):
             continue
@@ -514,7 +557,7 @@ if __name__ == '__main__':
         #         with open(os.path.join(trial_path, fname), "rb") as f:
         #             trial_data.append(pickle.load(f))
 
-        with open(os.path.join(trial_path, 'all_data_pdr_fixed.pkl'), "rb") as f:
+        with open(os.path.join(trial_path, 'all_data_R123.pkl'), "rb") as f:
             trial_data = pickle.load(f)
         trial_dict[trial_name] = trial_data
 
@@ -523,11 +566,11 @@ if __name__ == '__main__':
     #                     + trial_dict['T22_R1'] + trial_dict['T23_R1'] + trial_dict['T24_R1'] \
     #                         + trial_dict['T25_R1'] + trial_dict['T26_R1'] + trial_dict['T27_R1']
 
-    # aligned_data_test = trial_dict[name]
+    aligned_data_test = trial_dict[name]
 
-    aligned_data_train = trial_dict['T1_R1']
+    # aligned_data_train = trial_dict['T27_R4']
 
-    plot_figure_train(aligned_data_train, aligned_data_train)
+    # plot_figure_train(aligned_data_train, aligned_data_train)
 
     # aligned_data_temp = trial_dict['temp_trial']
 
@@ -539,7 +582,7 @@ if __name__ == '__main__':
     # evaluate_errors(aligned_data_train)
     #all_errors(aligned_data_train)
 
-    # plot_figure_test(aligned_data_test, aligned_data_test, name)
+    plot_figure_test(aligned_data_test, aligned_data_test, name)
 
     #evaluate_errors(aligned_data_test1)
     # all_errors(aligned_data_test1)

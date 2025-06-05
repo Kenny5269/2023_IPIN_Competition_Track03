@@ -29,8 +29,8 @@ warnings.filterwarnings("ignore")
 total = [1,2,3,4,5,21,22,23,24,25,26,27]
 index1 = [1]
 index2 = [24,25,26,27]
-input_file = 'T1_R1'
-INPUT_WIFI_CSV = f'py/{input_file}/WIFI_merged2.csv'
+input_file = 'T27_R4'
+INPUT_WIFI_CSV = f'py/{input_file}/WIFI_merged_filtered.csv'
 INPUT_IMU_CSV = f'py/{input_file}/IMU_calibrated3_temp.csv'
 INPUT_GT_CSV = f'py/{input_file}/POSI2.csv'
 
@@ -40,19 +40,19 @@ TEMP_GT_CSV = []
 
 # for i in index1:
 #     for j in range(4):
-#         INPUT_WIFI_CSV.append(f"py/T{i}_R{j+1}/WIFI_merged2.csv")
+#         INPUT_WIFI_CSV.append(f"py/T{i}_R{j+1}/WIFI_merged_filtered.csv")
 #         INPUT_IMU_CSV.append(f"py/T{i}_R{j+1}/IMU_50Hz_2.csv")
 #         INPUT_GT_CSV.append(f"py/T{i}_R{j+1}/POSI2.csv")
 
 # for i in index2:
-#     TEMP_WIFI_CSV.append(f"py/T{i}_R1/WIFI_merged2.csv")
+#     TEMP_WIFI_CSV.append(f"py/T{i}_R1/WIFI_merged_filtered.csv")
 #     TEMP_IMU_CSV.append(f"py/T{i}_R1/IMU_50Hz.csv")
 #     TEMP_GT_CSV.append(f"py/T{i}_R1/POSI2.csv")
 
-# TEST_WIFI_CSV = "py/TEST1/WIFI_merged2.csv"
+# TEST_WIFI_CSV = "py/TEST1/WIFI_merged_filtered.csv"
 # TEST_IMU_CSV = "py/TEST1/IMU_calibrated2.csv"
 # TEST_GT_CSV = "py/TEST1/POSI2.csv"
-TEST_WIFI_CSV = "py/TEST4/WIFI_merged2.csv"
+TEST_WIFI_CSV = "py/TEST4/WIFI_merged_filtered.csv"
 TEST_IMU_CSV = "py/TEST4/IMU_calibrated3_temp.csv"
 TEST_GT_CSV = "py/TEST4/POSI2.csv"
 
@@ -699,7 +699,7 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
             aligned_data[start_idx + j]["gt_lon_temp"] = interp_lon
 
     print(total_length)
-'''
+
 def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_df):
     if len(imu_df) < 2:
         return [(aligned_data[this_idx]["gt_lat"], aligned_data[this_idx]["gt_lon"])]
@@ -798,7 +798,7 @@ def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_d
         aligned_data[this_idx+idx]["fused_lon"] = lon
         # aligned_data[this_idx+idx]["gt_lat_temp"] = curr_pos.latitude
         # aligned_data[this_idx+idx]["gt_lon_temp"] = curr_pos.longitude
-'''
+
 # Wi-Fi RSSI 初始定位模型訓練與預測函式
 
 def train_wifi_model(X, y, method="knn"):
@@ -835,7 +835,7 @@ def predict_wifi_position(model, rssi):
 aligned_data = []
 
 wifi_df = pd.read_csv(INPUT_WIFI_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
-wifi_df = filter_rssi(wifi_df)
+# wifi_df = filter_rssi(wifi_df)
 imu_df = pd.read_csv(INPUT_IMU_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
 imu_df2 = imu_df.drop(columns=["timestamp","SensorTimestamp(s)"]).reset_index(drop=True)
 posi_df = pd.read_csv(INPUT_GT_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
@@ -878,7 +878,7 @@ for i in range(len(imu_df)):
 #         aligned_data[i]["gt_lat"] = posi_df.loc[len(posi_df)-1, "Latitude_degrees"]
 #         aligned_data[i]["gt_lon"] = posi_df.loc[len(posi_df)-1, "Longitude_degrees"]
 gt_used_indices = []
-
+'''
 for _, gt_row in posi_df.iterrows():
     gt_time = gt_row["timestamp"]
     closest_idx = min(
@@ -907,7 +907,7 @@ for _, wifi_row in wifi_df.iterrows():
     if closest_idx is not None:
         aligned_data[closest_idx]["rssi_vector"] = wifi_row[1:].to_numpy()
         wifi_used_indices.append(closest_idx)
-
+'''
 # 依據已知 GT 點之間做線性插值填補其餘點
 # for i in range(1, len(posi_aligned_indices)):
 #     start_idx = posi_aligned_indices[i - 1]
@@ -931,7 +931,7 @@ for x in range(len(TEMP_WIFI_CSV)):
     aligned_data = []
 
     wifi_df = pd.read_csv(TEMP_WIFI_CSV[x]).rename(columns={"AppTimestamp(s)": "timestamp"})
-    wifi_df = filter_rssi(wifi_df)
+    # wifi_df = filter_rssi(wifi_df)
     imu_df = pd.read_csv(TEMP_IMU_CSV[x]).rename(columns={"AppTimestamp(s)": "timestamp"})
     posi_df = pd.read_csv(TEMP_GT_CSV[x]).rename(columns={"AppTimestamp(s)": "timestamp"})
     posi_df = posi_df.sort_values("timestamp").reset_index(drop=True)
@@ -1008,7 +1008,7 @@ for x in range(len(TEMP_WIFI_CSV)):
 # 測試軌跡 -----------------------------------------------------------------------------------------------------------------
 
 wifi_df_test = pd.read_csv(TEST_WIFI_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
-wifi_df_test = filter_rssi(wifi_df_test)
+# wifi_df_test = filter_rssi(wifi_df_test)
 imu_df_test = pd.read_csv(TEST_IMU_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
 imu_df2_test = imu_df_test.drop(columns=["timestamp","SensorTimestamp(s)"]).reset_index(drop=True)
 posi_df_test = pd.read_csv(TEST_GT_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
@@ -1088,10 +1088,10 @@ for _, wifi_row in wifi_df_test.iterrows():
 # gt_positions = np.array(gt_positions)
 
 # wifi_model = train_wifi_model(rssi_features, gt_positions)
-
+'''
 gt_coords_origin = [(d["gt_lat_ori"], d["gt_lon_ori"]) for d in aligned_data if d["gt_lat_ori"] is not None]
 gt_lats_ori, gt_lons_ori = zip(*gt_coords_origin)
-
+'''
 # if aligned_data[j]["gt_lat_ori"] is not None:
 #     gt_coords_origin.append((aligned_data[j]["gt_lat_ori"], aligned_data[j]["gt_lon_ori"]))
 
@@ -1138,8 +1138,8 @@ for i in range(len(gt_used_indices)-1):
     print(total_step)
 
     
-    gt_lats, gt_lons = zip(*gt_coords)
-    wifi_lats, wifi_lons = zip(*wifi_coords)
+    # gt_lats, gt_lons = zip(*gt_coords)
+    # wifi_lats, wifi_lons = zip(*wifi_coords)
 
     # plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o", linewidth=0)
     # plt.plot(gt_lons, gt_lats, label="PDR Trajectory", marker="o")
@@ -1299,9 +1299,9 @@ for i, d in enumerate(aligned_data_temp):
     d["pdr_trajectory"] = pdr_trajectory
     d["pdr_lat"], d["pdr_lon"] = pdr_trajectory[-1]
 '''
-'''
+
 # WIFI RSSI 初始定位(測試軌跡)
-with open('py/knn/knn_model_R1_fixed.pkl', 'rb') as f:
+with open('py/knn/knn_model_ALL_fixed.pkl', 'rb') as f:
     wifi_model = pickle.load(f)
 ekf = EKF_Localizer(init_pos=(0, 0), init_heading_deg=0)
 # 設定原點為你的第一個定位點
@@ -1347,7 +1347,7 @@ gt_last_index = gt_used_indices_test[len(gt_used_indices_test)-1]
 if gt_last_index > wifi_last_index:
     imu_seq = imu_df2_test[wifi_last_index : gt_last_index]
     estimate_trajectory_from_imu_all_test(test_aligned_data, wifi_last_index, gt_last_index, imu_seq)
-'''
+
 '''
 gt_coords_origin_test = [(d["gt_lat"], d["gt_lon"]) for d in test_aligned_data if d["gt_lat"] is not None]
 gt_lats_test, gt_lons_test = zip(*gt_coords_origin_test)
@@ -1383,8 +1383,8 @@ for i in range(len(gt_used_indices_test)-1):
 # for i, d in enumerate(aligned_data):
 #     with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
 #         pickle.dump(d, f)
-with open(os.path.join(OUTPUT_DIR, f"all_data_pdr_fixed.pkl"), "wb") as f:
-    pickle.dump(aligned_data, f)
+# with open(os.path.join(OUTPUT_DIR, f"all_data_pdr_fixed.pkl"), "wb") as f:
+#     pickle.dump(aligned_data, f)
 
 # 輸出所有對齊資料為 pickle
 # for i, d in enumerate(aligned_data_temp):
@@ -1395,9 +1395,9 @@ with open(os.path.join(OUTPUT_DIR, f"all_data_pdr_fixed.pkl"), "wb") as f:
 # for i, d in enumerate(test_aligned_data):
 #     with open(os.path.join(TEST_OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
 #         pickle.dump(d, f)
-# with open(os.path.join(TEST_OUTPUT_DIR, f"all_data_R1.pkl"), "wb") as f:
-#     pickle.dump(test_aligned_data, f)
+with open(os.path.join(TEST_OUTPUT_DIR, f"all_data.pkl"), "wb") as f:
+    pickle.dump(test_aligned_data, f)
 
-print(f"處理完成，共輸出 {len(aligned_data)} 筆對齊資料到資料夾：{OUTPUT_DIR}")
+# print(f"處理完成，共輸出 {len(aligned_data)} 筆對齊資料到資料夾：{OUTPUT_DIR}")
 # print(f"處理完成，共輸出 {len(aligned_data_temp)} 筆對齊資料到資料夾：{TEMP_OUTPUT_DIR}")
-# print(f"處理完成，共輸出 {len(test_aligned_data)} 筆對齊資料到資料夾：{TEST_OUTPUT_DIR}")
+print(f"處理完成，共輸出 {len(test_aligned_data)} 筆對齊資料到資料夾：{TEST_OUTPUT_DIR}")
