@@ -286,11 +286,11 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
         # ax1.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
 
         # FOR TEST3 and TEST4
-        if i == 4 or i == 7 or i == 10 or i == 13:
-            ax1.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
-            continue
-        elif i == 6 or i == 9 or i == 12 or i == 15:
-            continue
+        # if i == 4 or i == 7 or i == 10 or i == 13:
+        #     ax1.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+        #     continue
+        # elif i == 6 or i == 9 or i == 12 or i == 15:
+        #     continue
         ax1.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     for i, (x, y) in enumerate(zip(knn_lat, knn_lon)):
@@ -305,7 +305,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
     ax1.grid(True)
     ax1.legend()
     fig1.set_size_inches(width, height)
-    fig1.savefig(f'figure/{id}/trajectory/{R}/GT_KNN.png')
+    # fig1.savefig(f'figure/{id}/trajectory/{R}/GT_KNN.png')
 
     ax2.plot(gt_lats, gt_lons, label="Ground Truth", marker="o", linewidth=0)
     ax2.plot(wifi_lats_test, wifi_lons_test, label="EKF Wi-Fi", marker="o", linewidth=0)
@@ -320,11 +320,11 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
         # ax2.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
 
         # FOR TEST3 and TEST4
-        if i == 4 or i == 7 or i == 10 or i == 13:
-            ax2.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
-            continue
-        elif i == 6 or i == 9 or i == 12 or i == 15:
-            continue
+        # if i == 4 or i == 7 or i == 10 or i == 13:
+        #     ax2.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+        #     continue
+        # elif i == 6 or i == 9 or i == 12 or i == 15:
+        #     continue
         ax2.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     for i, (x, y) in enumerate(zip(wifi_lats_test, wifi_lons_test)):
@@ -339,7 +339,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
     ax2.grid(True)
     ax2.legend()
     fig2.set_size_inches(width, height)
-    fig2.savefig(f'figure/{id}/trajectory/{R}/GT_EKF_WIFI.png')
+    # fig2.savefig(f'figure/{id}/trajectory/{R}/GT_EKF_WIFI.png')
 
     ax3.plot(gt_lats, gt_lons, label="Ground Truth", marker="o", linewidth=0)
     ax3.plot(fused_lat, fused_lon, label="EKF Fused", marker="o", linewidth=0)
@@ -354,11 +354,11 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
         # ax3.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
 
         # FOR TEST3 and TEST4
-        if i == 4 or i == 7 or i == 10 or i == 13:
-            ax3.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
-            continue
-        elif i == 6 or i == 9 or i == 12 or i == 15:
-            continue
+        # if i == 4 or i == 7 or i == 10 or i == 13:
+        #     ax3.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+        #     continue
+        # elif i == 6 or i == 9 or i == 12 or i == 15:
+        #     continue
         ax3.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     for i, (x, y) in enumerate(zip(fused_lat, fused_lon)):
@@ -373,7 +373,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id):
     ax3.grid(True)
     ax3.legend()
     fig3.set_size_inches(width, height)
-    fig3.savefig(f'figure/{id}/trajectory/{R}/GT_EKF_FUSED.png')
+    # fig3.savefig(f'figure/{id}/trajectory/{R}/GT_EKF_FUSED.png')
     plt.show()
 
     # R = 'R123'
@@ -513,7 +513,7 @@ def evaluate_errors(aligned_data, pred_key_lat="fused_lat", pred_key_lon="fused_
 if __name__ == '__main__':
     trial_dict = {}
 
-    name = 'TEST4'
+    name = 'T1_R1'
 
     root_dir = "aligned_trials"
 
@@ -534,6 +534,8 @@ if __name__ == '__main__':
 
     read_file_test = ['TEST1', 'TEST2', 'TEST3', 'TEST4']
 
+    read_file_temp = ['T1_R1']
+
     # for trial_name in os.listdir(root_dir):
     #     trial_path = os.path.join(root_dir, trial_name)
     #     if not os.path.isdir(trial_path):
@@ -546,7 +548,7 @@ if __name__ == '__main__':
     #                 trial_data.append(pickle.load(f))
     #     trial_dict[trial_name] = trial_data
 
-    for trial_name in read_file_test:
+    for trial_name in read_file_temp:
         trial_path = os.path.join(root_dir, trial_name)
         if not os.path.isdir(trial_path):
             continue
@@ -557,7 +559,7 @@ if __name__ == '__main__':
         #         with open(os.path.join(trial_path, fname), "rb") as f:
         #             trial_data.append(pickle.load(f))
 
-        with open(os.path.join(trial_path, 'all_data_R123.pkl'), "rb") as f:
+        with open(os.path.join(trial_path, 'all_data_test.pkl'), "rb") as f:
             trial_data = pickle.load(f)
         trial_dict[trial_name] = trial_data
 

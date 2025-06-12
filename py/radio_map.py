@@ -29,7 +29,7 @@ warnings.filterwarnings("ignore")
 total = [1,2,3,4,5,21,22,23,24,25,26,27]
 index1 = [1]
 index2 = [24,25,26,27]
-input_file = 'T27_R4'
+input_file = 'T1_R1'
 INPUT_WIFI_CSV = f'py/{input_file}/WIFI_merged_filtered.csv'
 INPUT_IMU_CSV = f'py/{input_file}/IMU_calibrated3_temp.csv'
 INPUT_GT_CSV = f'py/{input_file}/POSI2.csv'
@@ -52,13 +52,18 @@ TEMP_GT_CSV = []
 # TEST_WIFI_CSV = "py/TEST1/WIFI_merged_filtered.csv"
 # TEST_IMU_CSV = "py/TEST1/IMU_calibrated2.csv"
 # TEST_GT_CSV = "py/TEST1/POSI2.csv"
-TEST_WIFI_CSV = "py/TEST4/WIFI_merged_filtered.csv"
-TEST_IMU_CSV = "py/TEST4/IMU_calibrated3_temp.csv"
-TEST_GT_CSV = "py/TEST4/POSI2.csv"
+
+TEST_WIFI_CSV = "py/TEST1/WIFI_merged_filtered.csv"
+TEST_IMU_CSV = "py/TEST1/IMU_calibrated3_temp.csv"
+TEST_GT_CSV = "py/TEST1/POSI2.csv"
+
+# TEST_WIFI_CSV = f'py/{input_file}/WIFI_merged_filtered.csv'
+# TEST_IMU_CSV = f'py/{input_file}/IMU_calibrated3_temp.csv'
+# TEST_GT_CSV = f'py/{input_file}/POSI2.csv'
 
 OUTPUT_DIR = f'py/aligned_trials/{input_file}'
 TEMP_OUTPUT_DIR = f'py/aligned_trials/temp_trial'
-TEST_OUTPUT_DIR = f'py/aligned_trials/TEST4'
+TEST_OUTPUT_DIR = f'py/aligned_trials/TEST1'
 
 IMU_WINDOW_SEC = 4.0
 STEP_THRESHOLD = 0.7
@@ -1301,7 +1306,7 @@ for i, d in enumerate(aligned_data_temp):
 '''
 
 # WIFI RSSI 初始定位(測試軌跡)
-with open('py/knn/knn_model_ALL_fixed.pkl', 'rb') as f:
+with open('py/knn/knn_model_R1_fixed.pkl', 'rb') as f:
     wifi_model = pickle.load(f)
 ekf = EKF_Localizer(init_pos=(0, 0), init_heading_deg=0)
 # 設定原點為你的第一個定位點
@@ -1323,7 +1328,7 @@ transformer_back = Transformer.from_crs(f"+proj=tmerc +lat_0={origin_lat} +lon_0
 
 # 轉回經緯度
 # lon, lat = transformer_back.transform(ekf_x, ekf_y)
-
+'''
 for i in range(len(wifi_used_indices_test)-1):
     this_wifi_index = wifi_used_indices_test[i]
     next_wifi_index = wifi_used_indices_test[i+1]
@@ -1347,7 +1352,10 @@ gt_last_index = gt_used_indices_test[len(gt_used_indices_test)-1]
 if gt_last_index > wifi_last_index:
     imu_seq = imu_df2_test[wifi_last_index : gt_last_index]
     estimate_trajectory_from_imu_all_test(test_aligned_data, wifi_last_index, gt_last_index, imu_seq)
-
+'''
+imu_seq = imu_df2_test[wifi_used_indices_test[0]+1 :]
+this_wifi_index = wifi_used_indices_test[0]+1
+estimate_trajectory_from_imu_all_test(test_aligned_data, this_wifi_index, None, imu_seq)
 '''
 gt_coords_origin_test = [(d["gt_lat"], d["gt_lon"]) for d in test_aligned_data if d["gt_lat"] is not None]
 gt_lats_test, gt_lons_test = zip(*gt_coords_origin_test)
@@ -1395,7 +1403,7 @@ for i in range(len(gt_used_indices_test)-1):
 # for i, d in enumerate(test_aligned_data):
 #     with open(os.path.join(TEST_OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
 #         pickle.dump(d, f)
-with open(os.path.join(TEST_OUTPUT_DIR, f"all_data.pkl"), "wb") as f:
+with open(os.path.join(TEST_OUTPUT_DIR, f"all_data_pdr.pkl"), "wb") as f:
     pickle.dump(test_aligned_data, f)
 
 # print(f"處理完成，共輸出 {len(aligned_data)} 筆對齊資料到資料夾：{OUTPUT_DIR}")
