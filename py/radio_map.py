@@ -53,9 +53,9 @@ TEMP_GT_CSV = []
 # TEST_IMU_CSV = "py/TEST1/IMU_calibrated2.csv"
 # TEST_GT_CSV = "py/TEST1/POSI2.csv"
 
-TEST_WIFI_CSV = "py/TEST1/WIFI_merged_filtered.csv"
-TEST_IMU_CSV = "py/TEST1/IMU_calibrated3_temp.csv"
-TEST_GT_CSV = "py/TEST1/POSI2.csv"
+TEST_WIFI_CSV = "py/TEST4/WIFI_merged_filtered.csv"
+TEST_IMU_CSV = "py/TEST4/IMU_calibrated3_temp.csv"
+TEST_GT_CSV = "py/TEST4/POSI2.csv"
 
 # TEST_WIFI_CSV = f'py/{input_file}/WIFI_merged_filtered.csv'
 # TEST_IMU_CSV = f'py/{input_file}/IMU_calibrated3_temp.csv'
@@ -63,7 +63,7 @@ TEST_GT_CSV = "py/TEST1/POSI2.csv"
 
 OUTPUT_DIR = f'py/aligned_trials/{input_file}'
 TEMP_OUTPUT_DIR = f'py/aligned_trials/temp_trial'
-TEST_OUTPUT_DIR = f'py/aligned_trials/TEST1'
+TEST_OUTPUT_DIR = f'py/aligned_trials/TEST4'
 
 IMU_WINDOW_SEC = 4.0
 STEP_THRESHOLD = 0.7
@@ -116,7 +116,7 @@ os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
 
 # ------------------------------
 
-class EKF_Localizer:
+class EKF_Localizer_xy:
     def __init__(self, init_pos, init_heading_deg, process_noise_std=0.5, obs_noise_std=2.0):
         # 初始狀態: x, y, heading (以度為單位)
         self.x = np.array([init_pos[0], init_pos[1], init_heading_deg], dtype=np.float64)
@@ -157,6 +157,53 @@ class EKF_Localizer:
 
     def get_state(self):
         return self.x.copy()
+    
+class EKF_Localizer_latlon:
+    def __init__(self, init_latlon, init_heading_deg, process_noise_std=0.5, obs_noise_std=2.0):
+        """
+        init_latlon: 初始位置 (latitude, longitude)
+        init_heading_deg: 初始朝向角（以度為單位）
+        """
+        self.x = np.array([init_latlon[0], init_latlon[1], init_heading_deg], dtype=np.float64)
+        self.P = np.eye(3) * 1.0
+        self.Q = np.diag([process_noise_std**2]*2 + [5.0**2])  # 緯度、經度誤差 + heading (deg)
+        self.R = np.diag([obs_noise_std**2, obs_noise_std**2])  # 觀測誤差
+
+    def predict(self, step_length, heading_deg):
+        """
+        使用「絕對 heading」進行位置預測（0~360 度，以真北為 0）
+        """
+        # theta_deg = heading_abs_deg % 360
+        # theta_rad = np.deg2rad(theta_deg)
+
+        curr_pos = (self.x[0], self.x[1])  # (lat, lon)
+        new_pos = distance(meters=step_length).destination(curr_pos, heading_deg)
+
+        self.x[0] = new_pos.latitude
+        self.x[1] = new_pos.longitude
+        self.x[2] = heading_deg  # 直接設為當前絕對角度
+
+        F = np.eye(3)  # 線性近似，不更新 Jacobian
+        self.P = F @ self.P @ F.T + self.Q
+
+    def update(self, z_latlon):
+        """
+        使用觀測位置（lat, lon）來進行 EKF 更新
+        """
+        H = np.array([
+            [1, 0, 0],
+            [0, 1, 0]
+        ])
+        z = np.array([z_latlon[0], z_latlon[1]])
+        y = z - H @ self.x
+        S = H @ self.P @ H.T + self.R
+        K = self.P @ H.T @ np.linalg.inv(S)
+
+        self.x += K @ y
+        self.P = (np.eye(3) - K @ H) @ self.P
+
+    def get_state(self):
+        return self.x.copy()  # [latitude, longitude, heading_deg]
 
 def estimate_step_length_from_world_acc(df, step_index, window=20, method='instant'):
     """
@@ -705,7 +752,7 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
 
     print(total_length)
 
-def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_df):
+def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_df, first_heading_deg):
     if len(imu_df) < 2:
         return [(aligned_data[this_idx]["gt_lat"], aligned_data[this_idx]["gt_lon"])]
 
@@ -762,8 +809,10 @@ def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_d
     #     curr_pos = distance(meters=step_length).destination(curr_pos, heading_deg)
     #     trajectory.append((curr_pos.latitude, curr_pos.longitude))
 
+    last_heading_deg = first_heading_deg
     # 動態步長(非RMS)
     for idx in peaks:
+        # print('yes')
         win_start = max(0, idx - 15)
         win_end = min(len(acc_mag), idx + 15)
         acc_segment = acc_mag[win_start:win_end]
@@ -788,11 +837,13 @@ def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_d
         # step_length = step_length_avg
         step_length = estimate_step_length_from_world_acc(imu_df, idx, method='integrate') if estimate_step_length_from_world_acc(imu_df, idx, method='integrate') <= 0.8 else 0.8
         heading_deg = (-headings[idx] + 360) % 360
+        heading_delta_deg = (heading_deg - last_heading_deg + 180) % 360 - 180
         #print(step_length)
         # heading_rad = headings[idx]
         ekf.predict(step_length, heading_deg)
-        x, y = ekf.get_state()[0], ekf.get_state()[1]
-        lon, lat = transformer_back.transform(x, y)
+        # x, y = ekf.get_state()[0], ekf.get_state()[1]
+        # lon, lat = transformer_back.transform(x, y)
+        lat, lon = ekf.get_state()[0], ekf.get_state()[1]
 
         # heading_deg = np.degrees(headings[idx]) % 360
         
@@ -803,6 +854,208 @@ def estimate_trajectory_from_imu_all_test(aligned_data, this_idx, end_idx, imu_d
         aligned_data[this_idx+idx]["fused_lon"] = lon
         # aligned_data[this_idx+idx]["gt_lat_temp"] = curr_pos.latitude
         # aligned_data[this_idx+idx]["gt_lon_temp"] = curr_pos.longitude
+
+        # last_heading_deg = heading_deg
+
+    # return last_heading_deg
+
+def estimate_trajectory_from_imu_all_test_pdr(aligned_data, this_idx, end_idx, imu_df, lat, lon):
+    # interval = geodesic((aligned_data[this_idx]["gt_lat_ori"], aligned_data[this_idx]["gt_lon_ori"]), (aligned_data[end_idx]["gt_lat_ori"], aligned_data[end_idx]["gt_lon_ori"])).meters
+    if len(imu_df) < 2:
+        return [(aligned_data[this_idx]["gt_lat"], aligned_data[this_idx]["gt_lon"])]
+
+    acc_mag = np.sqrt(imu_df["acc_x"]**2 + imu_df["acc_y"]**2 + imu_df["acc_z"]**2)
+    acc_mag = smooth_acc(acc_mag.to_numpy())
+    #print(acc_mag)
+    # acc = imu_df[["acc_x", "acc_y", "acc_z"]].to_numpy()
+    # acc_mag = np.linalg.norm(acc, axis=1)
+    # smooth_acc1 = uniform_filter1d(acc_mag, size=5)
+
+    # 世界座標加速度
+    acc_x_world = imu_df['acc_x'].values
+    acc_y_world = imu_df['acc_y'].values
+    acc_z_world = imu_df['acc_z'].values
+
+    # 使用 scipy 的 find_peaks 做步態偵測
+    peaks, _ = find_peaks(acc_z_world, height=STEP_THRESHOLD, distance=20, prominence=0.4)  # distance 防止過密誤判
+    #print(peaks)
+
+    # plt.plot(acc_mag)
+    # plt.plot(peaks, acc_mag[peaks], "x")
+    # plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    # plt.show()
+
+    gyro_z = imu_df["gyro_z"].to_numpy()
+
+    # 畫圖
+    # plt.figure(figsize=(14, 12))
+
+    # # 第一張圖：平滑加速度
+    # plt.subplot(3, 1, 1)
+    # plt.plot(acc_mag)
+    # plt.plot(peaks, acc_mag[peaks], "x")
+    # plt.plot(np.zeros_like(acc_mag), "--", color="gray")
+    # plt.title('Smooth_acc and Peaks')
+    # plt.xlabel('index')
+    # plt.ylabel('Acceleration (m/s²)')
+    # # plt.legend()
+    # plt.grid(True)
+
+    # # 第一張圖：平滑加速度
+    # plt.subplot(3, 1, 1)
+    # plt.plot(acc_z_world)
+    # plt.plot(peaks, acc_z_world[peaks], "x")
+    # plt.plot(np.zeros_like(acc_z_world), "--", color="gray")
+    # plt.title('Smooth_acc and Peaks')
+    # plt.xlabel('index')
+    # plt.ylabel('Acceleration (m/s²)')
+    # # plt.legend()
+    # plt.grid(True)
+
+    # # 第二張圖：世界座標三軸加速度
+    # plt.subplot(3, 1, 2)
+    # plt.plot(acc_x_world, label='acc_x_calibrated')
+    # plt.plot(acc_y_world, label='acc_y_calibrated')
+    # plt.plot(acc_z_world, label='acc_z_calibrated')
+    # plt.title('World coordinate Accelerations')
+    # plt.xlabel('index')
+    # plt.ylabel('Acceleration (m/s²)')
+    # plt.legend()
+    # plt.grid(True)
+
+    # # 第三張圖：角速度
+    # plt.subplot(3, 1, 3)
+    # plt.plot(gyro_z)
+    # plt.title('gyro_world')
+    # plt.xlabel('index')
+    # plt.ylabel('Angular Velocity (rad/s)')
+    # # plt.legend()
+    # plt.grid(True)
+
+    # plt.tight_layout()
+    # plt.show()
+
+    # headings = imu_df['yaw_deg'].to_numpy()
+    headings = imu_df['yaw_deg_ori'].to_numpy()
+    # headings = imu_df['yaw_deg_ori_cal'].to_numpy()
+
+    # gyro_z = imu_df["gyro_z"].to_numpy()
+    # mag_x = imu_df["mag_x"].to_numpy()
+    # mag_y = imu_df["mag_y"].to_numpy()
+    # mag_headings = np.unwrap(np.arctan2(mag_y, mag_x))
+
+    # if FUSION_METHOD == "complementary":
+    #     headings = estimate_heading_complementary(gyro_z, mag_headings)
+    # elif FUSION_METHOD == "madgwick":
+    #     headings = estimate_heading_madgwick(imu_df)
+    # elif FUSION_METHOD == "mahony":
+    #     headings = estimate_heading_mahony(imu_df)
+    # elif FUSION_METHOD == "kalman":
+    #     headings = estimate_heading_kalman(gyro_z, mag_headings)
+    # else:
+    #     headings = np.cumsum(gyro_z)
+    
+    #headings = heading
+    curr_pos = Point(lat, lon)
+    # trajectory = [(curr_pos.latitude, curr_pos.longitude)]
+
+    # 固定步長
+    # for idx in peaks:
+    #     heading_rad = headings[idx]
+    #     heading_deg = np.degrees(heading_rad) % 360
+    #     curr_pos = distance(meters=FIXED_STEP_LENGTH).destination(curr_pos, heading_deg)
+    #     pdr_latlon.append(np.array([curr_pos.latitude, curr_pos.longitude]))
+    #     #trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+    # 動態步長
+    # for idx in peaks:
+    #     win_start = max(0, idx - 15)
+    #     win_end = min(len(acc_mag), idx + 15)
+    #     local_rms = np.sqrt(np.mean(acc_mag[win_start:win_end]**2))
+    #     step_length = DYNAMIC_STEP_SCALE * local_rms
+    #     heading_deg = np.degrees(headings[idx]) % 360
+    #     curr_pos = distance(meters=step_length).destination(curr_pos, heading_deg)
+    #     trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+    # 記錄PDR的index
+    # pdr_idx = [this_idx]
+
+    # 動態步長(非RMS)
+    total_length = 0
+    for idx in peaks:
+        '''
+        decl = declination(curr_pos.latitude, curr_pos.longitude)
+        # print(f'{aligned_data[this_idx+idx]["timestamp"]}, {headings[idx]}, {decl}')
+        win_start = this_idx + (idx - 10)
+        win_end = this_idx + (idx + 10)
+        acc_segment = acc_mag[win_start:win_end]
+
+        # 方法 A: 頻譜能量（能量越高代表震動越強 → 步長越大）
+        spectrum = np.abs(np.fft.rfft(acc_segment))
+        spectral_energy = np.sum(spectrum**2)
+        #print(np.sqrt(spectral_energy))
+        step_length_fft = 0.03 * np.sqrt(spectral_energy)
+
+        # 方法 B: 移動平均強度
+        #print(np.mean(acc_segment))
+        step_length_avg = DYNAMIC_STEP_SCALE * np.mean(acc_segment)
+
+        # 方法 C: ZUPT：如果震動小於門檻，視為靜止（不推進）
+        if np.max(acc_segment) - np.min(acc_segment) < 0.05:
+            step_length_zupt = 0.0
+        else:
+            step_length_zupt = step_length_fft  # 或用 avg 也可
+        '''
+        win_start = this_idx + (idx - 40)
+        win_end = this_idx + (idx)
+        # 這裡可依需求切換用哪種
+        # step_length = step_length_fft
+        # step_length = FIXED_STEP_LENGTH
+        # if interval == 0:
+        #     step_length = estimate_step_length_from_world_acc(imu_df, idx, method='integrate') / 6
+        # else:
+        #     step_length = estimate_step_length_from_world_acc(imu_df, idx, method='integrate') if estimate_step_length_from_world_acc(imu_df, idx, method='integrate') <= 0.8 else 0.8
+        turn = False
+        check_gyro_z = gyro_z[win_start:win_end]
+        for i in check_gyro_z:
+            if i > 1.0:
+                turn = True
+                break
+        if turn:
+            step_length = estimate_step_length_from_world_acc(imu_df, idx, method='integrate') / 6
+        else:
+            step_length = estimate_step_length_from_world_acc(imu_df, idx, method='integrate') if estimate_step_length_from_world_acc(imu_df, idx, method='integrate') <= 0.8 else 0.8
+        total_length += step_length
+        print(f'{aligned_data[this_idx+idx]["timestamp"]}, step_length = {step_length}, turn = {turn}')
+        # heading_deg = np.degrees(headings[idx]) % 360
+        
+        heading_deg = (-headings[idx] + 360) % 360
+        #geo_heading = (heading_deg + 135) % (2 * np.pi)
+        curr_pos = distance(meters=step_length).destination(curr_pos, heading_deg)
+        aligned_data[this_idx+idx]["fused_lat"] = curr_pos.latitude
+        aligned_data[this_idx+idx]["fused_lon"] = curr_pos.longitude
+        # aligned_data[this_idx+idx]["gt_lat_temp"] = curr_pos.latitude
+        # aligned_data[this_idx+idx]["gt_lon_temp"] = curr_pos.longitude
+        #trajectory.append((curr_pos.latitude, curr_pos.longitude))
+
+        # pdr_idx.append(this_idx+idx)
+
+    # pdr_idx.append(end_idx)
+
+    # for i in range(len(pdr_idx)-1):
+    #     start_idx = pdr_idx[i]
+    #     end_idx = pdr_idx[i+1]
+    #     start_lat, start_lon = aligned_data[start_idx]["gt_lat_temp"], aligned_data[start_idx]["gt_lon_temp"]
+    #     end_lat, end_lon = aligned_data[end_idx]["gt_lat_temp"], aligned_data[end_idx]["gt_lon_temp"]
+    #     steps = end_idx - start_idx
+    #     for j in range(1, steps):
+    #         ratio = j / steps
+    #         interp_lat = start_lat + ratio * (end_lat - start_lat)
+    #         interp_lon = start_lon + ratio * (end_lon - start_lon)
+    #         aligned_data[start_idx + j]["gt_lat_temp"] = interp_lat
+    #         aligned_data[start_idx + j]["gt_lon_temp"] = interp_lon
+
+    # print(total_length)
 
 # Wi-Fi RSSI 初始定位模型訓練與預測函式
 
@@ -1306,12 +1559,18 @@ for i, d in enumerate(aligned_data_temp):
 '''
 
 # WIFI RSSI 初始定位(測試軌跡)
-with open('py/knn/knn_model_R1_fixed.pkl', 'rb') as f:
+repitition = 'R1234'
+neighbors = 3
+with open(f'py/knn/distance/knn_model_{repitition}_fixed_neighbors{neighbors}.pkl', 'rb') as f:
     wifi_model = pickle.load(f)
-ekf = EKF_Localizer(init_pos=(0, 0), init_heading_deg=0)
+
 # 設定原點為你的第一個定位點
 # test_aligned_data[wifi_used_indices_test[0]]["rssi_vector"]
 origin_lat, origin_lon = wifi_model.predict([test_aligned_data[wifi_used_indices_test[0]]["rssi_vector"]])[0]
+init_heading = imu_df2_test["yaw_deg_ori"][wifi_used_indices_test[0]]
+init_heading = (-init_heading + 360) % 360
+print(f'init heading = {init_heading}')
+ekf = EKF_Localizer_latlon(init_latlon=(origin_lat, origin_lon), init_heading_deg=init_heading)
 test_aligned_data[wifi_used_indices_test[0]]["knn_lat"] = origin_lat
 test_aligned_data[wifi_used_indices_test[0]]["knn_lon"] = origin_lon
 
@@ -1319,7 +1578,7 @@ test_aligned_data[wifi_used_indices_test[0]]["knn_lon"] = origin_lon
 transformer = Transformer.from_crs("epsg:4326", f"+proj=tmerc +lat_0={origin_lat} +lon_0={origin_lon} +units=m", always_xy=True)
 # 建立轉換器（平面 → 經緯度）
 transformer_back = Transformer.from_crs(f"+proj=tmerc +lat_0={origin_lat} +lon_0={origin_lon} +units=m","epsg:4326", always_xy=True)
-
+first_heading = init_heading
 # 經緯度 → x, y（公尺）
 # x, y = transformer.transform(origin_lon, origin_lat)
 
@@ -1333,29 +1592,37 @@ for i in range(len(wifi_used_indices_test)-1):
     this_wifi_index = wifi_used_indices_test[i]
     next_wifi_index = wifi_used_indices_test[i+1]
     imu_seq = imu_df2_test[this_wifi_index+1 : next_wifi_index]
-    estimate_trajectory_from_imu_all_test(test_aligned_data, this_wifi_index, next_wifi_index, imu_seq)
+    # temp_heading = estimate_trajectory_from_imu_all_test(test_aligned_data, this_wifi_index, next_wifi_index, imu_seq, first_heading)
+    estimate_trajectory_from_imu_all_test(test_aligned_data, this_wifi_index, next_wifi_index, imu_seq, first_heading)
     lat, lon = wifi_model.predict([test_aligned_data[wifi_used_indices_test[i+1]]["rssi_vector"]])[0]
     test_aligned_data[wifi_used_indices_test[i+1]]["knn_lat"] = lat
     test_aligned_data[wifi_used_indices_test[i+1]]["knn_lon"] = lon
-    x, y = transformer.transform(lon, lat)
-    ekf.update(np.array([x, y]))
-    ekf_x, ekf_y = ekf.get_state()[0], ekf.get_state()[1]
-    final_lon, final_lat = transformer_back.transform(ekf_x, ekf_y)
+    # x, y = transformer.transform(lon, lat)
+    # ekf.update(np.array([x, y]))
+    ekf.update(np.array([lat, lon]))
+    # ekf_x, ekf_y = ekf.get_state()[0], ekf.get_state()[1]
+    # final_lon, final_lat = transformer_back.transform(ekf_x, ekf_y)
+    final_lat, final_lon = ekf.get_state()[0], ekf.get_state()[1]
     test_aligned_data[wifi_used_indices_test[i+1]]["wifi_lat"] = final_lat
     test_aligned_data[wifi_used_indices_test[i+1]]["wifi_lon"] = final_lon
     test_aligned_data[wifi_used_indices_test[i+1]]["fused_lat"] = final_lat
     test_aligned_data[wifi_used_indices_test[i+1]]["fused_lon"] = final_lon
+
+    # first_heading = temp_heading
 
 wifi_last_index = wifi_used_indices_test[len(wifi_used_indices_test)-1]
 gt_last_index = gt_used_indices_test[len(gt_used_indices_test)-1]
 
 if gt_last_index > wifi_last_index:
     imu_seq = imu_df2_test[wifi_last_index : gt_last_index]
-    estimate_trajectory_from_imu_all_test(test_aligned_data, wifi_last_index, gt_last_index, imu_seq)
+    estimate_trajectory_from_imu_all_test(test_aligned_data, wifi_last_index, gt_last_index, imu_seq, first_heading)
 '''
 imu_seq = imu_df2_test[wifi_used_indices_test[0]+1 :]
 this_wifi_index = wifi_used_indices_test[0]+1
-estimate_trajectory_from_imu_all_test(test_aligned_data, this_wifi_index, None, imu_seq)
+# print(len(imu_seq))
+# print(this_wifi_index)
+estimate_trajectory_from_imu_all_test(test_aligned_data, this_wifi_index, None, imu_seq, first_heading)
+# estimate_trajectory_from_imu_all_test_pdr(test_aligned_data, this_wifi_index, None, imu_seq, origin_lat, origin_lon)
 '''
 gt_coords_origin_test = [(d["gt_lat"], d["gt_lon"]) for d in test_aligned_data if d["gt_lat"] is not None]
 gt_lats_test, gt_lons_test = zip(*gt_coords_origin_test)
@@ -1403,7 +1670,7 @@ for i in range(len(gt_used_indices_test)-1):
 # for i, d in enumerate(test_aligned_data):
 #     with open(os.path.join(TEST_OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
 #         pickle.dump(d, f)
-with open(os.path.join(TEST_OUTPUT_DIR, f"all_data_pdr.pkl"), "wb") as f:
+with open(os.path.join(TEST_OUTPUT_DIR, f"distance/all_data_pdr_{repitition}_neighbors{neighbors}.pkl"), "wb") as f:
     pickle.dump(test_aligned_data, f)
 
 # print(f"處理完成，共輸出 {len(aligned_data)} 筆對齊資料到資料夾：{OUTPUT_DIR}")
