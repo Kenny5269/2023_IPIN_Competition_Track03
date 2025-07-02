@@ -109,7 +109,7 @@ def plot_figure_train(aligned_data_train, aligned_data_test):
     ax.grid(True)
     ax.legend()
     fig.set_size_inches(width, height)
-    fig.savefig(f'figure/{trial}/trajectory/{repitition}.png')
+    # fig.savefig(f'figure/{trial}/trajectory/{repitition}.png')
     plt.show()
 
 def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
@@ -316,20 +316,21 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
     for i, (x, y) in enumerate(zip(gt_lats, gt_lons)):
         ax1.plot([gt_lats[i], knn_lats[i]], [gt_lons[i], knn_lons[i]], color='b')
         # FOR TEST1 and TEST2
-        if i == 12 or i == 15 or i == 18 or i == 21:
-            ax1.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
-            continue
-        elif i == 14 or i == 17 or i == 20 or i == 23:
-            continue
-        ax1.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
-
-        # FOR TEST3 and TEST4
-        # if i == 4 or i == 7 or i == 10 or i == 13:
-        #     ax1.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
-        #     continue
-        # elif i == 6 or i == 9 or i == 12 or i == 15:
-        #     continue
-        # ax1.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
+        if id == 'TEST1' or id == 'TEST2':
+            if i == 12 or i == 15 or i == 18 or i == 21:
+                ax1.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+                continue
+            elif i == 14 or i == 17 or i == 20 or i == 23:
+                continue
+            ax1.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
+        # FOR TEST3 and TEST4   
+        elif id == 'TEST3' or id == 'TEST4':
+            if i == 4 or i == 7 or i == 10 or i == 13:
+                ax1.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+                continue
+            elif i == 6 or i == 9 or i == 12 or i == 15:
+                continue
+            ax1.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     # for i, (x, y) in enumerate(zip(knn_lats, knn_lons)):
     #     ax1.text(x, y - 0.5, f'{i+1}', fontsize=9, ha='center', va='top', color='red')
@@ -344,7 +345,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
     ax1.grid(True)
     ax1.legend(loc="upper left")
     fig1.set_size_inches(width, height)
-    fig1.savefig(f'figure/{id}/trajectory/{R}/GT_KNN.png')
+    # fig1.savefig(f'figure/{id}/trajectory/{R}/GT_KNN.png')
 
     ax2.plot(gt_lats, gt_lons, label="Ground Truth", marker="o", linewidth=0, color='b')
     ax2.plot(wifi_lats_all, wifi_lons_all, label="EKF Wi-Fi Trajectory", color='#ff7f0e')
@@ -353,20 +354,21 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
     for i, (x, y) in enumerate(zip(gt_lats, gt_lons)):
         ax2.plot([gt_lats[i], wifi_lats[i]], [gt_lons[i], wifi_lons[i]], color='b')
         # FOR TEST1 and TEST2
-        if i == 12 or i == 15 or i == 18 or i == 21:
-            ax2.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
-            continue
-        elif i == 14 or i == 17 or i == 20 or i == 23:
-            continue
-        ax2.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
-
+        if id == 'TEST1' or id == 'TEST2':
+            if i == 12 or i == 15 or i == 18 or i == 21:
+                ax2.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+                continue
+            elif i == 14 or i == 17 or i == 20 or i == 23:
+                continue
+            ax2.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
         # FOR TEST3 and TEST4
-        # if i == 4 or i == 7 or i == 10 or i == 13:
-        #     ax2.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
-        #     continue
-        # elif i == 6 or i == 9 or i == 12 or i == 15:
-        #     continue
-        # ax2.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
+        elif id == 'TEST3' or id == 'TEST4':
+            if i == 4 or i == 7 or i == 10 or i == 13:
+                ax2.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+                continue
+            elif i == 6 or i == 9 or i == 12 or i == 15:
+                continue
+            ax2.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     # for i, (x, y) in enumerate(zip(wifi_lats, wifi_lons)):
     #     ax2.text(x, y - 0.5, f'{i+1}', fontsize=9, ha='center', va='top', color='red')
@@ -391,20 +393,21 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
     for i, (x, y) in enumerate(zip(gt_lats, gt_lons)):
         ax3.plot([gt_lats[i], fused_lats[i]], [gt_lons[i], fused_lons[i]], color='b')
         # FOR TEST1 and TEST2
-        if i == 12 or i == 15 or i == 18 or i == 21:
-            ax3.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
-            continue
-        elif i == 14 or i == 17 or i == 20 or i == 23:
-            continue
-        ax3.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
-
+        if id == 'TEST1' or id == 'TEST2':
+            if i == 12 or i == 15 or i == 18 or i == 21:
+                ax3.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+                continue
+            elif i == 14 or i == 17 or i == 20 or i == 23:
+                continue
+            ax3.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
         # FOR TEST3 and TEST4
-        # if i == 4 or i == 7 or i == 10 or i == 13:
-        #     ax3.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
-        #     continue
-        # elif i == 6 or i == 9 or i == 12 or i == 15:
-        #     continue
-        # ax3.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
+        elif id == 'TEST3' or id == 'TEST4':
+            if i == 4 or i == 7 or i == 10 or i == 13:
+                ax3.text(x, y + 0.5, f'{i+1},{i+3}', fontsize=9, ha='center', va='bottom', color='blue')
+                continue
+            elif i == 6 or i == 9 or i == 12 or i == 15:
+                continue
+            ax3.text(x, y + 0.5, str(i+1), fontsize=9, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     # for i, (x, y) in enumerate(zip(wifi_lats_all, wifi_lons_all)):
     #     ax3.text(x, y - 0.5, f'{i+1}', fontsize=9, ha='center', va='top', color='red')
@@ -419,7 +422,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
     ax3.grid(True)
     ax3.legend(loc="upper left")
     fig3.set_size_inches(width, height)
-    fig3.savefig(f'figure/{id}/trajectory/{R}/GT_EKF_FUSED.png')
+    # fig3.savefig(f'figure/{id}/trajectory/{R}/GT_EKF_FUSED.png')
     # plt.show()
 
     # 誤差折線圖 fig4, fig5
@@ -431,7 +434,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
     ax4.grid(True)
     # ax4.legend()
     fig4.set_size_inches(width, height)
-    fig4.savefig(f'figure/{id}/All_Position_Error/{R}/GT_KNN.png')
+    # fig4.savefig(f'figure/{id}/All_Position_Error/{R}/GT_KNN.png')
 
     ax5.plot(range(len(dists_ekf_fused)), dists_ekf_fused, marker='o', linestyle='-')
     ax5.set_title('Position Error (EKF)')
@@ -441,7 +444,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
     ax5.grid(True)
     # ax5.legend()
     fig5.set_size_inches(width, height)
-    fig5.savefig(f'figure/{id}/All_Position_Error/{R}/GT_EKF_FUSED.png')
+    # fig5.savefig(f'figure/{id}/All_Position_Error/{R}/GT_EKF_FUSED.png')
 
     # CDF圖 (累積分布函數)
     percentile_to_mark = 75
@@ -467,7 +470,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
     ax6.grid(True)
     ax6.legend(loc="upper left")
     fig6.set_size_inches(width, height)
-    fig6.savefig(f'figure/{id}/CDF/{R}/GT_KNN.png')
+    # fig6.savefig(f'figure/{id}/CDF/{R}/GT_KNN.png')
 
     sorted_errors_ekf = np.sort(dists_ekf_fused)
     cdf_ekf = np.arange(1, len(sorted_errors_ekf) + 1) / len(sorted_errors_ekf)
@@ -490,7 +493,7 @@ def plot_figure_test(aligned_data_train, aligned_data_test, id, re):
     ax7.grid(True)
     ax7.legend(loc="upper left")
     fig7.set_size_inches(width, height)
-    fig7.savefig(f'figure/{id}/CDF/{R}/GT_EKF_FUSED.png')
+    # fig7.savefig(f'figure/{id}/CDF/{R}/GT_EKF_FUSED.png')
     plt.show()
 
     # R = 'R123'
@@ -964,7 +967,7 @@ if __name__ == '__main__':
     repitition = 'R1234'
     neighbors = 3
 
-    name = 'TEST2'
+    name = 'TEST1'
 
     root_dir = "aligned_trials"
 
@@ -985,7 +988,7 @@ if __name__ == '__main__':
 
     read_file_test = ['TEST1', 'TEST2', 'TEST3', 'TEST4']
 
-    read_file_temp = ['TEST2']
+    read_file_temp = [name]
 
     # for trial_name in os.listdir(root_dir):
     #     trial_path = os.path.join(root_dir, trial_name)
@@ -1010,7 +1013,7 @@ if __name__ == '__main__':
         #         with open(os.path.join(trial_path, fname), "rb") as f:
         #             trial_data.append(pickle.load(f))
 
-        with open(os.path.join(trial_path, f'distance/all_data_pdr_{repitition}_neighbors{neighbors}.pkl'), "rb") as f:
+        with open(os.path.join(trial_path, f'distance/temp.pkl'), "rb") as f:
             trial_data = pickle.load(f)
         trial_dict[trial_name] = trial_data
 
@@ -1023,7 +1026,7 @@ if __name__ == '__main__':
 
     # aligned_data_train = trial_dict['T27_R4']
 
-    # plot_figure_train(aligned_data_train, aligned_data_train)
+    # plot_figure_train(aligned_data_test, aligned_data_test)
 
     # aligned_data_temp = trial_dict['temp_trial']
 
@@ -1035,8 +1038,8 @@ if __name__ == '__main__':
     # evaluate_errors(aligned_data_train)
     #all_errors(aligned_data_train)
 
-    # plot_figure_test(aligned_data_test, aligned_data_test, name, repitition)
-    plot_figure_test_pdr(aligned_data_test, aligned_data_test, name, repitition)
+    plot_figure_test(aligned_data_test, aligned_data_test, name, repitition)
+    # plot_figure_test_pdr(aligned_data_test, aligned_data_test, name, repitition)
 
     #evaluate_errors(aligned_data_test1)
     # all_errors(aligned_data_test1)

@@ -307,7 +307,7 @@ def madgwick_filter_with_mag_init(df, idx, t_start, t_end, beta=0.1, freq=50):
     return df
 
 # 讀取資料
-index = 'TEST1'
+index = 'T1_R1'
 df = pd.read_csv(f'{index}/IMU_50Hz.csv')
 
 # 低通濾波器定義
@@ -517,22 +517,43 @@ final_export_df = pd.DataFrame({
 
 # 畫圖
 # 抓出世界座標下的加速度分量
-timestamps = final_export_df['AppTimestamp(s)'].values
+# timestamps = final_export_df['AppTimestamp(s)'].values
+
+# # 世界座標加速度
+# acc_x_world = final_export_df['acc_x'].values
+# acc_y_world = final_export_df['acc_y'].values
+# acc_z_world = final_export_df['acc_z'].values
+
+# # 世界座標角速度
+# gyro_x_world = final_export_df['gyro_x'].values
+# gyro_y_world = final_export_df['gyro_y'].values
+# gyro_z_world = final_export_df['gyro_z'].values
+
+# # 世界座標磁力計
+# mag_x_world = final_export_df['mag_x'].values
+# mag_y_world = final_export_df['mag_y'].values
+# mag_z_world = final_export_df['mag_z'].values
+
+# -----------------------------------------------------------------------------------------------
+# 抓出世界座標下的加速度分量
+timestamps = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['AppTimestamp(s)'].values
 
 # 世界座標加速度
-acc_x_world = final_export_df['acc_x'].values
-acc_y_world = final_export_df['acc_y'].values
-acc_z_world = final_export_df['acc_z'].values
+acc_x_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['acc_x'].values
+acc_y_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['acc_y'].values
+acc_z_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['acc_z'].values
 
 # 世界座標角速度
-gyro_x_world = final_export_df['gyro_x'].values
-gyro_y_world = final_export_df['gyro_y'].values
-gyro_z_world = final_export_df['gyro_z'].values
+gyro_x_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['gyro_x'].values
+gyro_y_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['gyro_y'].values
+gyro_z_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['gyro_z'].values
 
 # 世界座標磁力計
-mag_x_world = final_export_df['mag_x'].values
-mag_y_world = final_export_df['mag_y'].values
-mag_z_world = final_export_df['mag_z'].values
+mag_x_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['mag_x'].values
+mag_y_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['mag_y'].values
+mag_z_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['mag_z'].values
+
+
 
 # 畫圖
 plt.figure(figsize=(14, 12))
@@ -545,7 +566,7 @@ plt.plot(timestamps, acc_z_world, label='acc_z_calibrated')
 plt.title('Calibrated Accelerations')
 plt.xlabel('Time (s)')
 plt.ylabel('Acceleration (m/s²)')
-plt.legend()
+plt.legend(loc="upper right")
 plt.grid(True)
 
 # 第二張圖：角速度
@@ -556,7 +577,7 @@ plt.plot(timestamps, gyro_z_world, label='gyro_z_calibrated')
 plt.title('Calibrated Angular Velocities')
 plt.xlabel('Time (s)')
 plt.ylabel('Angular Velocity (rad/s)')
-plt.legend()
+plt.legend(loc="upper right")
 plt.grid(True)
 
 # 第三張圖：磁力計
@@ -567,7 +588,7 @@ plt.plot(timestamps, mag_z_world, label='mag_z_calibrated')
 plt.title('Calibrated Magnetometer Readings')
 plt.xlabel('Time (s)')
 plt.ylabel('Magnetic Field (μT)')
-plt.legend()
+plt.legend(loc="upper right")
 plt.grid(True)
 
 plt.tight_layout()

@@ -1,0 +1,12 @@
+T1 : R2
+T2 : R1、R3
+T3 : Need PDR Fix
+T4 : R1、R2
+T5 : R2
+T21 : R1、R2
+T22 : ALL
+T23 : ALL
+T24 : R2、R4
+T25 : R4
+T26 : R1、R2
+T27 : R3
