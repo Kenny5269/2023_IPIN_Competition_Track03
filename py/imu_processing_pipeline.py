@@ -307,7 +307,7 @@ def madgwick_filter_with_mag_init(df, idx, t_start, t_end, beta=0.1, freq=50):
     return df
 
 # 讀取資料
-index = 'T1_R1'
+index = 'T1_R2'
 df = pd.read_csv(f'{index}/IMU_50Hz.csv')
 
 # 低通濾波器定義
@@ -594,5 +594,6 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
-# final_export_df.to_csv(f'{index}/IMU_calibrated3_temp.csv', index=False)
+# final_export_df.to_csv(f'{index}/IMU_calibrated3_temp3.csv', index=False)
+# final_export_df.to_csv('IMU_calibrated3_temp2.csv', index=False)
 
