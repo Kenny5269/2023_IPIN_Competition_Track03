@@ -31,58 +31,69 @@ def kalman_filter_rssi_masked(data, process_var=1.0, measure_var=9.0, init_error
 
 trial = 'T27'
 repitition = 'R4'
-input_file = 'TEST4'
+input_file = 'T53_R2'
 
-wifi_df = pd.read_csv(f'{input_file}/WIFI_merged2.csv')
-filtered_df = wifi_df.copy()
-rssi_cols = [col for col in wifi_df.columns if col.startswith("wifi_rssi_")]
+file = open('index.txt')
+index = []
+for line in file.read().splitlines():
+    index.append(line)
+file.close
+print(index)
 
-filtered_df[rssi_cols] = wifi_df[rssi_cols].apply(lambda col: kalman_filter_rssi_masked(col.values))
+top = 10
+for name in index:
+    wifi_df = pd.read_csv(f'{name}/WIFI_merged2_top{top}.csv')
+    filtered_df = wifi_df.copy()
+    rssi_cols = [col for col in wifi_df.columns if col.startswith("wifi_rssi_")]
 
-timestamps = wifi_df['AppTimestamp(s)'].values
+    filtered_df[rssi_cols] = wifi_df[rssi_cols].apply(lambda col: kalman_filter_rssi_masked(col.values))
 
-plt.rcParams['figure.figsize'] = [25.6, 14.4]
+    filtered_df.to_csv(f'{name}/WIFI_merged_filtered_top{top}.csv', index=False)
 
-num = 1
+# timestamps = wifi_df['AppTimestamp(s)'].values
 
-for i, col_name in enumerate(rssi_cols):
-    # print(i)
-    rssi_ori = wifi_df[col_name].values
-    rssi_filtered = filtered_df[col_name].values
+# plt.rcParams['figure.figsize'] = [25.6, 14.4]
 
-    # plt.figure(figsize=(25.6, 14.4))
-    plt.subplot(5, 1, (i%5)+1)
-    plt.plot(timestamps, rssi_ori, label='rssi origin')
-    plt.plot(timestamps, rssi_filtered, label='rssi filtered')
-    plt.title(col_name)
-    plt.xlabel('Time (s)')
-    plt.ylabel('rssi')
-    plt.legend(loc="upper right")
-    plt.grid(True)
+# num = 1
 
-    if i % 5 == 4:
-        plt.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0.2, hspace=1)
-        # plt.savefig(f'figure/{trial}/wifi_rssi_filtered/{repitition}/{num}.png')
-        plt.savefig(f'figure/{input_file}/wifi_rssi_filtered/{num}.png')
-        num += 1
-        plt.clf()
-        # plt.figure()
-        # plt.show()
+# for i, col_name in enumerate(rssi_cols):
+#     # print(i)
+#     rssi_ori = wifi_df[col_name].values
+#     rssi_filtered = filtered_df[col_name].values
 
-    # plt.subplot(2, 1, 2)
-    # plt.plot(timestamps, rssi_filtered, label='rssi filtered')
-    # plt.title('rssi filtered')
-    # plt.xlabel('Time (s)')
-    # plt.ylabel('rssi')
-    # plt.legend()
-    # plt.grid(True)
+#     # plt.figure(figsize=(25.6, 14.4))
+#     plt.subplot(5, 1, (i%5)+1)
+#     plt.plot(timestamps, rssi_ori, label='rssi origin')
+#     plt.plot(timestamps, rssi_filtered, label='rssi filtered')
+#     plt.title(col_name)
+#     plt.xlabel('Time (s)')
+#     plt.ylabel('rssi')
+#     plt.legend(loc="upper right")
+#     plt.grid(True)
 
-    # plt.tight_layout()
-    # plt.show()
+#     if i % 5 == 4:
+#         plt.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0.2, hspace=1)
+#         # plt.savefig(f'figure/{trial}/wifi_rssi_filtered/{repitition}/{num}.png')
+#         plt.savefig(f'figure/{input_file}/wifi_rssi_filtered/{num}.png')
+#         num += 1
+#         plt.clf()
+#         # plt.figure()
+#         # plt.show()
 
-plt.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0.2, hspace=1)
-# plt.savefig(f'figure/{trial}/wifi_rssi_filtered/{repitition}/{num}.png')
-plt.savefig(f'figure/{input_file}/wifi_rssi_filtered/{num}.png')
-# plt.show()
+#     # plt.subplot(2, 1, 2)
+#     # plt.plot(timestamps, rssi_filtered, label='rssi filtered')
+#     # plt.title('rssi filtered')
+#     # plt.xlabel('Time (s)')
+#     # plt.ylabel('rssi')
+#     # plt.legend()
+#     # plt.grid(True)
 
-filtered_df.to_csv(f'{input_file}/WIFI_merged_filtered.csv', index=False)
+#     # plt.tight_layout()
+#     # plt.show()
+
+# plt.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0.2, hspace=1)
+# # plt.savefig(f'figure/{trial}/wifi_rssi_filtered/{repitition}/{num}.png')
+# plt.savefig(f'figure/{input_file}/wifi_rssi_filtered/{num}.png')
+# # plt.show()
+
+# filtered_df.to_csv(f'{input_file}/WIFI_merged_filtered.csv', index=False)

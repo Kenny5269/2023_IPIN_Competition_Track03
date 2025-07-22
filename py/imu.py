@@ -87,7 +87,7 @@ def remove_gravity(acc_data, gyro_data, timestamps, alpha=0.98):
 
 
 if __name__ == '__main__':
-    index = 'T27_R4'
+    index = 'T53_R2'
     # 讀取感測器資料
     acce_df = pd.read_csv(f'{index}/ACCE.csv')
     gyro_df = pd.read_csv(f'{index}/GYRO.csv')
@@ -130,4 +130,5 @@ if __name__ == '__main__':
     # aligned_df = aligned_df.iloc[1:].reset_index(drop=True)
 
     # 匯出同步後資料
-    aligned_df.to_csv(f'{index}/IMU_50Hz.csv', index=False)
+    print('fuck')
+    # aligned_df.to_csv(f'{index}/IMU_50Hz.csv', index=False)

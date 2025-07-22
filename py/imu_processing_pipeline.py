@@ -1,5 +1,6 @@
 
 from matplotlib import pyplot as plt
+import matplotlib.ticker as ticker
 import pandas as pd
 import numpy as np
 from scipy.signal import butter, filtfilt
@@ -307,7 +308,7 @@ def madgwick_filter_with_mag_init(df, idx, t_start, t_end, beta=0.1, freq=50):
     return df
 
 # 讀取資料
-index = 'T1_R2'
+index = 'T53_R2'
 df = pd.read_csv(f'{index}/IMU_50Hz.csv')
 
 # 低通濾波器定義
@@ -555,7 +556,7 @@ mag_z_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]
 
 
 
-# 畫圖
+# 三張圖畫一起
 plt.figure(figsize=(14, 12))
 
 # 第一張圖：加速度
@@ -594,6 +595,59 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
-# final_export_df.to_csv(f'{index}/IMU_calibrated3_temp3.csv', index=False)
+# 三張圖分開畫
+# fig1, ax1 = plt.subplots()
+# fig2, ax2 = plt.subplots()
+# fig3, ax3 = plt.subplots()
+
+# 第一張圖：加速度
+
+# ax1.plot(timestamps, acc_x_world, label='acc_x_calibrated')
+# ax1.plot(timestamps, acc_y_world, label='acc_y_calibrated')
+# ax1.plot(timestamps, acc_z_world, label='acc_z_calibrated')
+# ax1.set_title('Calibrated Accelerations', fontsize=25)
+# ax1.yaxis.set_major_locator(ticker.MultipleLocator(1))
+# ax1.set_xlabel('Time (s)', fontsize=25)
+# ax1.set_ylabel('Acceleration (m/s²)', fontsize=25)
+# ax1.tick_params(axis='both', labelsize=25)
+# ax1.legend(loc="upper left", fontsize=25)
+# ax1.grid(True)
+# fig1.set_size_inches(25.6, 14.4)
+# fig1.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
+# fig1.savefig(f'figure/T1/imu_calibrated/R1_ACCE_calibrated.png')
+
+# # 第二張圖：角速度
+
+# ax2.plot(timestamps, gyro_x_world, label='gyro_x_calibrated')
+# ax2.plot(timestamps, gyro_y_world, label='gyro_y_calibrated')
+# ax2.plot(timestamps, gyro_z_world, label='gyro_z_calibrated')
+# ax2.set_title('Calibrated Angular Velocities', fontsize=25)
+# ax2.yaxis.set_major_locator(ticker.MultipleLocator(1))
+# ax2.set_xlabel('Time (s)', fontsize=25)
+# ax2.set_ylabel('Angular Velocity (rad/s)', fontsize=25)
+# ax2.tick_params(axis='both', labelsize=25)
+# ax2.legend(loc="upper left", fontsize=25)
+# ax2.grid(True)
+# fig2.set_size_inches(25.6, 14.4)
+# fig2.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
+# fig2.savefig(f'figure/T1/imu_calibrated/R1_GYRO_calibrated.png')
+
+# # 第三張圖：磁力計
+
+# ax3.plot(timestamps, mag_x_world, label='mag_x_calibrated')
+# ax3.plot(timestamps, mag_y_world, label='mag_y_calibrated')
+# ax3.plot(timestamps, mag_z_world, label='mag_z_calibrated')
+# ax3.set_title('Calibrated Magnetometer Readings', fontsize=25)
+# ax3.yaxis.set_major_locator(ticker.MultipleLocator(20))
+# ax3.set_xlabel('Time (s)', fontsize=25)
+# ax3.set_ylabel('Magnetic Field (μT)', fontsize=25)
+# ax3.tick_params(axis='both', labelsize=25)
+# ax3.legend(loc="upper left", fontsize=25)
+# ax3.grid(True)
+# fig3.set_size_inches(25.6, 14.4)
+# fig3.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
+# fig3.savefig(f'figure/T1/imu_calibrated/R1_MAGN_calibrated.png')
+
+final_export_df.to_csv(f'{index}/IMU_calibrated3_temp.csv', index=False)
 # final_export_df.to_csv('IMU_calibrated3_temp2.csv', index=False)
 

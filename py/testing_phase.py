@@ -1187,6 +1187,8 @@ for i in range(len(imu_df_test)):
     test_aligned_data.append({
         "knn_lat" : None,
         "knn_lon" : None,
+        "knn_neighbors_distances" : None,
+        "knn_neighbors_nearest_positions" : None,
         "wifi_lat" : None,
         "wifi_lon" : None,
         "pdr_lat" : None,
@@ -1236,9 +1238,16 @@ for _, wifi_row in wifi_df_test.iterrows():
 
 # WIFI RSSI 初始定位(測試軌跡)
 repitition = 'R1234'
-neighbors = 1
+neighbors = 3
+top = 10
+with open(f'py/knn/distance/rssi_features_{repitition}_fixed_v2_neighbors{neighbors}.pkl', 'rb') as f:
+    rssi_features = pickle.load(f)
+with open(f'py/knn/distance/gt_positions_{repitition}_fixed_v2_neighbors{neighbors}.pkl', 'rb') as f:
+    gt_positions = pickle.load(f)
 with open(f'py/knn/distance/knn_model_{repitition}_fixed_v2_neighbors{neighbors}.pkl', 'rb') as f:
     wifi_model = pickle.load(f)
+# with open(f'py/knn/distance/knn_model_{repitition}_fixed_v2_neighbors1.pkl', 'rb') as f:
+#     wifi_model_n1 = pickle.load(f)
 
 # 設定原點為你的第一個定位點
 # test_aligned_data[wifi_used_indices_test[0]]["rssi_vector"]
@@ -1249,6 +1258,10 @@ print(f'init heading = {init_heading}')
 ekf = EKF_Localizer_latlon(init_latlon=(origin_lat, origin_lon), init_heading_deg=init_heading, process_noise_std=0.5, obs_noise_std=2.5)
 test_aligned_data[wifi_used_indices_test[0]]["knn_lat"] = origin_lat
 test_aligned_data[wifi_used_indices_test[0]]["knn_lon"] = origin_lon
+
+distances, indices = wifi_model.kneighbors([test_aligned_data[wifi_used_indices_test[0]]["rssi_vector"]])
+test_aligned_data[wifi_used_indices_test[0]]["knn_neighbors_distances"] = distances[0]
+test_aligned_data[wifi_used_indices_test[0]]["knn_neighbors_nearest_positions"] = gt_positions[indices[0]]
 
 # 建立 ENU 轉換器
 transformer = Transformer.from_crs("epsg:4326", f"+proj=tmerc +lat_0={origin_lat} +lon_0={origin_lon} +units=m", always_xy=True)
@@ -1270,9 +1283,22 @@ for i in range(len(wifi_used_indices_test)-1):
     imu_seq = imu_df2_test[this_wifi_index+1 : next_wifi_index]
     # temp_heading = estimate_trajectory_from_imu_all_test(test_aligned_data, this_wifi_index, next_wifi_index, imu_seq, first_heading)
     estimate_trajectory_from_imu_all_test(test_aligned_data, this_wifi_index, next_wifi_index, imu_seq, first_heading)
+    '''
+    if test_aligned_data[wifi_used_indices_test[i+1]]["timestamp"] > 268 and test_aligned_data[wifi_used_indices_test[i+1]]["timestamp"] < 300:
+        lat, lon = wifi_model_n1.predict([test_aligned_data[wifi_used_indices_test[i+1]]["rssi_vector"]])[0]
+        distances, indices = wifi_model_n1.kneighbors([test_aligned_data[wifi_used_indices_test[i+1]]["rssi_vector"]])
+    else:
+        lat, lon = wifi_model.predict([test_aligned_data[wifi_used_indices_test[i+1]]["rssi_vector"]])[0]
+        distances, indices = wifi_model.kneighbors([test_aligned_data[wifi_used_indices_test[i+1]]["rssi_vector"]])
+    '''
     lat, lon = wifi_model.predict([test_aligned_data[wifi_used_indices_test[i+1]]["rssi_vector"]])[0]
+    distances, indices = wifi_model.kneighbors([test_aligned_data[wifi_used_indices_test[i+1]]["rssi_vector"]])
     test_aligned_data[wifi_used_indices_test[i+1]]["knn_lat"] = lat
     test_aligned_data[wifi_used_indices_test[i+1]]["knn_lon"] = lon
+
+    # distances, indices = wifi_model.kneighbors([test_aligned_data[wifi_used_indices_test[i+1]]["rssi_vector"]])
+    test_aligned_data[wifi_used_indices_test[i+1]]["knn_neighbors_distances"] = distances[0]
+    test_aligned_data[wifi_used_indices_test[i+1]]["knn_neighbors_nearest_positions"] = gt_positions[indices[0]]
     # x, y = transformer.transform(lon, lat)
     # ekf.update(np.array([x, y]))
     ekf.update(np.array([lat, lon]))
@@ -1336,7 +1362,7 @@ for i in range(len(gt_used_indices_test)-1):
 # for i, d in enumerate(test_aligned_data):
 #     with open(os.path.join(TEST_OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
 #         pickle.dump(d, f)
-with open(os.path.join(TEST_OUTPUT_DIR, f"distance/temp.pkl"), "wb") as f:
+with open(os.path.join(TEST_OUTPUT_DIR, f"distance/final_neighbors{neighbors}.pkl"), "wb") as f:
     pickle.dump(test_aligned_data, f)
 
 print(f"處理完成，共輸出 {len(test_aligned_data)} 筆對齊資料到資料夾：{TEST_OUTPUT_DIR}")

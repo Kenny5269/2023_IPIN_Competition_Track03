@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import matplotlib.ticker as ticker
 import pandas as pd
 import numpy as np
 from scipy.signal import butter, filtfilt
@@ -46,47 +47,67 @@ mag_x_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= 41.1)]['mag
 mag_y_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= 41.1)]['mag_y'].values
 mag_z_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= 41.1)]['mag_z'].values
 
-parameters = {"axes.labelsize": 15, "axes.titlesize": 15, "xtick.labelsize": 15, "ytick.labelsize":15, "legend.fontsize":15}
-plt.rcParams.update(parameters)
+# parameters = {"axes.labelsize": 15, "axes.titlesize": 15, "xtick.labelsize": 15, "ytick.labelsize":15, "legend.fontsize":15}
+# plt.rcParams.update(parameters)
+
+fig, ax = plt.subplots()
 
 # 畫圖
-plt.figure(figsize=(19.2, 10.8))
+# plt.figure(figsize=(25.6, 14.4))
+# plt.rcParams['figure.figsize'] = [19, 10]
 # figsize=(14, 12)
 # 第一張圖：加速度
 # plt.subplot(3, 1, 1)
 
-plt.plot(timestamps, acc_x_world, label='acc_x_uncalibrated')
-plt.plot(timestamps, acc_y_world, label='acc_y_uncalibrated')
-plt.plot(timestamps, acc_z_world, label='acc_z_uncalibrated')
-plt.title('Calibrated Accelerations')
-plt.xlabel('Time (s)')
-plt.ylabel('Acceleration (m/s²)')
-plt.legend(loc="upper left")
-plt.grid(True)
+# ax.plot(timestamps, acc_x_world, label='acc_x_uncalibrated')
+# ax.plot(timestamps, acc_y_world, label='acc_y_uncalibrated')
+# ax.plot(timestamps, acc_z_world, label='acc_z_uncalibrated')
+# ax.set_title('Uncalibrated Accelerations', fontsize=25)
+# ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+# ax.set_xlabel('Time (s)', fontsize=25)
+# ax.set_ylabel('Acceleration (m/s²)', fontsize=25)
+# ax.tick_params(axis='both', labelsize=25)
+# ax.legend(loc="upper left", fontsize=25)
+# ax.grid(True)
+# fig.set_size_inches(25.6, 14.4)
+# fig.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
+# fig.savefig(f'figure/T1/imu_calibrated/R1_ACCE_uncalibrated.png')
 
 # 第二張圖：角速度
 # plt.subplot(3, 1, 2)
 
-# plt.plot(timestamps, gyro_x_world, label='gyro_x_uncalibrated')
-# plt.plot(timestamps, gyro_y_world, label='gyro_y_uncalibrated')
-# plt.plot(timestamps, gyro_z_world, label='gyro_z_uncalibrated')
-# plt.title('Calibrated Angular Velocities')
-# plt.xlabel('Time (s)')
-# plt.ylabel('Angular Velocity (rad/s)')
-# plt.legend(loc="upper left")
-# plt.grid(True)
+# ax.plot(timestamps, gyro_x_world, label='gyro_x_uncalibrated')
+# ax.plot(timestamps, gyro_y_world, label='gyro_y_uncalibrated')
+# ax.plot(timestamps, gyro_z_world, label='gyro_z_uncalibrated')
+# ax.set_title('Uncalibrated Angular Velocities', fontsize=25)
+# ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+# ax.set_xlabel('Time (s)', fontsize=25)
+# ax.set_ylabel('Angular Velocity (rad/s)', fontsize=25)
+# ax.tick_params(axis='both', labelsize=25)
+# ax.legend(loc="upper left", fontsize=25)
+# ax.grid(True)
+# fig.set_size_inches(25.6, 14.4)
+# fig.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
+# fig.savefig(f'figure/T1/imu_calibrated/R1_GYRO_uncalibrated.png')
 
 # 第三張圖：磁力計
 # plt.subplot(3, 1, 3)
 
-# plt.plot(timestamps, mag_x_world, label='mag_x_uncalibrated')
-# plt.plot(timestamps, mag_y_world, label='mag_y_uncalibrated')
-# plt.plot(timestamps, mag_z_world, label='mag_z_uncalibrated')
-# plt.title('Calibrated Magnetometer Readings')
-# plt.xlabel('Time (s)')
-# plt.ylabel('Magnetic Field (μT)')
-# plt.legend(loc="upper left")
-# plt.grid(True)
+ax.plot(timestamps, mag_x_world, label='mag_x_uncalibrated')
+ax.plot(timestamps, mag_y_world, label='mag_y_uncalibrated')
+ax.plot(timestamps, mag_z_world, label='mag_z_uncalibrated')
+ax.set_title('Uncalibrated Magnetometer Readings', fontsize=25)
+ax.yaxis.set_major_locator(ticker.MultipleLocator(20))
+ax.set_xlabel('Time (s)', fontsize=25)
+ax.set_ylabel('Magnetic Field (μT)', fontsize=25)
+ax.tick_params(axis='both', labelsize=25)
+ax.legend(loc="upper left", fontsize=25)
+ax.grid(True)
+fig.set_size_inches(25.6, 14.4)
+fig.subplots_adjust(left=0.07, right=0.98, bottom=0.07, top=0.95)
+fig.savefig(f'figure/T1/imu_calibrated/R1_MAGN_uncalibrated.png')
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout(rect=(0.1,0.1,1,1))
+# plt.subplots_adjust(left=0.05, right=0.98, bottom=0.05, top=0.95)
+# plt.tight_layout()
+# plt.show()

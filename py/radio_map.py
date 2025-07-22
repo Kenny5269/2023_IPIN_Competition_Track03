@@ -29,10 +29,10 @@ warnings.filterwarnings("ignore")
 total = [1,2,3,4,5,21,22,23,24,25,26,27]
 index1 = [1]
 index2 = [24,25,26,27]
-input_file = 'T27_R4'
-INPUT_WIFI_CSV = f'py/{input_file}/WIFI_merged_filtered.csv'
-INPUT_IMU_CSV = f'py/{input_file}/IMU_calibrated3_temp.csv'
-INPUT_GT_CSV = f'py/{input_file}/POSI2.csv'
+# input_file = 'T53_R2'
+# INPUT_WIFI_CSV = f'py/{input_file}/WIFI_merged_filtered_top6.csv'
+# INPUT_IMU_CSV = f'py/{input_file}/IMU_calibrated3_temp.csv'
+# INPUT_GT_CSV = f'py/{input_file}/POSI2.csv'
 
 TEMP_WIFI_CSV = []
 TEMP_IMU_CSV = []
@@ -61,9 +61,9 @@ TEST_GT_CSV = "py/TEST4/POSI2.csv"
 # TEST_IMU_CSV = f'py/{input_file}/IMU_calibrated3_temp.csv'
 # TEST_GT_CSV = f'py/{input_file}/POSI2.csv'
 
-OUTPUT_DIR = f'py/aligned_trials/{input_file}'
-TEMP_OUTPUT_DIR = f'py/aligned_trials/temp_trial'
-TEST_OUTPUT_DIR = f'py/aligned_trials/TEST4'
+# OUTPUT_DIR = f'py/aligned_trials/{input_file}'
+# TEMP_OUTPUT_DIR = f'py/aligned_trials/temp_trial'
+# TEST_OUTPUT_DIR = f'py/aligned_trials/TEST4'
 
 IMU_WINDOW_SEC = 4.0
 STEP_THRESHOLD = 0.7
@@ -72,9 +72,9 @@ DYNAMIC_STEP_SCALE = 0.9  # 動態步長係數，越大步越長
 FUSION_METHOD = "madgwick"  # IMU與地磁融合，可選: complementary, kalman, madgwick, mahony
 FUSION_STRATEGY = "avg"        # WIFI與PDR融合，可選: avg, dyn, wifi_only, pdr_only, weighted_time, average_all
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-os.makedirs(TEMP_OUTPUT_DIR, exist_ok=True)
-os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
+# os.makedirs(OUTPUT_DIR, exist_ok=True)
+# os.makedirs(TEMP_OUTPUT_DIR, exist_ok=True)
+# os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
 
 # class EKF_Localizer:
 #     def __init__(self, init_pos, init_heading, process_noise_std=0.5, obs_noise_std=2.0):
@@ -676,41 +676,41 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
     # plt.grid(True)
 
     # 畫圖
-    # plt.figure(figsize=(14, 12))
+    plt.figure(figsize=(14, 12))
 
-    # # 第一張圖：平滑加速度
-    # plt.subplot(3, 1, 1)
-    # plt.plot(acc_z_world)
-    # plt.plot(peaks, acc_z_world[peaks], "x")
-    # plt.plot(np.zeros_like(acc_z_world), "--", color="gray")
-    # plt.title('Smooth_acc and Peaks')
-    # plt.xlabel('index')
-    # plt.ylabel('Acceleration (m/s²)')
-    # # plt.legend()
-    # plt.grid(True)
-
-    # # 第二張圖：世界座標三軸加速度
-    # plt.subplot(3, 1, 2)
-    # plt.plot(acc_x_world, label='acc_x_calibrated')
-    # plt.plot(acc_y_world, label='acc_y_calibrated')
-    # plt.plot(acc_z_world, label='acc_z_calibrated')
-    # plt.title('World coordinate Accelerations')
-    # plt.xlabel('index')
-    # plt.ylabel('Acceleration (m/s²)')
+    # 第一張圖：平滑加速度
+    plt.subplot(3, 1, 1)
+    plt.plot(acc_z_world)
+    plt.plot(peaks, acc_z_world[peaks], "o")
+    plt.plot(np.zeros_like(acc_z_world), "--", color="gray")
+    plt.title('Smooth_acc and Peaks')
+    plt.xlabel('index')
+    plt.ylabel('Acceleration (m/s²)')
     # plt.legend()
-    # plt.grid(True)
+    plt.grid(True)
 
-    # # 第三張圖：角速度
-    # plt.subplot(3, 1, 3)
-    # plt.plot(gyro_z)
-    # plt.title('gyro_world')
-    # plt.xlabel('index')
-    # plt.ylabel('Angular Velocity (rad/s)')
-    # # plt.legend()
-    # plt.grid(True)
+    # 第二張圖：世界座標三軸加速度
+    plt.subplot(3, 1, 2)
+    plt.plot(acc_x_world, label='acc_x_calibrated', color="#ff750e")
+    plt.plot(acc_y_world, label='acc_y_calibrated', color="#2ca02c")
+    plt.plot(acc_z_world, label='acc_z_calibrated', color="#1f77b4")
+    plt.title('World coordinate Accelerations')
+    plt.xlabel('index')
+    plt.ylabel('Acceleration (m/s²)')
+    plt.legend()
+    plt.grid(True)
 
-    # plt.tight_layout()
-    # plt.show()
+    # 第三張圖：角速度
+    plt.subplot(3, 1, 3)
+    plt.plot(gyro_z)
+    plt.title('gyro_z_world')
+    plt.xlabel('index')
+    plt.ylabel('Angular Velocity (rad/s)')
+    # plt.legend()
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.show()
 
     # headings = imu_df['yaw_deg'].to_numpy()
     headings = imu_df['yaw_deg_ori'].to_numpy()
@@ -1062,156 +1062,173 @@ def predict_wifi_position(model, rssi):
 # 訓練軌跡
 # aligned_data_all = []
 
-aligned_data = []
+file = open('py/index_train.txt')
+index = []
+for line in file.read().splitlines():
+    index.append(line)
+file.close
+print(index)
 
-wifi_df = pd.read_csv(INPUT_WIFI_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
-# wifi_df = filter_rssi(wifi_df)
-imu_df = pd.read_csv(INPUT_IMU_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
-imu_df2 = imu_df.drop(columns=["timestamp","SensorTimestamp(s)"]).reset_index(drop=True)
-posi_df = pd.read_csv(INPUT_GT_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
-posi_df = posi_df.sort_values("timestamp").reset_index(drop=True)
+top = 10
+for name in index:
+    INPUT_WIFI_CSV = f'py/{name}/WIFI_merged_filtered.csv'
+    INPUT_IMU_CSV = f'py/{name}/IMU_calibrated3_temp.csv'
+    INPUT_GT_CSV = f'py/{name}/POSI2.csv'
 
-for i in range(len(imu_df)):
-    imu_time = imu_df.loc[i, "timestamp"]
-    # rssi_vector = wifi_df.iloc[i, 1:].to_numpy()
+    OUTPUT_DIR = f'py/aligned_trials/{name}'
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # closest_gt = posi_df.iloc[(posi_df['timestamp'] - wifi_time).abs().argmin()]
-    # gt_lat2, gt_lon2 = closest_gt["Latitude_degrees"], closest_gt["Longitude_degrees"]
+    aligned_data = []
 
-    # imu_data = imu_df.drop(columns=["timestamp","SensorTimestamp(s)"]).reset_index(drop=True)
+    wifi_df = pd.read_csv(INPUT_WIFI_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
+    # wifi_df = filter_rssi(wifi_df)
+    imu_df = pd.read_csv(INPUT_IMU_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
+    imu_df2 = imu_df.drop(columns=["timestamp","SensorTimestamp(s)"]).reset_index(drop=True)
+    posi_df = pd.read_csv(INPUT_GT_CSV).rename(columns={"AppTimestamp(s)": "timestamp"})
+    posi_df = posi_df.sort_values("timestamp").reset_index(drop=True)
 
-    aligned_data.append({
-        "init_lat" : None,
-        "init_lon" : None,
-        "pdr_lat" : None,
-        "pdr_lon" : None,
-        "fused_lat" : None,
-        "fused_lon" : None,
-        "timestamp": imu_time,
-        "rssi_vector": None,
-        "gt_lat": None,
-        "gt_lon": None,
-        "gt_lat_ori": None,
-        "gt_lon_ori": None,
-        "gt_lat_temp": None,
-        "gt_lon_temp": None
-    })
+    for i in range(len(imu_df)):
+        imu_time = imu_df.loc[i, "timestamp"]
+        # rssi_vector = wifi_df.iloc[i, 1:].to_numpy()
 
-gt_used_indices = []
-for _, gt_row in posi_df.iterrows():
-    gt_time = gt_row["timestamp"]
-    closest_idx = min(
-        (i for i in range(len(aligned_data)) if i not in gt_used_indices),
-        key=lambda i: abs(aligned_data[i]["timestamp"] - gt_time),
-        default=None
-    )
-    if closest_idx is not None:
-        aligned_data[closest_idx]["gt_lat"] = gt_row["Latitude_degrees"]
-        aligned_data[closest_idx]["gt_lon"] = gt_row["Longitude_degrees"]
-        aligned_data[closest_idx]["gt_lat_ori"] = gt_row["Latitude_degrees"]
-        aligned_data[closest_idx]["gt_lon_ori"] = gt_row["Longitude_degrees"]
-        aligned_data[closest_idx]["gt_lat_temp"] = gt_row["Latitude_degrees"]
-        aligned_data[closest_idx]["gt_lon_temp"] = gt_row["Longitude_degrees"]
-        gt_used_indices.append(closest_idx)
-        #posi_aligned_indices.append(closest_idx)
+        # closest_gt = posi_df.iloc[(posi_df['timestamp'] - wifi_time).abs().argmin()]
+        # gt_lat2, gt_lon2 = closest_gt["Latitude_degrees"], closest_gt["Longitude_degrees"]
 
-wifi_used_indices = []
-for _, wifi_row in wifi_df.iterrows():
-    wifi_time = wifi_row["timestamp"]
-    closest_idx = min(
-        (i for i in range(len(aligned_data)) if i not in wifi_used_indices),
-        key=lambda i: abs(aligned_data[i]["timestamp"] - wifi_time),
-        default=None
-    )
-    if closest_idx is not None:
-        aligned_data[closest_idx]["rssi_vector"] = wifi_row[1:].to_numpy()
-        wifi_used_indices.append(closest_idx)
+        # imu_data = imu_df.drop(columns=["timestamp","SensorTimestamp(s)"]).reset_index(drop=True)
 
-# radio map 開始
-gt_coords_origin = [(d["gt_lat_ori"], d["gt_lon_ori"]) for d in aligned_data if d["gt_lat_ori"] is not None]
-gt_lats_ori, gt_lons_ori = zip(*gt_coords_origin)
+        aligned_data.append({
+            "init_lat" : None,
+            "init_lon" : None,
+            "pdr_lat" : None,
+            "pdr_lon" : None,
+            "fused_lat" : None,
+            "fused_lon" : None,
+            "timestamp": imu_time,
+            "rssi_vector": None,
+            "gt_lat": None,
+            "gt_lon": None,
+            "gt_lat_ori": None,
+            "gt_lon_ori": None,
+            "gt_lat_temp": None,
+            "gt_lon_temp": None
+        })
 
-# if aligned_data[j]["gt_lat_ori"] is not None:
-#     gt_coords_origin.append((aligned_data[j]["gt_lat_ori"], aligned_data[j]["gt_lon_ori"]))
+    gt_used_indices = []
+    for _, gt_row in posi_df.iterrows():
+        gt_time = gt_row["timestamp"]
+        closest_idx = min(
+            (i for i in range(len(aligned_data)) if i not in gt_used_indices),
+            key=lambda i: abs(aligned_data[i]["timestamp"] - gt_time),
+            default=None
+        )
+        if closest_idx is not None:
+            aligned_data[closest_idx]["gt_lat"] = gt_row["Latitude_degrees"]
+            aligned_data[closest_idx]["gt_lon"] = gt_row["Longitude_degrees"]
+            aligned_data[closest_idx]["gt_lat_ori"] = gt_row["Latitude_degrees"]
+            aligned_data[closest_idx]["gt_lon_ori"] = gt_row["Longitude_degrees"]
+            aligned_data[closest_idx]["gt_lat_temp"] = gt_row["Latitude_degrees"]
+            aligned_data[closest_idx]["gt_lon_temp"] = gt_row["Longitude_degrees"]
+            gt_used_indices.append(closest_idx)
+            #posi_aligned_indices.append(closest_idx)
 
-for i in range(len(gt_used_indices)-1):
-    this_gt_index = gt_used_indices[i]
-    #print(this_gt_index)
-    next_gt_index = gt_used_indices[i+1]
-    #print(next_gt_index)
-    imu_seq = imu_df2[this_gt_index : next_gt_index]
-    # for j in range(this_gt_index+1, next_gt_index):
-    #     imu_seq = pd.concat([imu_seq, aligned_data[j]["imu_data"]])
-    #     print(imu_seq)
-    #     break
-    #print(len(imu_seq))
-    gt_interval = geodesic((aligned_data[this_gt_index]["gt_lat_ori"], aligned_data[this_gt_index]["gt_lon_ori"]), (aligned_data[next_gt_index]["gt_lat_ori"], aligned_data[next_gt_index]["gt_lon_ori"])).meters
-    print(gt_interval)
-    gt_heading = compute_gt_heading(aligned_data[this_gt_index]["gt_lat_ori"], aligned_data[this_gt_index]["gt_lon_ori"], aligned_data[next_gt_index]["gt_lat_ori"], aligned_data[next_gt_index]["gt_lon_ori"])
-    #gt_heading = np.arctan2(aligned_data[next_gt_index]["gt_lat_ori"] - aligned_data[this_gt_index]["gt_lat_ori"],
-    #                        aligned_data[next_gt_index]["gt_lon_ori"] - aligned_data[this_gt_index]["gt_lon_ori"])
+    wifi_used_indices = []
+    for _, wifi_row in wifi_df.iterrows():
+        wifi_time = wifi_row["timestamp"]
+        closest_idx = min(
+            (i for i in range(len(aligned_data)) if i not in wifi_used_indices),
+            key=lambda i: abs(aligned_data[i]["timestamp"] - wifi_time),
+            default=None
+        )
+        if closest_idx is not None:
+            aligned_data[closest_idx]["rssi_vector"] = wifi_row[1:].to_numpy()
+            wifi_used_indices.append(closest_idx)
 
-    if gt_interval == 0:
-        estimate_trajectory_from_imu_all_old(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)   # 原始PDR軌跡(頭尾landmark相同一個點)
-    else:
-        estimate_trajectory_from_imu_all(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)       # PDR軌跡根據真實頭尾landmark做平移+縮放
+    # radio map 開始
+    gt_coords_origin = [(d["gt_lat_ori"], d["gt_lon_ori"]) for d in aligned_data if d["gt_lat_ori"] is not None]
+    gt_lats_ori, gt_lons_ori = zip(*gt_coords_origin)
 
-    # estimate_trajectory_from_imu_all_old(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)
+    # if aligned_data[j]["gt_lat_ori"] is not None:
+    #     gt_coords_origin.append((aligned_data[j]["gt_lat_ori"], aligned_data[j]["gt_lon_ori"]))
 
-    # 畫出軌跡圖
-    total_step = 0
-    last_id = 0
-    gt_coords = []
-    wifi_coords = []
-    for j in range(this_gt_index, next_gt_index):
+    for i in range(len(gt_used_indices)-1):
+        this_gt_index = gt_used_indices[i]
+        #print(this_gt_index)
+        next_gt_index = gt_used_indices[i+1]
+        #print(next_gt_index)
+        imu_seq = imu_df2[this_gt_index : next_gt_index]
+        # for j in range(this_gt_index+1, next_gt_index):
+        #     imu_seq = pd.concat([imu_seq, aligned_data[j]["imu_data"]])
+        #     print(imu_seq)
+        #     break
+        #print(len(imu_seq))
+        gt_interval = geodesic((aligned_data[this_gt_index]["gt_lat_ori"], aligned_data[this_gt_index]["gt_lon_ori"]), (aligned_data[next_gt_index]["gt_lat_ori"], aligned_data[next_gt_index]["gt_lon_ori"])).meters
+        print(gt_interval)
+        gt_heading = compute_gt_heading(aligned_data[this_gt_index]["gt_lat_ori"], aligned_data[this_gt_index]["gt_lon_ori"], aligned_data[next_gt_index]["gt_lat_ori"], aligned_data[next_gt_index]["gt_lon_ori"])
+        #gt_heading = np.arctan2(aligned_data[next_gt_index]["gt_lat_ori"] - aligned_data[this_gt_index]["gt_lat_ori"],
+        #                        aligned_data[next_gt_index]["gt_lon_ori"] - aligned_data[this_gt_index]["gt_lon_ori"])
+
+        # if gt_interval == 0:
+        #     estimate_trajectory_from_imu_all_old(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)   # 原始PDR軌跡(頭尾landmark相同一個點)
+        # else:
+        #     estimate_trajectory_from_imu_all(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)       # PDR軌跡根據真實頭尾landmark做平移+縮放
+
+        estimate_trajectory_from_imu_all_old(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)
+        '''
+        # 畫出軌跡圖
+        total_step = 0
+        last_id = 0
+        gt_coords = []
+        wifi_coords = []
+        for j in range(this_gt_index, next_gt_index):
+            
+            if aligned_data[j]["gt_lat"] is not None:
+                if last_id != 0:
+                    total_step += 1
+                    print(f'{total_step}, {geodesic((aligned_data[j]["gt_lat"], aligned_data[j]["gt_lon"]), (aligned_data[last_id]["gt_lat"], aligned_data[last_id]["gt_lon"])).meters}')
+                gt_coords.append((aligned_data[j]["gt_lat"], aligned_data[j]["gt_lon"]))
+                last_id = j
+            if aligned_data[j]["rssi_vector"] is not None and aligned_data[j]["gt_lat_temp"] is not None:
+                wifi_coords.append((aligned_data[j]["gt_lat_temp"], aligned_data[j]["gt_lon_temp"]))
+
+        print(total_step)
+
         
-        if aligned_data[j]["gt_lat"] is not None:
-            if last_id != 0:
-                total_step += 1
-                print(f'{total_step}, {geodesic((aligned_data[j]["gt_lat"], aligned_data[j]["gt_lon"]), (aligned_data[last_id]["gt_lat"], aligned_data[last_id]["gt_lon"])).meters}')
-            gt_coords.append((aligned_data[j]["gt_lat"], aligned_data[j]["gt_lon"]))
-            last_id = j
-        if aligned_data[j]["rssi_vector"] is not None and aligned_data[j]["gt_lat_temp"] is not None:
-            wifi_coords.append((aligned_data[j]["gt_lat_temp"], aligned_data[j]["gt_lon_temp"]))
+        gt_lats, gt_lons = zip(*gt_coords)
+        
 
-    print(total_step)
+        plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o", linewidth=0)
+        plt.plot(gt_lons, gt_lats, label="PDR Trajectory", marker="o")
+        if len(wifi_coords) >= 1:
+            wifi_lats, wifi_lons = zip(*wifi_coords)
+            plt.plot(wifi_lons, wifi_lats, label="Wi-Fi Point", marker="o", linewidth=0)
 
-    
-    # gt_lats, gt_lons = zip(*gt_coords)
-    
+        plt.xlabel("Longitude")
+        plt.ylabel("Latitude")
+        plt.title("Wi-Fi Point vs PDR Trajectory vs Ground Truth")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+        '''
+    '''
+    for i in range(1, len(gt_used_indices)):
+        start_idx = gt_used_indices[i - 1]
+        end_idx = gt_used_indices[i]
+        start_lat, start_lon = aligned_data[start_idx]["gt_lat_temp"], aligned_data[start_idx]["gt_lon_temp"]
+        end_lat, end_lon = aligned_data[end_idx]["gt_lat_temp"], aligned_data[end_idx]["gt_lon_temp"]
+        steps = end_idx - start_idx
+        for j in range(1, steps):
+            ratio = j / steps
+            interp_lat = start_lat + ratio * (end_lat - start_lat)
+            interp_lon = start_lon + ratio * (end_lon - start_lon)
+            aligned_data[start_idx + j]["gt_lat_temp"] = interp_lat
+            aligned_data[start_idx + j]["gt_lon_temp"] = interp_lon
+    '''
+    # 輸出所有對齊資料為 pickle
+    # for i, d in enumerate(aligned_data):
+    #     with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
+    #         pickle.dump(d, f)
+    # with open(os.path.join(OUTPUT_DIR, f"all_data_pdr_fixed_v2_nofilter.pkl"), "wb") as f:
+    #     pickle.dump(aligned_data, f)
 
-    # plt.plot(gt_lons_ori, gt_lats_ori, label="Ground Truth origin", marker="o", linewidth=0)
-    # plt.plot(gt_lons, gt_lats, label="PDR Trajectory", marker="o")
-    # if len(wifi_coords) >= 1:
-    #     wifi_lats, wifi_lons = zip(*wifi_coords)
-    #     plt.plot(wifi_lons, wifi_lats, label="Wi-Fi Point", marker="o", linewidth=0)
-
-    # plt.xlabel("Longitude")
-    # plt.ylabel("Latitude")
-    # plt.title("Wi-Fi Point vs PDR Trajectory vs Ground Truth")
-    # plt.legend()
-    # plt.grid(True)
-    # plt.tight_layout()
-    # plt.show()
-'''
-for i in range(1, len(gt_used_indices)):
-    start_idx = gt_used_indices[i - 1]
-    end_idx = gt_used_indices[i]
-    start_lat, start_lon = aligned_data[start_idx]["gt_lat_temp"], aligned_data[start_idx]["gt_lon_temp"]
-    end_lat, end_lon = aligned_data[end_idx]["gt_lat_temp"], aligned_data[end_idx]["gt_lon_temp"]
-    steps = end_idx - start_idx
-    for j in range(1, steps):
-        ratio = j / steps
-        interp_lat = start_lat + ratio * (end_lat - start_lat)
-        interp_lon = start_lon + ratio * (end_lon - start_lon)
-        aligned_data[start_idx + j]["gt_lat_temp"] = interp_lat
-        aligned_data[start_idx + j]["gt_lon_temp"] = interp_lon
-'''
-# 輸出所有對齊資料為 pickle
-# for i, d in enumerate(aligned_data):
-#     with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
-#         pickle.dump(d, f)
-with open(os.path.join(OUTPUT_DIR, f"all_data_pdr_fixed_v2.pkl"), "wb") as f:
-    pickle.dump(aligned_data, f)
-
-print(f"處理完成，共輸出 {len(aligned_data)} 筆對齊資料到資料夾：{OUTPUT_DIR}")
+    print(f"處理完成，共輸出 {len(aligned_data)} 筆對齊資料到資料夾：{OUTPUT_DIR}")

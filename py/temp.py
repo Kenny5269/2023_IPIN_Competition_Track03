@@ -38,5 +38,8 @@ from pyproj import Transformer
 # lon, lat = transformer_back.transform(ekf_x, ekf_y)
 # print(x,y)
 
-a = [1,2,3,4,5]
-print(a[1:])
+# a = [1,2,3,4,5]
+# print(a[1:])
+for i in range(3):
+    A = {i+1}
+    print(A)

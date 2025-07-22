@@ -12,10 +12,11 @@ if __name__ == '__main__':
     file.close
     print(index)
 
+    top = 10
     for name in index:
         # 讀取檔案
         all_columns_df = pd.read_csv("all_column_csv_files/unique_wifi_rssi.csv")
-        multi_sensor_df = pd.read_csv(f'./{name}/WIFI_merged.csv')
+        multi_sensor_df = pd.read_csv(f'./{name}/WIFI_merged_top{top}.csv')
 
         # 擷取從第二列開始的前480個不重複欄位名稱
         selected_column_names = all_columns_df.iloc[0:237, 0].drop_duplicates().tolist()
@@ -62,5 +63,5 @@ if __name__ == '__main__':
         multi_sensor_df = multi_sensor_df[new_column_order]
 
         # 匯出 CSV
-        multi_sensor_df.to_csv(f'./{name}/WIFI_merged2.csv', index=False)
+        multi_sensor_df.to_csv(f'./{name}/WIFI_merged2_top{top}.csv', index=False)
         
