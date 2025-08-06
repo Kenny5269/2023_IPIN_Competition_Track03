@@ -30,9 +30,9 @@ total = [1,2,3,4,5,21,22,23,24,25,26,27]
 index1 = [1]
 index2 = [24,25,26,27]
 input_file = 'T1_R1'
-INPUT_WIFI_CSV = f'py/{input_file}/WIFI_merged_filtered.csv'
-INPUT_IMU_CSV = f'py/{input_file}/IMU_calibrated3_temp.csv'
-INPUT_GT_CSV = f'py/{input_file}/POSI2.csv'
+# INPUT_WIFI_CSV = f'{input_file}/WIFI_merged_filtered.csv'
+# INPUT_IMU_CSV = f'{input_file}/IMU_calibrated3_temp.csv'
+# INPUT_GT_CSV = f'{input_file}/POSI2.csv'
 
 TEMP_WIFI_CSV = []
 TEMP_IMU_CSV = []
@@ -53,18 +53,18 @@ TEMP_GT_CSV = []
 # TEST_IMU_CSV = "py/TEST1/IMU_calibrated2.csv"
 # TEST_GT_CSV = "py/TEST1/POSI2.csv"
 
-test_file = 'TEST1'
-TEST_WIFI_CSV = f"py/{test_file}/WIFI_merged_filtered.csv"
-TEST_IMU_CSV = f"py/{test_file}/IMU_calibrated3_temp.csv"
-TEST_GT_CSV = f"py/{test_file}/POSI2.csv"
+test_file = 'TEST4'
+TEST_WIFI_CSV = f"{test_file}/WIFI_merged2.csv"
+TEST_IMU_CSV = f"{test_file}/IMU_calibrated3_temp.csv"
+TEST_GT_CSV = f"{test_file}/POSI2.csv"
 
 # TEST_WIFI_CSV = f'py/{input_file}/WIFI_merged_filtered.csv'
 # TEST_IMU_CSV = f'py/{input_file}/IMU_calibrated3_temp.csv'
 # TEST_GT_CSV = f'py/{input_file}/POSI2.csv'
 
-OUTPUT_DIR = f'py/aligned_trials/{input_file}'
-TEMP_OUTPUT_DIR = f'py/aligned_trials/temp_trial'
-TEST_OUTPUT_DIR = f'py/aligned_trials/{test_file}'
+# OUTPUT_DIR = f'py/aligned_trials/{input_file}'
+# TEMP_OUTPUT_DIR = f'py/aligned_trials/temp_trial'
+TEST_OUTPUT_DIR = f'aligned_trials/{test_file}'
 
 IMU_WINDOW_SEC = 4.0
 STEP_THRESHOLD = 0.7
@@ -73,8 +73,8 @@ DYNAMIC_STEP_SCALE = 0.9  # 動態步長係數，越大步越長
 FUSION_METHOD = "madgwick"  # IMU與地磁融合，可選: complementary, kalman, madgwick, mahony
 FUSION_STRATEGY = "avg"        # WIFI與PDR融合，可選: avg, dyn, wifi_only, pdr_only, weighted_time, average_all
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-os.makedirs(TEMP_OUTPUT_DIR, exist_ok=True)
+# os.makedirs(OUTPUT_DIR, exist_ok=True)
+# os.makedirs(TEMP_OUTPUT_DIR, exist_ok=True)
 os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
 
 # class EKF_Localizer:
@@ -1238,15 +1238,15 @@ for _, wifi_row in wifi_df_test.iterrows():
 
 # WIFI RSSI 初始定位(測試軌跡)
 repitition = 'R1234'
-neighbors = 3
+neighbors = 5
 top = 10
-with open(f'py/knn/distance/rssi_features_{repitition}_fixed_v2_neighbors{neighbors}.pkl', 'rb') as f:
+with open(f'knn/distance/rssi_features_{repitition}_fixed_v2_neighbors{neighbors}_nofilter.pkl', 'rb') as f:
     rssi_features = pickle.load(f)
-with open(f'py/knn/distance/gt_positions_{repitition}_fixed_v2_neighbors{neighbors}.pkl', 'rb') as f:
+with open(f'knn/distance/gt_positions_{repitition}_fixed_v2_neighbors{neighbors}_nofilter.pkl', 'rb') as f:
     gt_positions = pickle.load(f)
-with open(f'py/knn/distance/knn_model_{repitition}_fixed_v2_neighbors{neighbors}.pkl', 'rb') as f:
+with open(f'knn/distance/knn_model_{repitition}_fixed_v2_neighbors{neighbors}_nofilter.pkl', 'rb') as f:
     wifi_model = pickle.load(f)
-# with open(f'py/knn/distance/knn_model_{repitition}_fixed_v2_neighbors1.pkl', 'rb') as f:
+# with open(f'knn/distance/knn_model_{repitition}_fixed_v2_neighbors1.pkl', 'rb') as f:
 #     wifi_model_n1 = pickle.load(f)
 
 # 設定原點為你的第一個定位點
@@ -1362,7 +1362,7 @@ for i in range(len(gt_used_indices_test)-1):
 # for i, d in enumerate(test_aligned_data):
 #     with open(os.path.join(TEST_OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
 #         pickle.dump(d, f)
-with open(os.path.join(TEST_OUTPUT_DIR, f"distance/final_neighbors{neighbors}.pkl"), "wb") as f:
+with open(os.path.join(TEST_OUTPUT_DIR, f"distance/final_neighbors{neighbors}_nofilter.pkl"), "wb") as f:
     pickle.dump(test_aligned_data, f)
 
 print(f"處理完成，共輸出 {len(test_aligned_data)} 筆對齊資料到資料夾：{TEST_OUTPUT_DIR}")

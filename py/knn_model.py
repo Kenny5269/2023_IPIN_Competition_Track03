@@ -67,7 +67,7 @@ if __name__ == '__main__':
     gt_positions = []
     num = 0
     repitition = 'R1234'
-    neighbors = 3
+    neighbors = 5
     top = 10
 
     for trial_name in read_file_R1234:
@@ -82,14 +82,14 @@ if __name__ == '__main__':
         #         with open(os.path.join(trial_path, fname), "rb") as f:
         #             trial_data.append(pickle.load(f))
 
-        with open(os.path.join(trial_path, f'all_data_pdr_fixed_v2.pkl'), "rb") as f:
+        with open(os.path.join(trial_path, f'all_data_pdr_fixed_v2_nofilter_140dbm.pkl'), "rb") as f:
             trial_data = pickle.load(f)
         # trial_dict[trial_name] = trial_data
 
         for d in trial_data:
             if d["rssi_vector"] is not None and d["gt_lat_temp"] is not None:
-                rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
-                rssi_features.append(rssi)
+                # rssi = np.nan_to_num(d["rssi_vector"], nan=-100.0)
+                rssi_features.append(d["rssi_vector"])
                 gt_positions.append([d["gt_lat_temp"], d["gt_lon_temp"]])
 
     rssi_features = np.array(rssi_features)
@@ -98,13 +98,13 @@ if __name__ == '__main__':
     model = KNeighborsRegressor(n_neighbors = neighbors, weights='distance')
     model.fit(rssi_features, gt_positions)
     
-    with open(f'knn/distance/rssi_features_{repitition}_fixed_v2_neighbors{neighbors}.pkl','wb') as f:
+    with open(f'knn/distance/rssi_features_{repitition}_fixed_v2_neighbors{neighbors}_nofilter_140dbm.pkl','wb') as f:
         pickle.dump(rssi_features,f)
 
-    with open(f'knn/distance/gt_positions_{repitition}_fixed_v2_neighbors{neighbors}.pkl','wb') as f:
+    with open(f'knn/distance/gt_positions_{repitition}_fixed_v2_neighbors{neighbors}_nofilter_140dbm.pkl','wb') as f:
         pickle.dump(gt_positions,f)
 
-    with open(f'knn/distance/knn_model_{repitition}_fixed_v2_neighbors{neighbors}.pkl','wb') as f:
+    with open(f'knn/distance/knn_model_{repitition}_fixed_v2_neighbors{neighbors}_nofilter_140dbm.pkl','wb') as f:
         pickle.dump(model,f)
     
     print(num)

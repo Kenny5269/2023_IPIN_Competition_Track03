@@ -675,42 +675,42 @@ def estimate_trajectory_from_imu_all_old(aligned_data, this_idx, end_idx, imu_df
     # # plt.legend()
     # plt.grid(True)
 
-    # 畫圖
-    plt.figure(figsize=(14, 12))
+    # # 畫圖
+    # plt.figure(figsize=(14, 12))
 
-    # 第一張圖：平滑加速度
-    plt.subplot(3, 1, 1)
-    plt.plot(acc_z_world)
-    plt.plot(peaks, acc_z_world[peaks], "o")
-    plt.plot(np.zeros_like(acc_z_world), "--", color="gray")
-    plt.title('Smooth_acc and Peaks')
-    plt.xlabel('index')
-    plt.ylabel('Acceleration (m/s²)')
+    # # 第一張圖：平滑加速度
+    # plt.subplot(3, 1, 1)
+    # plt.plot(acc_z_world)
+    # plt.plot(peaks, acc_z_world[peaks], "o")
+    # plt.plot(np.zeros_like(acc_z_world), "--", color="gray")
+    # plt.title('Smooth_acc and Peaks')
+    # plt.xlabel('index')
+    # plt.ylabel('Acceleration (m/s²)')
+    # # plt.legend()
+    # plt.grid(True)
+
+    # # 第二張圖：世界座標三軸加速度
+    # plt.subplot(3, 1, 2)
+    # plt.plot(acc_x_world, label='acc_x_calibrated', color="#ff750e")
+    # plt.plot(acc_y_world, label='acc_y_calibrated', color="#2ca02c")
+    # plt.plot(acc_z_world, label='acc_z_calibrated', color="#1f77b4")
+    # plt.title('World coordinate Accelerations')
+    # plt.xlabel('index')
+    # plt.ylabel('Acceleration (m/s²)')
     # plt.legend()
-    plt.grid(True)
+    # plt.grid(True)
 
-    # 第二張圖：世界座標三軸加速度
-    plt.subplot(3, 1, 2)
-    plt.plot(acc_x_world, label='acc_x_calibrated', color="#ff750e")
-    plt.plot(acc_y_world, label='acc_y_calibrated', color="#2ca02c")
-    plt.plot(acc_z_world, label='acc_z_calibrated', color="#1f77b4")
-    plt.title('World coordinate Accelerations')
-    plt.xlabel('index')
-    plt.ylabel('Acceleration (m/s²)')
-    plt.legend()
-    plt.grid(True)
+    # # 第三張圖：角速度
+    # plt.subplot(3, 1, 3)
+    # plt.plot(gyro_z)
+    # plt.title('gyro_z_world')
+    # plt.xlabel('index')
+    # plt.ylabel('Angular Velocity (rad/s)')
+    # # plt.legend()
+    # plt.grid(True)
 
-    # 第三張圖：角速度
-    plt.subplot(3, 1, 3)
-    plt.plot(gyro_z)
-    plt.title('gyro_z_world')
-    plt.xlabel('index')
-    plt.ylabel('Angular Velocity (rad/s)')
-    # plt.legend()
-    plt.grid(True)
-
-    plt.tight_layout()
-    plt.show()
+    # plt.tight_layout()
+    # plt.show()
 
     # headings = imu_df['yaw_deg'].to_numpy()
     headings = imu_df['yaw_deg_ori'].to_numpy()
@@ -1062,7 +1062,7 @@ def predict_wifi_position(model, rssi):
 # 訓練軌跡
 # aligned_data_all = []
 
-file = open('py/index_train.txt')
+file = open('index_train.txt')
 index = []
 for line in file.read().splitlines():
     index.append(line)
@@ -1071,11 +1071,11 @@ print(index)
 
 top = 10
 for name in index:
-    INPUT_WIFI_CSV = f'py/{name}/WIFI_merged_filtered.csv'
-    INPUT_IMU_CSV = f'py/{name}/IMU_calibrated3_temp.csv'
-    INPUT_GT_CSV = f'py/{name}/POSI2.csv'
+    INPUT_WIFI_CSV = f'{name}/WIFI_merged2_140dbm.csv'
+    INPUT_IMU_CSV = f'{name}/IMU_calibrated3_temp.csv'
+    INPUT_GT_CSV = f'{name}/POSI2.csv'
 
-    OUTPUT_DIR = f'py/aligned_trials/{name}'
+    OUTPUT_DIR = f'aligned_trials/{name}'
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     aligned_data = []
@@ -1167,12 +1167,12 @@ for name in index:
         #gt_heading = np.arctan2(aligned_data[next_gt_index]["gt_lat_ori"] - aligned_data[this_gt_index]["gt_lat_ori"],
         #                        aligned_data[next_gt_index]["gt_lon_ori"] - aligned_data[this_gt_index]["gt_lon_ori"])
 
-        # if gt_interval == 0:
-        #     estimate_trajectory_from_imu_all_old(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)   # 原始PDR軌跡(頭尾landmark相同一個點)
-        # else:
-        #     estimate_trajectory_from_imu_all(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)       # PDR軌跡根據真實頭尾landmark做平移+縮放
+        if gt_interval == 0:
+            estimate_trajectory_from_imu_all_old(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)   # 原始PDR軌跡(頭尾landmark相同一個點)
+        else:
+            estimate_trajectory_from_imu_all(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)       # PDR軌跡根據真實頭尾landmark做平移+縮放
 
-        estimate_trajectory_from_imu_all_old(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)
+        # estimate_trajectory_from_imu_all_old(aligned_data, this_gt_index, next_gt_index, imu_seq, gt_heading)
         '''
         # 畫出軌跡圖
         total_step = 0
@@ -1228,7 +1228,7 @@ for name in index:
     # for i, d in enumerate(aligned_data):
     #     with open(os.path.join(OUTPUT_DIR, f"sample_{i:04d}.pkl"), "wb") as f:
     #         pickle.dump(d, f)
-    # with open(os.path.join(OUTPUT_DIR, f"all_data_pdr_fixed_v2_nofilter.pkl"), "wb") as f:
-    #     pickle.dump(aligned_data, f)
+    with open(os.path.join(OUTPUT_DIR, f"all_data_pdr_fixed_v2_nofilter_140dbm.pkl"), "wb") as f:
+        pickle.dump(aligned_data, f)
 
     print(f"處理完成，共輸出 {len(aligned_data)} 筆對齊資料到資料夾：{OUTPUT_DIR}")

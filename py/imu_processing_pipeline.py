@@ -555,8 +555,8 @@ mag_y_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]
 mag_z_world = final_export_df[(final_export_df['AppTimestamp(s)'] >= start_acc)]['mag_z'].values
 
 
-
-# 三張圖畫一起
+'''
+# 三張圖畫一起(有label)
 plt.figure(figsize=(14, 12))
 
 # 第一張圖：加速度
@@ -564,6 +564,46 @@ plt.subplot(3, 1, 1)
 plt.plot(timestamps, acc_x_world, label='acc_x_calibrated')
 plt.plot(timestamps, acc_y_world, label='acc_y_calibrated')
 plt.plot(timestamps, acc_z_world, label='acc_z_calibrated')
+plt.title('Calibrated Accelerations')
+plt.xlabel('Time (s)')
+plt.ylabel('Acceleration (m/s²)')
+plt.legend(loc="upper right")
+plt.grid(True)
+
+# 第二張圖：角速度
+plt.subplot(3, 1, 2)
+plt.plot(timestamps, gyro_x_world, label='gyro_x_calibrated')
+plt.plot(timestamps, gyro_y_world, label='gyro_y_calibrated')
+plt.plot(timestamps, gyro_z_world, label='gyro_z_calibrated')
+plt.title('Calibrated Angular Velocities')
+plt.xlabel('Time (s)')
+plt.ylabel('Angular Velocity (rad/s)')
+plt.legend(loc="upper right")
+plt.grid(True)
+
+# 第三張圖：磁力計
+plt.subplot(3, 1, 3)
+plt.plot(timestamps, mag_x_world, label='mag_x_calibrated')
+plt.plot(timestamps, mag_y_world, label='mag_y_calibrated')
+plt.plot(timestamps, mag_z_world, label='mag_z_calibrated')
+plt.title('Calibrated Magnetometer Readings')
+plt.xlabel('Time (s)')
+plt.ylabel('Magnetic Field (μT)')
+plt.legend(loc="upper right")
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+'''
+
+# 三張圖畫一起(沒有label)
+plt.figure(figsize=(14, 12))
+
+# 第一張圖：加速度
+plt.subplot(3, 1, 1)
+plt.plot(timestamps, acc_x_world)
+plt.plot(timestamps, acc_y_world)
+plt.plot(timestamps, acc_z_world)
 plt.title('Calibrated Accelerations')
 plt.xlabel('Time (s)')
 plt.ylabel('Acceleration (m/s²)')
@@ -648,6 +688,6 @@ plt.show()
 # fig3.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
 # fig3.savefig(f'figure/T1/imu_calibrated/R1_MAGN_calibrated.png')
 
-final_export_df.to_csv(f'{index}/IMU_calibrated3_temp.csv', index=False)
+# final_export_df.to_csv(f'{index}/IMU_calibrated3_temp.csv', index=False)
 # final_export_df.to_csv('IMU_calibrated3_temp2.csv', index=False)
 
