@@ -155,10 +155,10 @@ def plot_figure_train_test_pdr(aligned_data_train_all, aligned_data_train, align
     gt_lats_train_all, gt_lons_train_all = latlon_to_xy(gt_lats_train_all, gt_lons_train_all, ref_lat, ref_lon)
     #---------------------------------------------------------------------------------------------------------------
     fig, ax = plt.subplots()
-    pdr_size = 5.
+    pdr_size = 10.
     gt_radio_size = 10.
     gt_test_size = 15.
-
+    
     ax.plot(gt_lats_train_1, gt_lons_train_1, marker="o", markersize=pdr_size)
     ax.plot(gt_lats_train_2, gt_lons_train_2, marker="o", markersize=pdr_size)
     ax.plot(gt_lats_train_3, gt_lons_train_3, marker="o", markersize=pdr_size)
@@ -174,7 +174,7 @@ def plot_figure_train_test_pdr(aligned_data_train_all, aligned_data_train, align
     ax.plot(gt_lats_train_13, gt_lons_train_13, marker="o", markersize=pdr_size)
     ax.plot(gt_lats_train_14, gt_lons_train_14, marker="o", markersize=pdr_size)
     ax.plot(gt_lats_train_15, gt_lons_train_15, marker="o", markersize=pdr_size)
-
+    
     # ax.plot(gt_lats_train_16, gt_lons_train_16, label="PDR Trajectory (Radio map)", marker="o", markersize=pdr_size, color='#ff7f0e')
     # ax.plot(gt_lats_train_17, gt_lons_train_17, marker="o", color='#ff7f0e')
     # ax.plot(gt_lats_train_18, gt_lons_train_18, marker="o", color='#ff7f0e')
@@ -205,7 +205,7 @@ def plot_figure_train_test_pdr(aligned_data_train_all, aligned_data_train, align
     ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
     ax.set_xlim(min(gt_lats_train_all)-5, max(gt_lats_train_all)+5)
     ax.set_ylim(min(gt_lons_train_all)-5, max(gt_lons_train_all)+5)
-    ax.set_title('All 15 training trails in the training area after being completed by PDR', fontsize=40)
+    # ax.set_title('All 15 training trails in the training area after being completed by PDR', fontsize=40)
     ax.set_xlabel('X (m)', fontsize=50)
     ax.set_ylabel('Y (m)', fontsize=50)
     ax.tick_params(axis='both', labelsize=50)
@@ -215,7 +215,7 @@ def plot_figure_train_test_pdr(aligned_data_train_all, aligned_data_train, align
     fig.subplots_adjust(left=0.12, right=0.98, bottom=0.12, top=0.94)
     # fig.savefig(f'figure/{trial}/trajectory/{repitition}.png')
     # fig.savefig('figure/TEST1/GT_Train_Test1_PDR_ALL.png')
-    fig.savefig('figure/tanet/GT_Train_PDR_ALL.png')
+    fig.savefig('figure/tanet_fixed/GT_Train_PDR_ALL.png')
     # plt.show()
 
 def plot_figure_train_test_wifipoint(aligned_data_train_all, aligned_data_train, aligned_data_test):
@@ -352,11 +352,11 @@ def plot_figure_train_test_wifipoint(aligned_data_train_all, aligned_data_train,
     wifi_lats_train_all, wifi_lons_train_all = latlon_to_xy(wifi_lats_train_all, wifi_lons_train_all, ref_lat, ref_lon)
     #---------------------------------------------------------------------------------------------------------------
     fig, ax = plt.subplots()
-    wifi_size = 10.
+    wifi_size = 15.
     gt_radio_size = 15.
-    gt_test_size = 15.
+    gt_test_size = 10.
 
-    ax.plot(wifi_lats_train_1, wifi_lons_train_1, label="Wi-Fi Point (Training Phase)", marker="X", markersize=wifi_size, linewidth=0, color='#ff7f0e')
+    ax.plot(wifi_lats_train_1, wifi_lons_train_1, label="Wi-Fi Sample Point (Training Phase)", marker="X", markersize=wifi_size, linewidth=0, color='#ff7f0e')
     ax.plot(wifi_lats_train_2, wifi_lons_train_2, marker="X", markersize=wifi_size, linewidth=0, color='#ff7f0e')
     ax.plot(wifi_lats_train_3, wifi_lons_train_3, marker="X", markersize=wifi_size, linewidth=0, color='#ff7f0e')
     ax.plot(wifi_lats_train_4, wifi_lons_train_4, marker="X", markersize=wifi_size, linewidth=0, color='#ff7f0e')
@@ -398,22 +398,22 @@ def plot_figure_train_test_wifipoint(aligned_data_train_all, aligned_data_train,
     
     ax.plot(gt_lats_test, gt_lons_test, label="Ground Truth (Test Phase)", marker="o", markersize=gt_test_size, color='blue', linewidth=0)
 
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(10))
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(5))
     ax.set_xlim(min(wifi_lats_train_all)-5, max(wifi_lats_train_all)+5)
     ax.set_ylim(min(wifi_lons_train_all)-5, max(wifi_lons_train_all)+5)
-    ax.set_xlabel('X (m)', fontsize=50)
-    ax.set_ylabel('Y (m)', fontsize=50)
-    ax.tick_params(axis='both', labelsize=50)
+    ax.set_xlabel('X (m)', fontsize=25)
+    ax.set_ylabel('Y (m)', fontsize=25)
+    ax.tick_params(axis='both', labelsize=25)
     ax.grid(True)
-    ax.legend(loc="lower right", fontsize=50)
+    ax.legend(loc="upper left", fontsize=25)
     fig.set_size_inches(25.6, 14.4)
     # fig.tight_layout()
-    fig.subplots_adjust(left=0.12, right=0.98, bottom=0.12, top=0.95)
+    fig.subplots_adjust(left=0.07, right=0.98, bottom=0.07, top=0.95)
     # fig.savefig(f'figure/{trial}/trajectory/{repitition}.png')
     # fig.savefig('figure/TEST1/GT_Train_RadioMap.png')
-    # fig.savefig('figure/tanet/GT_Train_RadioMap.png')
-    fig.savefig('figure/tanet/GT_Test1_wifipoint.png')
+    # fig.savefig('figure/GT_Train_RadioMap.png')
+    fig.savefig('figure/GT_Test1_wifipoint.png')
     # plt.show()
 
 def plot_figure_train(aligned_data_train, aligned_data_test):
@@ -484,32 +484,32 @@ def plot_figure_train(aligned_data_train, aligned_data_test):
 
     
     ax.plot(gt_lats, gt_lons, label="PDR Trajectory", marker="o", markersize=10., color='#ff7f0e')
-    ax.plot(wifi_lats, wifi_lons, label="Wi-Fi Point", marker="o", markersize=15., color='#d62728', linewidth=0)
+    ax.plot(wifi_lats, wifi_lons, label="Wi-Fi Sample Point", marker="o", markersize=15., color='#d62728', linewidth=0)
     ax.plot(gt_lats_ori, gt_lons_ori, label="Ground Truth", marker="o", markersize=15., color='blue', linewidth=0)
 
-    # # 加上編號（GT點）
-    # for i, (x, y) in enumerate(zip(gt_lats_ori, gt_lons_ori)):
-    #     if i < (len(gt_lats_ori)/2):
-    #         ax.text(x, y + 0.5, f'{i+1},{len(gt_lats_ori)-i}', fontsize=25, ha='center', va='bottom', color='blue')
-    # # 加上編號（Pred點）
-    # for i, (x, y) in enumerate(zip(wifi_lats, wifi_lons)):
-    #     ax.text(x, y - 0.5, f'{i+1}', fontsize=25, ha='center', va='top', color='#d62728')
+    # 加上編號（GT點）
+    for i, (x, y) in enumerate(zip(gt_lats_ori, gt_lons_ori)):
+        if i < (len(gt_lats_ori)/2):
+            ax.text(x, y + 0.5, f'{i+1},{len(gt_lats_ori)-i}', fontsize=25, ha='center', va='bottom', color='blue')
+    # 加上編號（Pred點）
+    for i, (x, y) in enumerate(zip(wifi_lats, wifi_lons)):
+        ax.text(x, y - 0.5, f'{i+1}', fontsize=25, ha='center', va='top', color='#d62728')
 
     # ax.set_aspect('equal')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(interval))
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_xlim(min(gt_lats)-offset, max(gt_lats)+offset)
-    ax.set_ylim(min(gt_lons)-offset, max(gt_lons)+offset)
-    ax.set_xlabel('X (m)', fontsize=50)
-    ax.set_ylabel('Y (m)', fontsize=50)
-    ax.tick_params(axis='both', labelsize=50)
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(interval))
+    ax.set_xlim(min(gt_lats)-2, max(gt_lats)+2)
+    ax.set_ylim(min(gt_lons)-2, max(gt_lons)+2)
+    ax.set_xlabel('X (m)', fontsize=25)
+    ax.set_ylabel('Y (m)', fontsize=25)
+    ax.tick_params(axis='both', labelsize=25)
     ax.grid(True)
-    ax.legend(loc="upper left", fontsize=50)
+    ax.legend(loc="upper left", fontsize=25)
     fig.set_size_inches(width, height)
-    fig.subplots_adjust(left=0.12, right=0.98, bottom=0.12, top=0.95)
+    fig.subplots_adjust(left=0.07, right=0.98, bottom=0.1, top=0.95)
     # fig.savefig(f'figure/{trial}/trajectory/{repitition}.png')
     # fig.savefig('figure/T1/trajectory/R1_V2.png')
-    fig.savefig('figure/tanet/T1_R1_trajectory.png')
+    fig.savefig('figure/T1_R1_trajectory.png')
     # plt.show()
 
 def plot_figure_test(test_data_all, test_data_temp, id, re):
@@ -772,49 +772,49 @@ def plot_figure_test(test_data_all, test_data_temp, id, re):
     offset = 5
     width = 25.6
     height = 14.4
-    ax1.plot(gt_lats, gt_lons, label="Ground Truth", marker="o", linewidth=0, color='b')
-    ax1.plot(knn_lats_all, knn_lons_all, label="KNN Trajectory", color='#ff7f0e')
+    ax1.plot(gt_lats, gt_lons, label="Ground Truth", marker="o", markersize=10., linewidth=0, color='b')
+    ax1.plot(knn_lats_all, knn_lons_all, linewidth = 2, label="KNN Trajectory", color='#ff7f0e')
     ax1.plot([0,0], [0,0], label="Error", color='b')
     # 加上編號（GT點）
     for i, (x, y) in enumerate(zip(gt_lats, gt_lons)):
-        ax1.plot([gt_lats[i], knn_lats[i]], [gt_lons[i], knn_lons[i]], color='b')
+        ax1.plot([gt_lats[i], knn_lats[i]], [gt_lons[i], knn_lons[i]], linewidth = 2, color='b')
         # FOR TEST1 and TEST2
         if id == 'TEST1' or id == 'TEST2':
             if i == 12 or i == 15 or i == 18 or i == 21:
-                ax1.text(x, y + 0.5, f'{i},{i+2}', fontsize=35, ha='center', va='bottom', color='blue')
+                ax1.text(x, y + 0.5, f'{i},{i+2}', fontsize=25, ha='center', va='bottom', color='blue')
                 continue
             elif i == 14 or i == 17 or i == 20 or i == 23:
                 continue
-            ax1.text(x, y + 0.5, str(i), fontsize=35, ha='center', va='bottom', color='blue')
+            ax1.text(x, y + 0.5, str(i), fontsize=25, ha='center', va='bottom', color='blue')
         # FOR TEST3 and TEST4   
         elif id == 'TEST3' or id == 'TEST4':
             if i == 4 or i == 7 or i == 10 or i == 13:
-                ax1.text(x, y + 0.5, f'{i},{i+2}', fontsize=35, ha='center', va='bottom', color='blue')
+                ax1.text(x, y + 0.5, f'{i},{i+2}', fontsize=25, ha='center', va='bottom', color='blue')
                 continue
             elif i == 6 or i == 9 or i == 12 or i == 15:
                 continue
-            ax1.text(x, y + 0.5, str(i), fontsize=35, ha='center', va='bottom', color='blue')
+            ax1.text(x, y + 0.5, str(i), fontsize=25, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     # for i, (x, y) in enumerate(zip(knn_lats, knn_lons)):
     #     ax1.text(x, y - 0.5, f'{i+1}', fontsize=9, ha='center', va='top', color='red')
-    ax1.set_title('2D position estimation vs GT', fontsize=50)
+    ax1.set_title('2D position estimation vs GT', fontsize=25)
     ax1.set_aspect('equal')
-    ax1.xaxis.set_major_locator(ticker.MultipleLocator(10))
+    ax1.xaxis.set_major_locator(ticker.MultipleLocator(5))
     ax1.yaxis.set_major_locator(ticker.MultipleLocator(interval))
     ax1.set_xlim(min(gt_lats)-offset, max(gt_lats)+offset)
     ax1.set_ylim(min(gt_lons)-offset, max(gt_lons)+offset)
-    ax1.set_xlabel('X (m)', fontsize=50)
-    ax1.set_ylabel('Y (m)', fontsize=50)
-    ax1.tick_params(axis='both', labelsize=50)
+    ax1.set_xlabel('X (m)', fontsize=25)
+    ax1.set_ylabel('Y (m)', fontsize=25)
+    ax1.tick_params(axis='both', labelsize=25)
     ax1.grid(True)
-    ax1.legend(loc="lower right", fontsize=50)
+    ax1.legend(loc="upper left", fontsize=25)
     fig1.set_size_inches(width, height)
-    # fig1.subplots_adjust(left=0.06, right=0.98, bottom=0.07, top=0.95)
-    fig1.subplots_adjust(left=0.12, right=0.98, bottom=0.12, top=0.95)
+    fig1.subplots_adjust(left=0.06, right=0.98, bottom=0.07, top=0.95)
+    # fig1.subplots_adjust(left=0.12, right=0.98, bottom=0.12, top=0.95)
     # fig1.savefig(f'figure/TEST_ALL/GT_KNN_{id}.png')
     # fig1.savefig(f'figure/{id}/trajectory/{R}/GT_KNN.png')
     # fig1.savefig(f'figure/{id}/trajectory/{R}/GT_KNN.png')
-    fig1.savefig(f'figure/tanet/GT_KNN_{id}.png')
+    fig1.savefig(f'figure/GT_KNN_{id}.png')
 
     ax2.plot(gt_lats, gt_lons, label="Ground Truth", marker="o", linewidth=0, color='b')
     ax2.plot(wifi_lats_all, wifi_lons_all, label="EKF Wi-Fi Trajectory", color='#ff7f0e')
@@ -856,88 +856,90 @@ def plot_figure_test(test_data_all, test_data_temp, id, re):
     fig2.subplots_adjust(left=0.06, right=0.98, bottom=0.07, top=0.95)
     # fig2.savefig(f'figure/{id}/trajectory/{R}/GT_EKF_WIFI.png')
 
-    ax3.plot(gt_lats, gt_lons, label="Ground Truth", marker="o", linewidth=0, color='b')
-    ax3.plot(fused_lats_all, fused_lons_all, label="EKF Fused Trajectory", color='#ff7f0e')
+    ax3.plot(gt_lats, gt_lons, label="Ground Truth", marker="o", markersize=10., linewidth=0, color='b')
+    ax3.plot(fused_lats_all, fused_lons_all, linewidth = 2, label="EKF Fused Trajectory", color='#ff7f0e')
     ax3.plot([0,0], [0,0], label="Error", color='b')
     # ax3.plot(wifi_lats_all, wifi_lons_all, label="EKF Wi-Fi", marker="o", linewidth=0)
     # 加上編號（GT點）
     for i, (x, y) in enumerate(zip(gt_lats, gt_lons)):
-        ax3.plot([gt_lats[i], fused_lats[i]], [gt_lons[i], fused_lons[i]], color='b')
+        ax3.plot([gt_lats[i], fused_lats[i]], [gt_lons[i], fused_lons[i]], linewidth = 2, color='b')
         # FOR TEST1 and TEST2
         if id == 'TEST1' or id == 'TEST2':
             if i == 12 or i == 15 or i == 18 or i == 21:
-                ax3.text(x, y + 0.5, f'{i},{i+2}', fontsize=35, ha='center', va='bottom', color='blue')
+                ax3.text(x, y + 0.5, f'{i},{i+2}', fontsize=25, ha='center', va='bottom', color='blue')
                 continue
             elif i == 14 or i == 17 or i == 20 or i == 23:
                 continue
-            ax3.text(x, y + 0.5, str(i), fontsize=35, ha='center', va='bottom', color='blue')
+            ax3.text(x, y + 0.5, str(i), fontsize=25, ha='center', va='bottom', color='blue')
         # FOR TEST3 and TEST4
         elif id == 'TEST3' or id == 'TEST4':
             if i == 4 or i == 7 or i == 10 or i == 13:
-                ax3.text(x, y + 0.5, f'{i},{i+2}', fontsize=35, ha='center', va='bottom', color='blue')
+                ax3.text(x, y + 0.5, f'{i},{i+2}', fontsize=25, ha='center', va='bottom', color='blue')
                 continue
             elif i == 6 or i == 9 or i == 12 or i == 15:
                 continue
-            ax3.text(x, y + 0.5, str(i), fontsize=35, ha='center', va='bottom', color='blue')
+            ax3.text(x, y + 0.5, str(i), fontsize=25, ha='center', va='bottom', color='blue')
     # 加上編號（Pred點）
     # for i, (x, y) in enumerate(zip(wifi_lats_all, wifi_lons_all)):
     #     ax3.text(x, y - 0.5, f'{i+1}', fontsize=9, ha='center', va='top', color='red')
-    ax3.set_title('2D position estimation vs GT', fontsize=50)
+    ax3.set_title('2D position estimation vs GT', fontsize=25)
     ax3.set_aspect('equal')
-    ax3.xaxis.set_major_locator(ticker.MultipleLocator(10))
+    ax3.xaxis.set_major_locator(ticker.MultipleLocator(5))
     ax3.yaxis.set_major_locator(ticker.MultipleLocator(interval))
     ax3.set_xlim(min(gt_lats)-offset, max(gt_lats)+offset)
     ax3.set_ylim(min(gt_lons)-offset, max(gt_lons)+offset)
-    ax3.set_xlabel('X (m)', fontsize=50)
-    ax3.set_ylabel('Y (m)', fontsize=50)
-    ax3.tick_params(axis='both', labelsize=50)
+    ax3.set_xlabel('X (m)', fontsize=25)
+    ax3.set_ylabel('Y (m)', fontsize=25)
+    ax3.tick_params(axis='both', labelsize=25)
     ax3.grid(True)
-    ax3.legend(loc="lower right", fontsize=50)
+    ax3.legend(loc="upper left", fontsize=25)
     fig3.set_size_inches(width, height)
-    # fig3.subplots_adjust(left=0.06, right=0.98, bottom=0.07, top=0.95)
-    fig3.subplots_adjust(left=0.12, right=0.98, bottom=0.12, top=0.95)
+    fig3.subplots_adjust(left=0.06, right=0.98, bottom=0.07, top=0.95)
+    # fig3.subplots_adjust(left=0.12, right=0.98, bottom=0.12, top=0.95)
     # fig3.savefig(f'figure/TEST_ALL/GT_EKF_FUSED_{id}.png')
     # fig3.savefig(f'figure/{id}/trajectory/{R}/GT_EKF_FUSED.png')
     # fig3.savefig(f'figure/{id}/trajectory/{R}/GT_EKF_FUSED.png')
-    fig3.savefig(f'figure/tanet/GT_EKF_FUSED_{id}.png')
+    fig3.savefig(f'figure/GT_EKF_FUSED_{id}.png')
     # plt.show()
 
     # 誤差折線圖 fig4, fig5
-    ax4.plot(range(len(dists_knn)), dists_knn, marker='o', linestyle='-')
-    ax4.set_title('Position Error (KNN)', fontsize=50)
-    ax4.yaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax4.set_xlabel('sample number', fontsize=50)
-    ax4.set_ylabel('Error (m)', fontsize=50)
-    ax4.tick_params(axis='both', labelsize=50)
+    ax4.plot(range(len(dists_knn)), dists_knn, marker='o', markersize=10., linewidth=2, linestyle='-', label='Position Error (KNN)')
+    ax4.set_title('Position Error (KNN)', fontsize=25)
+    ax4.yaxis.set_major_locator(ticker.MultipleLocator(2))
+    ax4.set_xlabel('sample number', fontsize=25)
+    ax4.set_ylabel('Error (m)', fontsize=25)
+    ax4.tick_params(axis='both', labelsize=25)
     # ax4.set_ylim(0, max(dists_knn)+5)
     ax4.set_ylim(0, 30)
     ax4.grid(True)
+    # ax4.legend(loc="upper left", fontsize=25)
     # ax4.legend()
     fig4.set_size_inches(width, height)
-    # fig4.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
-    fig4.subplots_adjust(left=0.08, right=0.98, bottom=0.12, top=0.94)
+    fig4.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
+    # fig4.subplots_adjust(left=0.08, right=0.98, bottom=0.12, top=0.94)
     # fig4.savefig(f'figure/TEST_ALL/All_Error_KNN.png')
     # fig4.savefig(f'figure/{id}/trajectory/{R}/All_Error_KNN.png')
     # fig4.savefig(f'figure/{id}/All_Position_Error/{R}/GT_KNN.png')
-    fig4.savefig(f'figure/tanet/All_Error_KNN.png')
+    # fig4.savefig(f'figure/All_Error_KNN.png')
 
-    ax5.plot(range(len(dists_ekf_fused)), dists_ekf_fused, marker='o', linestyle='-')
-    ax5.set_title('Position Error (EKF)', fontsize=50)
-    ax5.yaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax5.set_xlabel('sample number', fontsize=50)
-    ax5.set_ylabel('Error (m)', fontsize=50)
-    ax5.tick_params(axis='both', labelsize=50)
+    ax5.plot(range(len(dists_ekf_fused)), dists_ekf_fused, marker='o', markersize=10., linewidth=2, linestyle='-', label='Position Error (EKF)')
+    ax5.set_title('Position Error (EKF)', fontsize=25)
+    ax5.yaxis.set_major_locator(ticker.MultipleLocator(2))
+    ax5.set_xlabel('sample number', fontsize=25)
+    ax5.set_ylabel('Error (m)', fontsize=25)
+    ax5.tick_params(axis='both', labelsize=25)
     # ax5.set_ylim(0, max(dists_ekf_fused)+5)
     ax5.set_ylim(0, 30)
     ax5.grid(True)
+    # ax5.legend(loc="upper left", fontsize=25)
     # ax5.legend()
     fig5.set_size_inches(width, height)
-    # fig5.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
-    fig5.subplots_adjust(left=0.08, right=0.98, bottom=0.12, top=0.94)
+    fig5.subplots_adjust(left=0.05, right=0.98, bottom=0.07, top=0.95)
+    # fig5.subplots_adjust(left=0.08, right=0.98, bottom=0.12, top=0.94)
     # fig5.savefig(f'figure/TEST_ALL/All_Error_EKF.png')
     # fig5.savefig(f'figure/{id}/trajectory/{R}/All_Error_EKF.png')
     # fig5.savefig(f'figure/{id}/All_Position_Error/{R}/GT_EKF_FUSED.png')
-    fig5.savefig(f'figure/tanet/All_Error_EKF.png')
+    # fig5.savefig(f'figure/All_Error_EKF.png')
 
     # CDF圖 (累積分布函數)
     percentile_to_mark = 75
@@ -945,7 +947,7 @@ def plot_figure_test(test_data_all, test_data_temp, id, re):
     sorted_errors_knn = np.sort(dists_knn)
     cdf_knn = np.arange(1, len(sorted_errors_knn) + 1) / len(sorted_errors_knn)
     perc_value_knn = np.percentile(dists_knn, percentile_to_mark)
-    ax6.plot(sorted_errors_knn, cdf_knn * 100, marker='o', linestyle='-', label='CDF')
+    ax6.plot(sorted_errors_knn, cdf_knn * 100, marker='o', markersize=7., linestyle='-', label='CDF')
     ax6.axhline(percentile_to_mark, color='red', linestyle='--', label=f'P{percentile_to_mark}')
     ax6.plot([perc_value_knn, perc_value_knn], [0, percentile_to_mark], color='red') 
     # ax6.axvline(perc_value_knn, color='red')
@@ -970,11 +972,12 @@ def plot_figure_test(test_data_all, test_data_temp, id, re):
     # fig6.savefig(f'figure/TEST_ALL/CDF_KNN.png')
     # fig6.savefig(f'figure/{id}/trajectory/{R}/CDF_KNN.png')
     # fig6.savefig(f'figure/{id}/CDF/{R}/GT_KNN.png')
+    # fig6.savefig(f'figure/CDF_KNN.png')
 
     sorted_errors_ekf = np.sort(dists_ekf_fused)
     cdf_ekf = np.arange(1, len(sorted_errors_ekf) + 1) / len(sorted_errors_ekf)
     perc_value_ekf = np.percentile(dists_ekf_fused, percentile_to_mark)
-    ax7.plot(sorted_errors_ekf, cdf_ekf * 100, marker='o', linestyle='-', label='CDF')
+    ax7.plot(sorted_errors_ekf, cdf_ekf * 100, marker='o', markersize=7., linestyle='-', label='CDF')
     ax7.axhline(percentile_to_mark, color='red', linestyle='--', label=f'P{percentile_to_mark}')
     ax7.plot([perc_value_ekf, perc_value_ekf], [0, percentile_to_mark], color='red')
     # ax7.axvline(perc_value_ekf, color='red')
@@ -999,6 +1002,7 @@ def plot_figure_test(test_data_all, test_data_temp, id, re):
     # fig7.savefig(f'figure/TEST_ALL/CDF_EKF.png')
     # fig7.savefig(f'figure/{id}/trajectory/{R}/CDF_EKF.png')
     # fig7.savefig(f'figure/{id}/CDF/{R}/GT_EKF_FUSED.png')
+    # fig7.savefig(f'figure/CDF_EKF.png')
     # plt.show()
 
     # 每個測試點的knn樣本選定點
